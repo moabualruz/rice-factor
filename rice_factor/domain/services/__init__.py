@@ -4,6 +4,12 @@ This module provides services that coordinate domain operations.
 """
 
 from rice_factor.domain.services.artifact_service import ArtifactService
+from rice_factor.domain.services.diff_service import (
+    Diff,
+    DiffResult,
+    DiffService,
+    DiffStatus,
+)
 from rice_factor.domain.services.init_service import InitService
 from rice_factor.domain.services.phase_service import (
     COMMAND_PHASES,
@@ -17,16 +23,26 @@ from rice_factor.domain.services.questionnaire import (
     QuestionnaireResponse,
     QuestionnaireRunner,
 )
+from rice_factor.domain.services.scaffold_service import (
+    ScaffoldResult,
+    ScaffoldService,
+)
 
 __all__ = [
     "COMMAND_PHASES",
     "INIT_QUESTIONS",
     "PHASE_DESCRIPTIONS",
     "ArtifactService",
+    "Diff",
+    "DiffResult",
+    "DiffService",
+    "DiffStatus",
     "InitService",
     "Phase",
     "PhaseService",
     "Question",
     "QuestionnaireResponse",
     "QuestionnaireRunner",
+    "ScaffoldResult",
+    "ScaffoldService",
 ]

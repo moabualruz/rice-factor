@@ -70,23 +70,27 @@ def main(
 from rice_factor.entrypoints.cli.commands import (
     apply,
     approve,
+    diagnose,
     impl,
     init,
     lock,
     plan,
     refactor,
     resume,
+    review,
     scaffold,
     test,
     validate,
 )
 
 app.add_typer(init.app, name="init")
-app.command(name="plan")(plan.plan)
+app.add_typer(plan.app, name="plan")
 app.command(name="scaffold")(scaffold.scaffold)
 app.command(name="impl")(impl.impl)
+app.command(name="review")(review.review)
 app.command(name="apply")(apply.apply)
 app.command(name="test")(test.test)
+app.command(name="diagnose")(diagnose.diagnose)
 app.command(name="approve")(approve.approve)
 app.command(name="lock")(lock.lock)
 app.command(name="refactor")(refactor.refactor)

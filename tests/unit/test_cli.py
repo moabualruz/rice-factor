@@ -25,7 +25,7 @@ def test_plan_help() -> None:
     """Plan command should have help."""
     result = runner.invoke(app, ["plan", "--help"])
     assert result.exit_code == 0
-    assert "Generate a planning artifact" in result.stdout
+    assert "Generate planning artifacts" in result.stdout
 
 
 def test_init_help() -> None:
