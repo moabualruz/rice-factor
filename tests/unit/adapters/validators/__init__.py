@@ -1,0 +1,1 @@
+"""Validator adapter unit tests."""

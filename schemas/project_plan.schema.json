@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/project_plan.schema.json",
+  "title": "ProjectPlanPayload",
+  "description": "Defines what the system is, not how it's built",
+  "type": "object",
+  "required": ["domains", "modules", "constraints"],
+  "properties": {
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "responsibility"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Domain name"
+          },
+          "responsibility": {
+            "type": "string",
+            "description": "What this domain is responsible for"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "List of domains in the project"
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "domain"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Module name"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain this module belongs to"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "List of modules in the project"
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["architecture", "languages"],
+      "properties": {
+        "architecture": {
+          "type": "string",
+          "enum": ["clean", "hexagonal", "ddd", "custom"],
+          "description": "Architecture pattern"
+        },
+        "languages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Programming languages used"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Project constraints"
+    }
+  },
+  "additionalProperties": false
+}

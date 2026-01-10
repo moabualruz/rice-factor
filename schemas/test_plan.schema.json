@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/test_plan.schema.json",
+  "title": "TestPlanPayload",
+  "description": "Defines correctness. Tests are law, not suggestions. When locked, TestPlan is immutable.",
+  "type": "object",
+  "required": ["tests"],
+  "properties": {
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "target", "assertions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this test"
+          },
+          "target": {
+            "type": "string",
+            "description": "What is being tested"
+          },
+          "assertions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "description": "Assertions that must pass"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Test definitions"
+    }
+  },
+  "additionalProperties": false
+}

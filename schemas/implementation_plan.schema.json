@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/implementation_plan.schema.json",
+  "title": "ImplementationPlanPayload",
+  "description": "Keeps implementation small, scoped, and reviewable",
+  "type": "object",
+  "required": ["target", "steps", "related_tests"],
+  "properties": {
+    "target": {
+      "type": "string",
+      "description": "Target file to implement"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "Implementation steps"
+    },
+    "related_tests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Test IDs that validate this implementation"
+    }
+  },
+  "additionalProperties": false
+}

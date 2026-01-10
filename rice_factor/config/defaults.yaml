@@ -1,0 +1,24 @@
+# Rice-Factor Default Configuration
+# Override these values via environment variables (RICE_*) or config files
+
+llm:
+  provider: "claude"           # claude | openai | local
+  model: "claude-3-5-sonnet"   # Model identifier
+  max_tokens: 4096             # Max tokens per request
+  temperature: 0.0             # Temperature for generation
+
+execution:
+  dry_run: false               # Preview changes without applying
+  auto_approve: false          # Skip approval prompts
+  max_retries: 3               # Max retries on failure
+  timeout_seconds: 300         # Timeout per operation
+
+output:
+  color: true                  # Enable colored output
+  verbose: false               # Verbose logging
+  log_level: "INFO"            # DEBUG | INFO | WARNING | ERROR
+
+paths:
+  artifacts_dir: ".project/artifacts"
+  audit_dir: ".project/audit"
+  staging_dir: ".project/staging"

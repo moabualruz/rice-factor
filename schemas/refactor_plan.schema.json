@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/refactor_plan.schema.json",
+  "title": "RefactorPlanPayload",
+  "description": "Structural change without behavioral change",
+  "type": "object",
+  "required": ["goal", "operations"],
+  "properties": {
+    "goal": {
+      "type": "string",
+      "description": "Goal of this refactoring"
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "move_file",
+              "rename_symbol",
+              "extract_interface",
+              "enforce_dependency"
+            ],
+            "description": "Type of refactoring operation"
+          },
+          "from": {
+            "type": "string",
+            "description": "Source path (for move_file)"
+          },
+          "to": {
+            "type": "string",
+            "description": "Destination path (for move_file)"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Symbol name (for rename_symbol, extract_interface)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Refactoring operations"
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "preserve_behavior": {
+          "type": "boolean",
+          "description": "Whether behavior must be preserved"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Refactoring constraints"
+    }
+  },
+  "additionalProperties": false
+}

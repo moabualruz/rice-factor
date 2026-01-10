@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/validation_result.schema.json",
+  "title": "ValidationResultPayload",
+  "description": "Records validation outcomes",
+  "type": "object",
+  "required": ["target", "status"],
+  "properties": {
+    "target": {
+      "type": "string",
+      "description": "What was validated"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "failed"],
+      "description": "Validation outcome"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Error messages if validation failed"
+    }
+  },
+  "additionalProperties": false
+}

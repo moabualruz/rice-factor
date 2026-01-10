@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/architecture_plan.schema.json",
+  "title": "ArchitecturePlanPayload",
+  "description": "Defines dependency laws that must never be violated",
+  "type": "object",
+  "required": ["layers", "rules"],
+  "properties": {
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "Architectural layers"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule"],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "enum": [
+              "domain_cannot_import_infrastructure",
+              "application_depends_on_domain",
+              "infrastructure_depends_on_application"
+            ],
+            "description": "Dependency rule to enforce"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Dependency rules between layers"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,139 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rice-factor"
+version = "0.1.0"
+description = "LLM-Assisted Development System"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Rice-Factor Team" }
+]
+keywords = ["cli", "artifacts", "development", "llm", "compiler"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "typer>=0.9.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "dynaconf>=3.2.0",
+    "pyyaml>=6.0.0",
+    "jsonschema>=4.20.0",
+]
+
+[project.optional-dependencies]
+anthropic = [
+    "anthropic>=0.18.0",
+]
+openai = [
+    "openai>=1.12.0",
+]
+all-llm = [
+    "anthropic>=0.18.0",
+    "openai>=1.12.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+    "pre-commit>=3.6.0",
+    "types-pyyaml>=6.0.0",
+]
+
+[project.scripts]
+rice-factor = "rice_factor.entrypoints.cli.main:app"
+
+[project.urls]
+Homepage = "https://github.com/rice-factor/rice-factor"
+Documentation = "https://github.com/rice-factor/rice-factor#readme"
+Repository = "https://github.com/rice-factor/rice-factor"
+Issues = "https://github.com/rice-factor/rice-factor/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rice_factor"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "silent"
+ignore_missing_imports = false
+
+[[tool.mypy.overrides]]
+module = [
+    "dynaconf.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "PTH",    # flake8-use-pathlib
+    "RUF",    # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "E402",   # module level import not at top (needed for CLI app registration)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rice_factor"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["rice_factor"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
