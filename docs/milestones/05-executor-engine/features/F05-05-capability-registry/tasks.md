@@ -1,6 +1,6 @@
 # Feature: F05-05 Capability Registry
 
-## Status: Pending
+## Status: Complete
 
 ## Description
 
@@ -18,115 +18,115 @@ Implement the Capability Registry that tracks which refactoring operations are s
 ## Tasks
 
 ### Default Capability Registry Configuration
-- [ ] Create `rice_factor/config/capability_registry.yaml`
-  - [ ] Define python language capabilities
-    - [ ] move_file: true
-    - [ ] rename_symbol: true
-    - [ ] extract_interface: false
-    - [ ] enforce_dependency: false
-  - [ ] Define rust language capabilities
-    - [ ] move_file: true
-    - [ ] rename_symbol: true
-    - [ ] extract_interface: false
-    - [ ] enforce_dependency: partial
-  - [ ] Define go language capabilities
-    - [ ] move_file: true
-    - [ ] rename_symbol: true
-    - [ ] extract_interface: false
-    - [ ] enforce_dependency: false
-  - [ ] Define javascript language capabilities
-    - [ ] move_file: true
-    - [ ] rename_symbol: true
-    - [ ] extract_interface: false
-    - [ ] enforce_dependency: false
-  - [ ] Define typescript language capabilities
-    - [ ] move_file: true
-    - [ ] rename_symbol: true
-    - [ ] extract_interface: false
-    - [ ] enforce_dependency: false
+- [x] Create `rice_factor/config/capability_registry.yaml`
+  - [x] Define python language capabilities
+    - [x] move_file: true
+    - [x] rename_symbol: true
+    - [x] extract_interface: false
+    - [x] enforce_dependency: false
+  - [x] Define rust language capabilities
+    - [x] move_file: true
+    - [x] rename_symbol: true
+    - [x] extract_interface: false
+    - [x] enforce_dependency: partial
+  - [x] Define go language capabilities
+    - [x] move_file: true
+    - [x] rename_symbol: true
+    - [x] extract_interface: false
+    - [x] enforce_dependency: false
+  - [x] Define javascript language capabilities
+    - [x] move_file: true
+    - [x] rename_symbol: true
+    - [x] extract_interface: false
+    - [x] enforce_dependency: false
+  - [x] Define typescript language capabilities
+    - [x] move_file: true
+    - [x] rename_symbol: true
+    - [x] extract_interface: false
+    - [x] enforce_dependency: false
 
 ### Capability Registry Class
-- [ ] Create `rice_factor/adapters/executors/capability_registry.py`
-  - [ ] Define `CapabilityRegistry` class
-  - [ ] Implement `__init__(project_root: Path | None = None)`
-    - [ ] Load bundled default registry
-    - [ ] Check for project override
-    - [ ] Merge configurations
-  - [ ] Implement `check_capability(operation: str, language: str) -> bool`
-    - [ ] Look up operation in language config
-    - [ ] Return True only if explicitly true
-    - [ ] Handle "partial" as False for strict checking
-  - [ ] Implement `get_supported_operations(language: str) -> list[str]`
-    - [ ] Return list of operations with true value
-  - [ ] Implement `get_supported_languages() -> list[str]`
-    - [ ] Return list of all configured languages
-  - [ ] Implement `is_language_supported(language: str) -> bool`
-    - [ ] Check if language exists in registry
+- [x] Create `rice_factor/adapters/executors/capability_registry.py`
+  - [x] Define `CapabilityRegistry` class
+  - [x] Implement `__init__(project_root: Path | None = None)`
+    - [x] Load bundled default registry
+    - [x] Check for project override
+    - [x] Merge configurations
+  - [x] Implement `check_capability(operation: str, language: str) -> bool`
+    - [x] Look up operation in language config
+    - [x] Return True only if explicitly true
+    - [x] Handle "partial" as False for strict checking
+  - [x] Implement `get_supported_operations(language: str) -> list[str]`
+    - [x] Return list of operations with true value
+  - [x] Implement `get_supported_languages() -> list[str]`
+    - [x] Return list of all configured languages
+  - [x] Implement `is_language_supported(language: str) -> bool`
+    - [x] Check if language exists in registry
 
 ### Registry Loading
-- [ ] Implement `_load_bundled_registry() -> dict`
-  - [ ] Use `importlib.resources` to load from package
-  - [ ] Parse YAML safely
-- [ ] Implement `_load_project_registry(project_root: Path) -> dict | None`
-  - [ ] Check for `tools/registry/capability_registry.yaml`
-  - [ ] Return None if not found
-  - [ ] Parse YAML safely
-- [ ] Implement `_merge_registries(base: dict, override: dict) -> dict`
-  - [ ] Deep merge language configurations
-  - [ ] Override takes precedence
+- [x] Implement `_load_bundled_registry() -> dict`
+  - [x] Use `importlib.resources` to load from package
+  - [x] Parse YAML safely
+- [x] Implement `_load_project_registry(project_root: Path) -> dict | None`
+  - [x] Check for `tools/registry/capability_registry.yaml`
+  - [x] Return None if not found
+  - [x] Parse YAML safely
+- [x] Implement `_merge_registries(base: dict, override: dict) -> dict`
+  - [x] Deep merge language configurations
+  - [x] Override takes precedence
 
 ### Capability Check Convenience Functions
-- [ ] Implement `check_all_capabilities(operations: list[RefactorOperation], language: str) -> list[str]`
-  - [ ] Check each operation
-  - [ ] Return list of unsupported operations
-- [ ] Implement `get_capability_status(operation: str, language: str) -> str`
-  - [ ] Return "supported", "unsupported", or "partial"
+- [x] Implement `check_all_capabilities(operations: list[RefactorOperation], language: str) -> list[str]`
+  - [x] Check each operation
+  - [x] Return list of unsupported operations
+- [x] Implement `get_capability_status(operation: str, language: str) -> str`
+  - [x] Return "supported", "unsupported", or "partial"
 
 ### Registry Schema Validation
-- [ ] Implement `_validate_registry_schema(data: dict) -> bool`
-  - [ ] Check for "languages" key
-  - [ ] Check each language has "operations" key
-  - [ ] Check operations are valid types (bool or "partial")
+- [x] Implement `_validate_registry_schema(data: dict) -> bool`
+  - [x] Check for "languages" key
+  - [x] Check each language has "operations" key
+  - [x] Check operations are valid types (bool or "partial")
 
 ### Adapter Exports
-- [ ] Update `rice_factor/adapters/executors/__init__.py`
-  - [ ] Export `CapabilityRegistry`
+- [x] Update `rice_factor/adapters/executors/__init__.py`
+  - [x] Export `CapabilityRegistry`
 
 ### Unit Tests
-- [ ] Create `tests/unit/adapters/executors/test_capability_registry.py`
-  - [ ] Test loads bundled default configuration
-  - [ ] Test check_capability returns True for supported
-  - [ ] Test check_capability returns False for unsupported
-  - [ ] Test check_capability returns False for partial (strict mode)
-  - [ ] Test project override merges correctly
-  - [ ] Test project override takes precedence
-  - [ ] Test unknown language returns False
-  - [ ] Test unknown operation returns False
-  - [ ] Test get_supported_operations returns correct list
-  - [ ] Test get_supported_languages returns all languages
-  - [ ] Test is_language_supported works correctly
-  - [ ] Test check_all_capabilities returns unsupported list
-  - [ ] Test invalid registry schema is rejected
+- [x] Create `tests/unit/adapters/executors/test_capability_registry.py`
+  - [x] Test loads bundled default configuration
+  - [x] Test check_capability returns True for supported
+  - [x] Test check_capability returns False for unsupported
+  - [x] Test check_capability returns False for partial (strict mode)
+  - [x] Test project override merges correctly
+  - [x] Test project override takes precedence
+  - [x] Test unknown language returns False
+  - [x] Test unknown operation returns False
+  - [x] Test get_supported_operations returns correct list
+  - [x] Test get_supported_languages returns all languages
+  - [x] Test is_language_supported works correctly
+  - [x] Test check_all_capabilities returns unsupported list
+  - [x] Test invalid registry schema is rejected
 
 ### Integration Tests
-- [ ] Create `tests/integration/adapters/executors/test_capability_registry_loading.py`
-  - [ ] Test loads from bundled file
-  - [ ] Test loads from project override file (using tmp_path)
-  - [ ] Test merge behavior with real files
+- [x] Create `tests/integration/adapters/executors/test_capability_registry_loading.py`
+  - [x] Test loads from bundled file
+  - [x] Test loads from project override file (using tmp_path)
+  - [x] Test merge behavior with real files
 
 ## Acceptance Criteria
 
-- [ ] Default capability registry bundled with package
-- [ ] Registry loads automatically on initialization
-- [ ] Project override from `tools/registry/capability_registry.yaml` works
-- [ ] `check_capability()` returns correct boolean
-- [ ] Unknown languages/operations return False
-- [ ] Partial support treated as False in strict mode
-- [ ] Registry merge works correctly (override wins)
-- [ ] All configured languages have correct capabilities
-- [ ] All tests pass
-- [ ] mypy passes
-- [ ] ruff passes
+- [x] Default capability registry bundled with package
+- [x] Registry loads automatically on initialization
+- [x] Project override from `tools/registry/capability_registry.yaml` works
+- [x] `check_capability()` returns correct boolean
+- [x] Unknown languages/operations return False
+- [x] Partial support treated as False in strict mode
+- [x] Registry merge works correctly (override wins)
+- [x] All configured languages have correct capabilities
+- [x] All tests pass
+- [x] mypy passes
+- [x] ruff passes
 
 ## Files to Create/Modify
 
@@ -148,3 +148,4 @@ Implement the Capability Registry that tracks which refactoring operations are s
 | Date | Update |
 |------|--------|
 | 2026-01-10 | Task file created |
+| 2026-01-10 | Feature completed - all tasks implemented |

@@ -1,6 +1,6 @@
 # Feature: F05-04 Refactor Executor
 
-## Status: Pending
+## Status: Complete
 
 ## Description
 
@@ -22,115 +22,115 @@ Implement the Refactor Executor adapter that performs mechanical refactoring ope
 ## Tasks
 
 ### Refactor Executor Adapter
-- [ ] Create `rice_factor/adapters/executors/refactor_executor.py`
-  - [ ] Define `RefactorExecutor` class implementing `ExecutorPort`
-  - [ ] Implement `__init__(storage: StoragePort, capability_registry: CapabilityRegistry)`
-  - [ ] Implement `execute(artifact_path, repo_root, mode) -> ExecutionResult`
+- [x] Create `rice_factor/adapters/executors/refactor_executor_adapter.py`
+  - [x] Define `RefactorExecutorAdapter` class implementing `ExecutorPort`
+  - [x] Implement `__init__(storage: StoragePort, capability_registry: CapabilityRegistry)`
+  - [x] Implement `execute(artifact_path, repo_root, mode) -> ExecutionResult`
 
 ### 9-Step Pipeline Implementation
-- [ ] Implement Step 1: Load artifact
-  - [ ] Load RefactorPlan from artifact_path
-  - [ ] Raise `ArtifactTypeError` if wrong type
-- [ ] Implement Step 2: Validate schema
-  - [ ] Use validator to check schema
-  - [ ] Raise `ArtifactSchemaError` on failure
-- [ ] Implement Step 3: Verify approval & lock status
-  - [ ] Check artifact.status == APPROVED
-  - [ ] Check approvals.json contains artifact_id
-  - [ ] Raise `ArtifactNotApprovedError` if not approved
-- [ ] Implement Step 4: Capability check
-  - [ ] Detect language from repo/files
-  - [ ] For each operation, check capability registry
-  - [ ] Raise `UnsupportedOperationError` if not supported
-- [ ] Implement Step 5: Precondition checks
-  - [ ] For move_file: check source exists, dest doesn't exist
-  - [ ] For rename_symbol: check file exists
-  - [ ] Raise appropriate errors on failure
-- [ ] Implement Step 6: Generate diff
-  - [ ] Plan operations (don't execute yet)
-  - [ ] Generate unified diff from planned changes
-  - [ ] Save diff to audit/diffs/
-- [ ] Implement Step 7: Apply (if APPLY mode)
-  - [ ] Apply diff using git apply
-  - [ ] OR directly execute operations
-- [ ] Implement Step 8: Emit audit logs
-  - [ ] Call AuditLogger with execution details
-- [ ] Implement Step 9: Return result
-  - [ ] Build ExecutionResult with status, diffs, errors, logs
+- [x] Implement Step 1: Load artifact
+  - [x] Load RefactorPlan from artifact_path
+  - [x] Raise `ArtifactTypeError` if wrong type
+- [x] Implement Step 2: Validate schema
+  - [x] Use validator to check schema
+  - [x] Raise `ArtifactSchemaError` on failure
+- [x] Implement Step 3: Verify approval & lock status
+  - [x] Check artifact.status == APPROVED
+  - [x] Check approvals.json contains artifact_id
+  - [x] Raise `ArtifactNotApprovedError` if not approved
+- [x] Implement Step 4: Capability check
+  - [x] Detect language from repo/files
+  - [x] For each operation, check capability registry
+  - [x] Raise `UnsupportedOperationError` if not supported
+- [x] Implement Step 5: Precondition checks
+  - [x] For move_file: check source exists, dest doesn't exist
+  - [x] For rename_symbol: check file exists
+  - [x] Raise appropriate errors on failure
+- [x] Implement Step 6: Generate diff
+  - [x] Plan operations (don't execute yet)
+  - [x] Generate unified diff from planned changes
+  - [x] Save diff to audit/diffs/
+- [x] Implement Step 7: Apply (if APPLY mode)
+  - [x] Apply diff using git apply
+  - [x] OR directly execute operations
+- [x] Implement Step 8: Emit audit logs
+  - [x] Call AuditLogger with execution details
+- [x] Implement Step 9: Return result
+  - [x] Build ExecutionResult with status, diffs, errors, logs
 
 ### Move File Operation
-- [ ] Implement `_execute_move_file(op: RefactorOperation, repo_root: Path) -> str`
-  - [ ] Validate source exists
-  - [ ] Validate destination doesn't exist
-  - [ ] Generate diff showing file move
-  - [ ] Actually move file (in APPLY mode)
+- [x] Implement `_execute_move_file(op: RefactorOperation, repo_root: Path) -> str`
+  - [x] Validate source exists
+  - [x] Validate destination doesn't exist
+  - [x] Generate diff showing file move
+  - [x] Actually move file (in APPLY mode)
 
 ### Rename Symbol Operation
-- [ ] Implement `_execute_rename_symbol(op: RefactorOperation, repo_root: Path) -> str`
-  - [ ] Find all occurrences of symbol in file(s)
-  - [ ] Generate diff with replacements
-  - [ ] Simple textual replace (not AST-aware for MVP)
+- [x] Implement `_execute_rename_symbol(op: RefactorOperation, repo_root: Path) -> str`
+  - [x] Find all occurrences of symbol in file(s)
+  - [x] Generate diff with replacements
+  - [x] Simple textual replace (not AST-aware for MVP)
 
 ### Language Detection
-- [ ] Implement `_detect_language(repo_root: Path) -> str`
-  - [ ] Check for pyproject.toml, Cargo.toml, go.mod, package.json
-  - [ ] Fallback to file extension analysis
-  - [ ] Return language string matching capability registry keys
+- [x] Implement `_detect_language(repo_root: Path) -> str`
+  - [x] Check for pyproject.toml, Cargo.toml, go.mod, package.json
+  - [x] Fallback to file extension analysis
+  - [x] Return language string matching capability registry keys
 
 ### Diff Generation from Operations
-- [ ] Implement `_generate_diff_from_operations(operations: list, repo_root: Path) -> str`
-  - [ ] Combine diffs from all operations
-  - [ ] Create unified diff format
+- [x] Implement `_generate_diff_from_operations(operations: list, repo_root: Path) -> str`
+  - [x] Combine diffs from all operations
+  - [x] Create unified diff format
 
 ### Integration with Existing RefactorExecutor Service
-- [ ] Wrap existing `RefactorExecutor` service (domain/services/refactor_executor.py)
-  - [ ] Use `preview()` for diff generation
-  - [ ] Use `execute()` for actual execution
+- [x] Wrap existing `RefactorExecutor` service (domain/services/refactor_executor.py)
+  - [x] Use `preview()` for diff generation
+  - [x] Use `execute()` for actual execution
 
 ### Adapter Exports
-- [ ] Update `rice_factor/adapters/executors/__init__.py`
-  - [ ] Export `RefactorExecutorAdapter` (renamed to avoid collision)
+- [x] Update `rice_factor/adapters/executors/__init__.py`
+  - [x] Export `RefactorExecutorAdapter` (renamed to avoid collision)
 
 ### Unit Tests
-- [ ] Create `tests/unit/adapters/executors/test_refactor_executor.py`
-  - [ ] Test executor implements ExecutorPort protocol
-  - [ ] Test DRY_RUN mode generates diff without moving files
-  - [ ] Test APPLY mode moves files
-  - [ ] Test rejects unapproved artifact
-  - [ ] Test rejects wrong artifact type
-  - [ ] Test rejects unsupported operation
-  - [ ] Test move_file checks source exists
-  - [ ] Test move_file checks dest doesn't exist
-  - [ ] Test rename_symbol performs textual replace
-  - [ ] Test language detection
-  - [ ] Test capability registry integration
-  - [ ] Test generates audit log entry
+- [x] Create `tests/unit/adapters/executors/test_refactor_executor_adapter.py`
+  - [x] Test executor implements ExecutorPort protocol
+  - [x] Test DRY_RUN mode generates diff without moving files
+  - [x] Test APPLY mode moves files
+  - [x] Test rejects unapproved artifact
+  - [x] Test rejects wrong artifact type
+  - [x] Test rejects unsupported operation
+  - [x] Test move_file checks source exists
+  - [x] Test move_file checks dest doesn't exist
+  - [x] Test rename_symbol performs textual replace
+  - [x] Test language detection
+  - [x] Test capability registry integration
+  - [x] Test generates audit log entry
 
 ## Acceptance Criteria
 
-- [ ] RefactorExecutor implements ExecutorPort protocol
-- [ ] Full 9-step pipeline implemented
-- [ ] DRY_RUN mode generates diff without modifying files
-- [ ] APPLY mode executes refactor operations
-- [ ] move_file operation supported
-- [ ] rename_symbol operation supported (simple textual)
-- [ ] Capability registry is checked before execution
-- [ ] Unsupported operations are rejected with clear error
-- [ ] Source file existence verified
-- [ ] Destination non-existence verified
-- [ ] Language detection works for major languages
-- [ ] Audit log entry is created
-- [ ] All tests pass
-- [ ] mypy passes
-- [ ] ruff passes
+- [x] RefactorExecutor implements ExecutorPort protocol
+- [x] Full 9-step pipeline implemented
+- [x] DRY_RUN mode generates diff without modifying files
+- [x] APPLY mode executes refactor operations
+- [x] move_file operation supported
+- [x] rename_symbol operation supported (simple textual)
+- [x] Capability registry is checked before execution
+- [x] Unsupported operations are rejected with clear error
+- [x] Source file existence verified
+- [x] Destination non-existence verified
+- [x] Language detection works for major languages
+- [x] Audit log entry is created
+- [x] All tests pass
+- [x] mypy passes
+- [x] ruff passes
 
 ## Files to Create/Modify
 
 | File | Action | Description |
 |------|--------|-------------|
-| `rice_factor/adapters/executors/refactor_executor.py` | CREATE | Refactor executor adapter |
-| `rice_factor/adapters/executors/__init__.py` | UPDATE | Export RefactorExecutor |
-| `tests/unit/adapters/executors/test_refactor_executor.py` | CREATE | Executor tests |
+| `rice_factor/adapters/executors/refactor_executor_adapter.py` | CREATE | Refactor executor adapter |
+| `rice_factor/adapters/executors/__init__.py` | UPDATE | Export RefactorExecutorAdapter |
+| `tests/unit/adapters/executors/test_refactor_executor_adapter.py` | CREATE | Executor tests |
 
 ## Dependencies
 
@@ -144,3 +144,4 @@ Implement the Refactor Executor adapter that performs mechanical refactoring ope
 | Date | Update |
 |------|--------|
 | 2026-01-10 | Task file created |
+| 2026-01-10 | Feature completed - all tasks implemented |

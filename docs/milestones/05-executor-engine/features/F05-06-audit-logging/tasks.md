@@ -1,6 +1,6 @@
 # Feature: F05-06 Audit Logging
 
-## Status: Pending
+## Status: Complete
 
 ## Description
 
@@ -19,111 +19,111 @@ Implement the Audit Logger that records all executor actions to an append-only l
 ## Tasks
 
 ### Audit Log Entry Model
-- [ ] Create `rice_factor/domain/artifacts/audit_types.py`
-  - [ ] Define `AuditLogEntry` dataclass
-    - [ ] `timestamp: datetime` (ISO-8601)
-    - [ ] `executor: str` (executor name)
-    - [ ] `artifact: str` (artifact path)
-    - [ ] `status: Literal["success", "failure"]`
-    - [ ] `mode: str` (dry_run or apply)
-    - [ ] `diff: str | None` (diff path if successful)
-    - [ ] `files_affected: list[str]`
-    - [ ] `duration_ms: int`
-    - [ ] `error: str | None` (error message if failed)
-  - [ ] Implement `to_json() -> str`
-    - [ ] Serialize to single-line JSON
-  - [ ] Implement `from_json(json_str: str) -> AuditLogEntry`
-    - [ ] Deserialize from JSON
+- [x] Create `rice_factor/domain/artifacts/audit_types.py`
+  - [x] Define `AuditLogEntry` dataclass
+    - [x] `timestamp: datetime` (ISO-8601)
+    - [x] `executor: str` (executor name)
+    - [x] `artifact: str` (artifact path)
+    - [x] `status: Literal["success", "failure"]`
+    - [x] `mode: str` (dry_run or apply)
+    - [x] `diff: str | None` (diff path if successful)
+    - [x] `files_affected: list[str]`
+    - [x] `duration_ms: int`
+    - [x] `error: str | None` (error message if failed)
+  - [x] Implement `to_json() -> str`
+    - [x] Serialize to single-line JSON
+  - [x] Implement `from_json(json_str: str) -> AuditLogEntry`
+    - [x] Deserialize from JSON
 
 ### Audit Logger Class
-- [ ] Create `rice_factor/adapters/executors/audit_logger.py`
-  - [ ] Define `AuditLogger` class
-  - [ ] Implement `__init__(project_root: Path)`
-    - [ ] Set audit directory path
-    - [ ] Ensure directory exists
-  - [ ] Implement `log_execution(entry: AuditLogEntry) -> None`
-    - [ ] Append entry to executions.log
-    - [ ] Use file locking for concurrent access
-  - [ ] Implement `log_success(...) -> AuditLogEntry`
-    - [ ] Create success entry
-    - [ ] Call log_execution
-    - [ ] Return entry
-  - [ ] Implement `log_failure(...) -> AuditLogEntry`
-    - [ ] Create failure entry
-    - [ ] Call log_execution
-    - [ ] Return entry
+- [x] Create `rice_factor/adapters/executors/audit_logger.py`
+  - [x] Define `AuditLogger` class
+  - [x] Implement `__init__(project_root: Path)`
+    - [x] Set audit directory path
+    - [x] Ensure directory exists
+  - [x] Implement `log_execution(entry: AuditLogEntry) -> None`
+    - [x] Append entry to executions.log
+    - [x] Use file locking for concurrent access
+  - [x] Implement `log_success(...) -> AuditLogEntry`
+    - [x] Create success entry
+    - [x] Call log_execution
+    - [x] Return entry
+  - [x] Implement `log_failure(...) -> AuditLogEntry`
+    - [x] Create failure entry
+    - [x] Call log_execution
+    - [x] Return entry
 
 ### Append-Only File Operations
-- [ ] Implement `_append_log(log_path: Path, entry: str) -> None`
-  - [ ] Open file in append mode
-  - [ ] Write JSON line
-  - [ ] Flush to disk
-- [ ] Implement `_ensure_directory(path: Path) -> None`
-  - [ ] Create audit directory if not exists
+- [x] Implement `_append_log(log_path: Path, entry: str) -> None`
+  - [x] Open file in append mode
+  - [x] Write JSON line
+  - [x] Flush to disk
+- [x] Implement `_ensure_directory(path: Path) -> None`
+  - [x] Create audit directory if not exists
 
 ### Diff File Management
-- [ ] Implement `save_diff(content: str, executor: str) -> Path`
-  - [ ] Generate filename with timestamp and executor name
-  - [ ] Save to audit/diffs/
-  - [ ] Return path for logging
-- [ ] Implement `_generate_diff_filename(executor: str) -> str`
-  - [ ] Format: `YYYYMMDD_HHMMSS_<executor>.diff`
+- [x] Implement `save_diff(content: str, executor: str) -> Path`
+  - [x] Generate filename with timestamp and executor name
+  - [x] Save to audit/diffs/
+  - [x] Return path for logging
+- [x] Implement `_generate_diff_filename(executor: str) -> str`
+  - [x] Format: `YYYYMMDD_HHMMSS_<executor>.diff`
 
 ### Log Reading (for debugging/display)
-- [ ] Implement `read_recent_entries(limit: int = 10) -> list[AuditLogEntry]`
-  - [ ] Read last N entries from log
-  - [ ] Parse JSON lines
-- [ ] Implement `read_entries_for_artifact(artifact_path: str) -> list[AuditLogEntry]`
-  - [ ] Filter entries by artifact path
+- [x] Implement `read_recent_entries(limit: int = 10) -> list[AuditLogEntry]`
+  - [x] Read last N entries from log
+  - [x] Parse JSON lines
+- [x] Implement `read_entries_for_artifact(artifact_path: str) -> list[AuditLogEntry]`
+  - [x] Filter entries by artifact path
 
 ### Context Manager for Timing
-- [ ] Implement `execution_timer` context manager
-  - [ ] Record start time on enter
-  - [ ] Calculate duration on exit
-  - [ ] Provide duration_ms for logging
+- [x] Implement `execution_timer` context manager
+  - [x] Record start time on enter
+  - [x] Calculate duration on exit
+  - [x] Provide duration_ms for logging
 
 ### Type Exports
-- [ ] Update `rice_factor/domain/artifacts/__init__.py`
-  - [ ] Export `AuditLogEntry`
-- [ ] Update `rice_factor/adapters/executors/__init__.py`
-  - [ ] Export `AuditLogger`
+- [x] Update `rice_factor/domain/artifacts/__init__.py`
+  - [x] Export `AuditLogEntry`
+- [x] Update `rice_factor/adapters/executors/__init__.py`
+  - [x] Export `AuditLogger`
 
 ### Unit Tests
-- [ ] Create `tests/unit/domain/artifacts/test_audit_types.py`
-  - [ ] Test AuditLogEntry creation
-  - [ ] Test to_json serialization
-  - [ ] Test from_json deserialization
-  - [ ] Test timestamp is ISO-8601 format
-- [ ] Create `tests/unit/adapters/executors/test_audit_logger.py`
-  - [ ] Test log_execution appends to file
-  - [ ] Test log_success creates correct entry
-  - [ ] Test log_failure creates correct entry
-  - [ ] Test multiple entries are appended
-  - [ ] Test save_diff creates file with correct name
-  - [ ] Test read_recent_entries returns correct count
-  - [ ] Test read_entries_for_artifact filters correctly
-  - [ ] Test execution_timer calculates duration
+- [x] Create `tests/unit/domain/artifacts/test_audit_types.py`
+  - [x] Test AuditLogEntry creation
+  - [x] Test to_json serialization
+  - [x] Test from_json deserialization
+  - [x] Test timestamp is ISO-8601 format
+- [x] Create `tests/unit/adapters/executors/test_audit_logger.py`
+  - [x] Test log_execution appends to file
+  - [x] Test log_success creates correct entry
+  - [x] Test log_failure creates correct entry
+  - [x] Test multiple entries are appended
+  - [x] Test save_diff creates file with correct name
+  - [x] Test read_recent_entries returns correct count
+  - [x] Test read_entries_for_artifact filters correctly
+  - [x] Test execution_timer calculates duration
 
 ### Integration Tests
-- [ ] Create `tests/integration/adapters/executors/test_audit_logger_file.py`
-  - [ ] Test creates audit directory if missing
-  - [ ] Test handles concurrent writes (multiprocessing)
-  - [ ] Test log file grows correctly
-  - [ ] Test log survives process restart
+- [x] Create `tests/integration/adapters/executors/test_audit_logger_file.py`
+  - [x] Test creates audit directory if missing
+  - [x] Test handles concurrent writes (multiprocessing)
+  - [x] Test log file grows correctly
+  - [x] Test log survives process restart
 
 ## Acceptance Criteria
 
-- [ ] AuditLogEntry dataclass defined with all required fields
-- [ ] JSON serialization produces single-line output
-- [ ] Log entries appended to audit/executions.log
-- [ ] Diff files saved to audit/diffs/
-- [ ] Timestamp in ISO-8601 format with milliseconds
-- [ ] Duration tracked accurately
-- [ ] Append-only behavior enforced
-- [ ] Log reading works for debugging
-- [ ] All tests pass
-- [ ] mypy passes
-- [ ] ruff passes
+- [x] AuditLogEntry dataclass defined with all required fields
+- [x] JSON serialization produces single-line output
+- [x] Log entries appended to audit/executions.log
+- [x] Diff files saved to audit/diffs/
+- [x] Timestamp in ISO-8601 format with milliseconds
+- [x] Duration tracked accurately
+- [x] Append-only behavior enforced
+- [x] Log reading works for debugging
+- [x] All tests pass
+- [x] mypy passes
+- [x] ruff passes
 
 ## Files to Create/Modify
 
@@ -146,3 +146,4 @@ Implement the Audit Logger that records all executor actions to an append-only l
 | Date | Update |
 |------|--------|
 | 2026-01-10 | Task file created |
+| 2026-01-10 | Feature completed - all tasks implemented |

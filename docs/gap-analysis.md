@@ -296,7 +296,76 @@ Milestone 05 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 7. Action Items
+## 7. Milestone 06 Validation Engine - Pre-Implementation Check
+
+### 7.1 Validator Contract Compliance
+
+Verified against `raw/item-02-executor-design-and-pseudocode.md`:
+
+| Requirement | Original Spec | M06 Requirements | Status |
+|-------------|--------------|------------------|--------|
+| Test Runner uses native tools | Section 2.8 | M06-U-001 | ✅ Match |
+| Exit code determines pass/fail | Section 2.8 | M06-TR-001 | ✅ Match |
+| Emit ValidationResult | Section 2.8 | M06-U-002 | ✅ Match |
+| No auto-fixing | Section 2.9 | M06-U-003 | ✅ Match |
+| Architecture Validator optional | Section 2.9 | M06-AV-001 | ✅ Match |
+| Audit logging mandatory | Section 2.10 | M06-U-005 | ✅ Match |
+
+### 7.2 ValidationResult Schema Verified
+
+Verified against `raw/02-Formal-Artifact-Schemas.md` Section 2.9:
+
+| Field | Original Spec | M06 Design | Status |
+|-------|--------------|------------|--------|
+| target | Required string | Section 4.6 | ✅ Match |
+| status | "passed" \| "failed" | Section 4.6 | ✅ Match |
+| errors | Array of strings | Section 4.6 | ✅ Match |
+| additionalProperties | false | Section 4.6 | ✅ Match |
+
+### 7.3 Test Runner Language Support
+
+| Language | Test Command | Original Spec | M06 Design | Status |
+|----------|--------------|---------------|------------|--------|
+| Rust | `cargo test` | Section 2.8 | Section 4.1 | ✅ Match |
+| Go | `go test ./...` | Inferred | Section 4.1 | ✅ Added |
+| Java | `mvn test` | Inferred | Section 4.1 | ✅ Added |
+| Python | `pytest` | Inferred | Section 4.1 | ✅ Added |
+| JavaScript | `npm test` | Inferred | Section 4.1 | ✅ Added |
+| TypeScript | `npm test` | Inferred | Section 4.1 | ✅ Added |
+
+### 7.4 Lint Runner Language Support
+
+| Language | Lint Command | M06 Design | Status |
+|----------|--------------|------------|--------|
+| Python | `ruff check` | Section 4.2 | ✅ Added |
+| Rust | `cargo clippy` | Section 4.2 | ✅ Added |
+| Go | `golint` | Section 4.2 | ✅ Added |
+| JavaScript | `eslint` | Section 4.2 | ✅ Added |
+| TypeScript | `eslint` | Section 4.2 | ✅ Added |
+
+### 7.5 Gaps Addressed
+
+| Gap | Source | Resolution |
+|-----|--------|------------|
+| Lint runner integration | gap-analysis.md line 310 | F06-02 Lint Runner Adapter |
+| Architecture rule enforcement | gap-analysis.md line 311 | F06-03 Architecture Validator |
+| Invariant checking | New requirement | F06-04 Invariant Checker |
+| Validation audit format | raw/item-02 Section 2.10 | F06-05 ValidationResult Generator |
+
+### 7.6 Ready for Implementation
+
+Milestone 06 documentation is complete. All gaps from original specs have been addressed:
+- ValidatorPort protocol defined (analogous to ExecutorPort)
+- Test runner with language-specific commands
+- Lint runner with language-specific linters
+- Architecture validator (optional, can defer)
+- Invariant checker for domain constraints
+- ValidationResult generator with audit trail
+- 5 feature task files created (F06-01 through F06-05)
+
+---
+
+## 8. Action Items
 
 ### High Priority (Address Before Milestone 05)
 
@@ -307,8 +376,8 @@ Milestone 05 documentation is complete. All gaps from original specs have been a
 ### Medium Priority (Address During Implementation)
 
 - [x] Add ArchitecturePlan detailed design (minimal for MVP)
-- [ ] Document lint runner integration (Milestone 06)
-- [ ] Specify architecture rule enforcement details (Milestone 06)
+- [x] Document lint runner integration (Milestone 06) - Added 2026-01-10
+- [x] Specify architecture rule enforcement details (Milestone 06) - Added 2026-01-10
 
 ### Low Priority (Post-MVP)
 
@@ -318,7 +387,7 @@ Milestone 05 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 8. Conclusion
+## 9. Conclusion
 
 **Overall Coverage**: ~99% of original specifications are covered in documentation.
 
@@ -328,15 +397,20 @@ Milestone 05 documentation is complete. All gaps from original specs have been a
 
 **Milestone 04 Status**: ✅ Complete. All 7 features implemented.
 
-**Milestone 05 Status**: Documentation complete, ready for implementation. All gaps addressed:
-- ExecutionResult schema defined (Section 4.1)
-- Capability Registry YAML schema defined (Section 4.2)
-- Domain-specific requirements for all executors (Section 7)
-- 6 feature task files created (F05-01 through F05-06)
+**Milestone 05 Status**: ✅ Complete. All 6 features implemented.
+
+**Milestone 06 Status**: Documentation complete, ready for implementation. All gaps addressed:
+- ValidatorPort protocol defined (analogous to ExecutorPort)
+- Test runner with language-specific commands (Section 4.1)
+- Lint runner with language-specific linters (Section 4.2)
+- Architecture validator design (optional, P1)
+- Invariant checker for domain constraints
+- ValidationResult generator with audit trail
+- 5 feature task files created (F06-01 through F06-05)
 
 **Key Remaining Gaps**:
-1. Lint runner integration details (Milestone 06)
-2. Architecture rule enforcement (Milestone 06)
-3. Artifact aging policy (Post-MVP)
+1. Reconciliation cycle workflow (Post-MVP)
+2. Artifact aging policy (Post-MVP)
+3. Drift detection mechanism (Post-MVP)
 
-**Next Steps**: Begin Milestone 05 implementation with F05-01 Executor Base Interface.
+**Next Steps**: Begin Milestone 06 implementation with F06-05 ValidationResult Generator (foundation).

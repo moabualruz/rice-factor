@@ -1,6 +1,6 @@
 # Feature: F05-02 Scaffold Executor
 
-## Status: Pending
+## Status: Complete
 
 ## Description
 
@@ -21,87 +21,87 @@ Implement the Scaffold Executor adapter that creates empty files and directories
 ## Tasks
 
 ### Scaffold Executor Adapter
-- [ ] Create `rice_factor/adapters/executors/scaffold_executor.py`
-  - [ ] Define `ScaffoldExecutor` class implementing `ExecutorPort`
-  - [ ] Implement `__init__(storage: StoragePort, validator: ValidatorPort)`
-  - [ ] Implement `execute(artifact_path, repo_root, mode) -> ExecutionResult`
+- [x] Create `rice_factor/adapters/executors/scaffold_executor.py`
+  - [x] Define `ScaffoldExecutor` class implementing `ExecutorPort`
+  - [x] Implement `__init__(storage: StoragePort, validator: ValidatorPort)`
+  - [x] Implement `execute(artifact_path, repo_root, mode) -> ExecutionResult`
 
 ### 9-Step Pipeline Implementation
-- [ ] Implement Step 1: Load artifact
-  - [ ] Load ScaffoldPlan from artifact_path
-  - [ ] Raise `ArtifactTypeError` if wrong type
-- [ ] Implement Step 2: Validate schema
-  - [ ] Use validator to check schema
-  - [ ] Raise `ArtifactSchemaError` on failure
-- [ ] Implement Step 3: Verify approval & lock status
-  - [ ] Check artifact.status == APPROVED
-  - [ ] Check approvals.json contains artifact_id
-  - [ ] Raise `ArtifactNotApprovedError` if not approved
-- [ ] Implement Step 4: Capability check
-  - [ ] N/A for scaffold (always supported)
-- [ ] Implement Step 5: Precondition checks
-  - [ ] Check all paths are within repo_root
-  - [ ] Raise `PathEscapesRepoError` if path escapes
-- [ ] Implement Step 6: Generate diff
-  - [ ] Compute which files would be created
-  - [ ] Generate diff content for audit
-  - [ ] Save diff to audit/diffs/
-- [ ] Implement Step 7: Apply (if APPLY mode)
-  - [ ] Create parent directories
-  - [ ] Create files with TODO comments
-  - [ ] Use existing ScaffoldService for file creation
-- [ ] Implement Step 8: Emit audit logs
-  - [ ] Call AuditLogger with execution details
-- [ ] Implement Step 9: Return result
-  - [ ] Build ExecutionResult with status, diffs, errors, logs
+- [x] Implement Step 1: Load artifact
+  - [x] Load ScaffoldPlan from artifact_path
+  - [x] Raise `ArtifactTypeError` if wrong type
+- [x] Implement Step 2: Validate schema
+  - [x] Use validator to check schema
+  - [x] Raise `ArtifactSchemaError` on failure
+- [x] Implement Step 3: Verify approval & lock status
+  - [x] Check artifact.status == APPROVED
+  - [x] Check approvals.json contains artifact_id
+  - [x] Raise `ArtifactNotApprovedError` if not approved
+- [x] Implement Step 4: Capability check
+  - [x] N/A for scaffold (always supported)
+- [x] Implement Step 5: Precondition checks
+  - [x] Check all paths are within repo_root
+  - [x] Raise `PathEscapesRepoError` if path escapes
+- [x] Implement Step 6: Generate diff
+  - [x] Compute which files would be created
+  - [x] Generate diff content for audit
+  - [x] Save diff to audit/diffs/
+- [x] Implement Step 7: Apply (if APPLY mode)
+  - [x] Create parent directories
+  - [x] Create files with TODO comments
+  - [x] Use existing ScaffoldService for file creation
+- [x] Implement Step 8: Emit audit logs
+  - [x] Call AuditLogger with execution details
+- [x] Implement Step 9: Return result
+  - [x] Build ExecutionResult with status, diffs, errors, logs
 
 ### Integration with Existing ScaffoldService
-- [ ] Use `ScaffoldService.scaffold()` for actual file creation
-- [ ] Use `ScaffoldService.generate_todo_comment()` for content
-- [ ] Wrap service calls with proper error handling
+- [x] Use `ScaffoldService.scaffold()` for actual file creation
+- [x] Use `ScaffoldService.generate_todo_comment()` for content
+- [x] Wrap service calls with proper error handling
 
 ### Diff Generation
-- [ ] Implement `_generate_diff(files: list[FileEntry], repo_root: Path) -> str`
-  - [ ] Generate unified diff format showing file creation
-  - [ ] Include expected content (TODO comments)
+- [x] Implement `_generate_diff(files: list[FileEntry], repo_root: Path) -> str`
+  - [x] Generate unified diff format showing file creation
+  - [x] Include expected content (TODO comments)
 
 ### Path Security
-- [ ] Implement `_path_escapes_repo(path: Path, repo_root: Path) -> bool`
-  - [ ] Resolve symlinks
-  - [ ] Check path is within repo_root
-  - [ ] Reject `..` traversal
+- [x] Implement `_path_escapes_repo(path: Path, repo_root: Path) -> bool`
+  - [x] Resolve symlinks
+  - [x] Check path is within repo_root
+  - [x] Reject `..` traversal
 
 ### Adapter Exports
-- [ ] Update `rice_factor/adapters/executors/__init__.py`
-  - [ ] Export `ScaffoldExecutor`
+- [x] Update `rice_factor/adapters/executors/__init__.py`
+  - [x] Export `ScaffoldExecutor`
 
 ### Unit Tests
-- [ ] Create `tests/unit/adapters/executors/test_scaffold_executor.py`
-  - [ ] Test executor implements ExecutorPort protocol
-  - [ ] Test DRY_RUN mode generates diff without creating files
-  - [ ] Test APPLY mode creates files
-  - [ ] Test skips existing files with warning
-  - [ ] Test creates parent directories
-  - [ ] Test rejects unapproved artifact
-  - [ ] Test rejects wrong artifact type
-  - [ ] Test rejects path escaping repo
-  - [ ] Test generates audit log entry
-  - [ ] Test ExecutionResult contains correct diffs list
-  - [ ] Test ExecutionResult logs contain created files
+- [x] Create `tests/unit/adapters/executors/test_scaffold_executor.py`
+  - [x] Test executor implements ExecutorPort protocol
+  - [x] Test DRY_RUN mode generates diff without creating files
+  - [x] Test APPLY mode creates files
+  - [x] Test skips existing files with warning
+  - [x] Test creates parent directories
+  - [x] Test rejects unapproved artifact
+  - [x] Test rejects wrong artifact type
+  - [x] Test rejects path escaping repo
+  - [x] Test generates audit log entry
+  - [x] Test ExecutionResult contains correct diffs list
+  - [x] Test ExecutionResult logs contain created files
 
 ## Acceptance Criteria
 
-- [ ] ScaffoldExecutor implements ExecutorPort protocol
-- [ ] Full 9-step pipeline implemented
-- [ ] DRY_RUN mode generates diff without file creation
-- [ ] APPLY mode creates files with TODO comments
-- [ ] Existing files are skipped with warning
-- [ ] Path escape is detected and rejected
-- [ ] Unapproved artifacts are rejected
-- [ ] Audit log entry is created
-- [ ] All tests pass
-- [ ] mypy passes
-- [ ] ruff passes
+- [x] ScaffoldExecutor implements ExecutorPort protocol
+- [x] Full 9-step pipeline implemented
+- [x] DRY_RUN mode generates diff without file creation
+- [x] APPLY mode creates files with TODO comments
+- [x] Existing files are skipped with warning
+- [x] Path escape is detected and rejected
+- [x] Unapproved artifacts are rejected
+- [x] Audit log entry is created
+- [x] All tests pass
+- [x] mypy passes
+- [x] ruff passes
 
 ## Files to Create/Modify
 
@@ -122,3 +122,4 @@ Implement the Scaffold Executor adapter that creates empty files and directories
 | Date | Update |
 |------|--------|
 | 2026-01-10 | Task file created |
+| 2026-01-10 | Feature completed - all tasks implemented |
