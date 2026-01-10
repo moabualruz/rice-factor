@@ -77,9 +77,10 @@ This document identifies gaps between the original specification documents (`doc
 
 #### Override Command
 - **Source**: `raw/item-05-Failure-Recovery-and-Resilience-Model.md` Section 5.7
-- **Docs**: Not documented
-- **Gap**: `rice-factor override --reason` command not in CLI requirements
-- **Action**: Add to Milestone 03 CLI requirements
+- **Docs**: `milestones/03-cli-core/requirements.md` v1.2.0
+- **Status**: ✅ Addressed
+- **Details**: Added `rice-factor override --reason` command and F03-09 feature
+- **Addressed**: 2026-01-10
 
 #### Aging Artifacts
 - **Source**: `raw/item-05-Failure-Recovery-and-Resilience-Model.md` Section 5.5.3
@@ -110,6 +111,22 @@ This document identifies gaps between the original specification documents (`doc
 - **Source**: Milestone 02 requirements
 - **Status**: ✅ Feature task breakdown complete
 - **Details**: 7 features with detailed tasks.md files
+- **Added**: 2026-01-10
+
+#### Milestone 02 Implementation Complete
+- **Source**: Milestone 02 requirements
+- **Status**: ✅ Complete
+- **Details**: All 7 features implemented, 197 tests passing
+- **Completed**: 2026-01-10
+
+#### Milestone 03 Documentation Prepared
+- **Source**: Milestone 03 requirements
+- **Status**: ✅ Documentation complete
+- **Details**:
+  - Updated requirements.md v1.2.0 with missing commands (review, diagnose, override, refactor check)
+  - Added F03-09 Override & Recovery Commands feature
+  - Created design.md with CLI architecture
+  - Created 9 feature task files (F03-01 through F03-09)
 - **Added**: 2026-01-10
 
 ---
@@ -152,7 +169,7 @@ Milestone 02 is ready to begin implementation. All schemas match original spec.
 
 ### High Priority (Address Before Milestone 03)
 
-- [ ] Add `rice-factor override` command to CLI requirements
+- [x] Add `rice-factor override` command to CLI requirements (Added 2026-01-10)
 - [ ] Document capability registry YAML schema
 - [ ] Define run_mode.yaml configuration schema
 
@@ -172,13 +189,15 @@ Milestone 02 is ready to begin implementation. All schemas match original spec.
 
 ## 6. Conclusion
 
-**Overall Coverage**: ~95% of original specifications are covered in documentation.
+**Overall Coverage**: ~97% of original specifications are covered in documentation.
 
-**Milestone 02 Status**: Ready for implementation. All artifact schemas verified against original spec.
+**Milestone 02 Status**: ✅ Complete. All 7 features implemented, 197 tests passing.
+
+**Milestone 03 Status**: Ready for implementation. Requirements updated, design complete, 9 feature task files created.
 
 **Key Remaining Gaps**:
-1. Override command missing from CLI (Milestone 03)
+1. ~~Override command missing from CLI (Milestone 03)~~ ✅ Addressed
 2. Capability registry schema not detailed (Milestone 05)
 3. Run mode configuration format not specified (Milestone 04)
 
-**Next Steps**: Begin Milestone 02 implementation with F02-01 Artifact Envelope Model.
+**Next Steps**: Begin Milestone 03 implementation with F03-01 CLI Framework Setup.

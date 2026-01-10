@@ -1,9 +1,9 @@
 """Rice-Factor CLI entry point."""
 
 import typer
-from rich.console import Console
 
 from rice_factor import __version__
+from rice_factor.entrypoints.cli.utils import console, info
 
 app = typer.Typer(
     name="rice-factor",
@@ -12,7 +12,19 @@ app = typer.Typer(
     rich_markup_mode="rich",
 )
 
-console = Console()
+# Global state for verbose/quiet modes
+_verbose: bool = False
+_quiet: bool = False
+
+
+def get_verbose() -> bool:
+    """Check if verbose mode is enabled."""
+    return _verbose
+
+
+def get_quiet() -> bool:
+    """Check if quiet mode is enabled."""
+    return _quiet
 
 
 def version_callback(value: bool) -> None:
@@ -24,7 +36,7 @@ def version_callback(value: bool) -> None:
 
 @app.callback()
 def main(
-    version: bool = typer.Option(
+    _version: bool = typer.Option(
         False,
         "--version",
         "-v",
@@ -32,9 +44,26 @@ def main(
         callback=version_callback,
         is_eager=True,
     ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-V",
+        help="Enable verbose output.",
+    ),
+    quiet: bool = typer.Option(
+        False,
+        "--quiet",
+        "-q",
+        help="Suppress non-essential output.",
+    ),
 ) -> None:
     """Rice-Factor: LLM-Assisted Development System."""
-    pass
+    global _verbose, _quiet
+    _verbose = verbose
+    _quiet = quiet
+
+    if verbose and not quiet:
+        info("Verbose mode enabled")
 
 
 # Import and register command modules

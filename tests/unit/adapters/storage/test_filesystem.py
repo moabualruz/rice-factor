@@ -8,9 +8,7 @@ import pytest
 
 from rice_factor.adapters.storage import FilesystemStorageAdapter
 from rice_factor.domain.artifacts.enums import (
-    ArtifactStatus,
     ArtifactType,
-    CreatedBy,
 )
 from rice_factor.domain.artifacts.envelope import ArtifactEnvelope
 from rice_factor.domain.artifacts.payloads import (

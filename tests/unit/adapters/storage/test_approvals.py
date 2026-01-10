@@ -1,11 +1,9 @@
 """Unit tests for ApprovalsTracker."""
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from uuid import UUID, uuid4
-
-import pytest
+from uuid import uuid4
 
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.domain.artifacts.approval import Approval
@@ -137,7 +135,7 @@ class TestApprovalsTracker:
     def test_loads_existing_approvals(self, tmp_path: Path) -> None:
         """ApprovalsTracker loads existing approvals from file."""
         artifact_id = uuid4()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Create approvals file manually
         meta_dir = tmp_path / "_meta"

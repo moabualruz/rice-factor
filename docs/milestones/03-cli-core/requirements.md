@@ -1,7 +1,7 @@
 # Milestone 03: CLI Core - Requirements
 
 > **Document Type**: Milestone Requirements Specification
-> **Version**: 1.1.0
+> **Version**: 1.2.0
 > **Status**: Pending
 
 ---
@@ -52,13 +52,17 @@ Implement the complete CLI interface for Rice-Factor, including all commands for
 | `rice-factor lock tests` | Lock TestPlan | P0 |
 | `rice-factor plan impl <file>` | Generate ImplementationPlan | P0 |
 | `rice-factor impl <file>` | Generate implementation diff | P0 |
+| `rice-factor review` | Show pending diff for approval | P0 |
 | `rice-factor apply` | Apply approved diff | P0 |
 | `rice-factor test` | Run test suite | P0 |
+| `rice-factor diagnose` | Analyze test/validation failures | P0 |
 | `rice-factor approve <artifact>` | Approve artifact | P0 |
 | `rice-factor plan refactor <goal>` | Generate RefactorPlan | P1 |
+| `rice-factor refactor check` | Verify refactor capability support | P1 |
 | `rice-factor refactor dry-run` | Preview refactor | P1 |
 | `rice-factor refactor apply` | Apply refactor | P1 |
 | `rice-factor validate` | Run all validations | P1 |
+| `rice-factor override --reason` | Override blocked operations with audit | P1 |
 | `rice-factor resume` | Resume after failure | P1 |
 
 ---
@@ -75,6 +79,7 @@ Implement the complete CLI interface for Rice-Factor, including all commands for
 | F03-06 | Approval Commands | P0 |
 | F03-07 | Refactor Commands | P1 |
 | F03-08 | Validation Commands | P1 |
+| F03-09 | Override & Recovery Commands | P1 |
 
 ---
 
@@ -94,3 +99,4 @@ Implement the complete CLI interface for Rice-Factor, including all commands for
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-10 | SDD Process | Initial milestone requirements |
 | 1.1.0 | 2026-01-10 | User Decision | Updated CLI command from `dev` to `rice-factor` |
+| 1.2.0 | 2026-01-10 | Gap Analysis | Added missing commands (review, diagnose, override, refactor check) and F03-09 feature |

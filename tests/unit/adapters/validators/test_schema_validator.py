@@ -1,12 +1,12 @@
 """Unit tests for ArtifactValidator."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
 
 from rice_factor.adapters.validators import ArtifactValidator
-from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType, CreatedBy
+from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
 from rice_factor.domain.artifacts.payloads import (
     ProjectPlanPayload,
     TestPlanPayload,
@@ -28,7 +28,7 @@ def valid_project_plan_data() -> dict:
         "artifact_version": "1.0",
         "id": str(uuid4()),
         "status": "draft",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "created_by": "llm",
         "depends_on": [],
         "payload": {
@@ -47,7 +47,7 @@ def valid_test_plan_data() -> dict:
         "artifact_version": "1.0",
         "id": str(uuid4()),
         "status": "draft",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "created_by": "llm",
         "depends_on": [],
         "payload": {
@@ -88,7 +88,7 @@ class TestValidateFullArtifact:
             "artifact_version": "1.0",
             "id": str(uuid4()),
             "status": "draft",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "created_by": "llm",
             "payload": {},
         }
@@ -112,7 +112,7 @@ class TestValidateFullArtifact:
             "artifact_version": "1.0",
             "id": str(uuid4()),
             "status": "draft",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "created_by": "llm",
         }
         with pytest.raises(ArtifactValidationError) as exc_info:
