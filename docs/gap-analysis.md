@@ -26,7 +26,7 @@ This document identifies gaps between the original specification documents (`doc
 | LLM Compiler Passes | `raw/03-Artifact-Builder.md` | `milestones/04-llm-compiler/requirements.md` | ✅ Covered |
 | Executor Design | `raw/item-02-executor-design-and-pseudocode.md` | `milestones/05-executor-engine/requirements.md` | ✅ Covered |
 | CI/CD Integration | `raw/item-03-ci-cd-pipeline-and-automation-strategy.md` | `project/design.md` Sec 10 | ✅ Covered |
-| Multi-Agent Modes | `raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md` | `project/design.md` Sec 8 | ✅ Covered |
+| Multi-Agent Modes | `raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md` | `milestones/04-llm-compiler/requirements.md` Sec 5-6 | ✅ Covered |
 | Failure Recovery | `raw/item-05-Failure-Recovery-and-Resilience-Model.md` | `project/design.md` Sec 9 | ✅ Covered |
 | MVP Scope | `raw/Phase-01-mvp.md` | `milestones/07-mvp-integration/requirements.md` | ✅ Covered |
 | Tool Integration | `raw/06-tools-to-integrte-with-or-learn-from.md` | `project/design.md` Sec 11 | ✅ Covered |
@@ -90,9 +90,10 @@ This document identifies gaps between the original specification documents (`doc
 
 #### Run Mode Configuration
 - **Source**: `raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md` Section 4.6
-- **Docs**: Mentioned but `run_mode.yaml` schema not defined
-- **Gap**: Configuration file format not specified
-- **Action**: Add schema to Milestone 04 design
+- **Docs**: `milestones/04-llm-compiler/requirements.md` v1.2.0 Section 5
+- **Status**: ✅ Addressed
+- **Details**: Full `run_mode.yaml` schema defined with all 5 modes (A-E)
+- **Addressed**: 2026-01-10
 
 ### 3.4 Recently Addressed
 
@@ -127,6 +128,22 @@ This document identifies gaps between the original specification documents (`doc
   - Added F03-09 Override & Recovery Commands feature
   - Created design.md with CLI architecture
   - Created 9 feature task files (F03-01 through F03-09)
+- **Added**: 2026-01-10
+
+#### Milestone 03 Implementation Complete
+- **Source**: Milestone 03 requirements
+- **Status**: ✅ Complete
+- **Details**: All 9 features implemented, 672+ tests passing
+- **Completed**: 2026-01-10
+
+#### Milestone 04 Documentation Prepared
+- **Source**: Milestone 04 requirements
+- **Status**: ✅ Documentation complete
+- **Details**:
+  - Updated requirements.md v1.2.0 with run modes, agent roles, FailureReport
+  - Created design.md with LLM compiler architecture
+  - Created 7 feature task files (F04-01 through F04-07)
+  - Full `run_mode.yaml` schema defined (addressing gap from item-04)
 - **Added**: 2026-01-10
 
 ---
@@ -165,13 +182,61 @@ Milestone 02 is ready to begin implementation. All schemas match original spec.
 
 ---
 
-## 5. Action Items
+## 5. Milestone 04 LLM Compiler - Pre-Implementation Check
 
-### High Priority (Address Before Milestone 03)
+### 5.1 Compiler Contract Compliance
+
+Verified against `raw/03-Artifact-Builder.md`:
+
+| Requirement | Original Spec | M04 Requirements | Status |
+|-------------|--------------|------------------|--------|
+| Valid JSON only | Section 3.2 Rule 1 | M04-U-001 | ✅ Match |
+| Exactly one artifact | Section 3.2 Rule 2 | M04-U-002 | ✅ Match |
+| No explanations | Section 3.2 Rule 3 | M04-U-003 | ✅ Match |
+| No code | Section 3.2 Rule 4 | M04-U-004 | ✅ Match |
+| Schema conformance | Section 3.2 Rule 6 | M04-U-005 | ✅ Match |
+| Explicit failure | Section 3.2 Rule 7 | M04-U-006 | ✅ Match |
+| Determinism (temp 0-0.2) | Section 3.12 | M04-U-007 | ✅ Match |
+
+### 5.2 Compiler Passes Verified
+
+| Pass | Original Spec | M04 Design | Status |
+|------|--------------|------------|--------|
+| Project Planner | Section 3.5 | design.md Sec 4.2 | ✅ Match |
+| Architecture Planner | Section 3.6 | design.md Sec 4.2 | ✅ Match |
+| Scaffold Planner | Section 3.7 | design.md Sec 4.2 | ✅ Match |
+| Test Designer | Section 3.8 | design.md Sec 4.2 | ✅ Match |
+| Implementation Planner | Section 3.9 | design.md Sec 4.2 | ✅ Match |
+| Refactor Planner | Section 3.10 | design.md Sec 4.2 | ✅ Match |
+
+### 5.3 Multi-Agent Model Verified
+
+Verified against `raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md`:
+
+| Concept | Original Spec | M04 Requirements | Status |
+|---------|--------------|------------------|--------|
+| Run Mode A (Single Agent) | Section 4.5.1 | Section 5 | ✅ Match |
+| Run Mode B (Orchestrator) | Section 4.5.2 | Section 5 | ✅ Match |
+| Run Mode C (Voting) | Section 4.5.3 | Section 5 | ✅ Match |
+| Run Mode D (Role-Locked) | Section 4.5.4 | Section 5 | ✅ Match |
+| Run Mode E (Hybrid) | Section 4.5.5 | Section 5 | ✅ Match |
+| `run_mode.yaml` schema | Section 4.6 | Section 5.1 | ✅ Match |
+| Agent Roles | Section 4.4 | Section 6 | ✅ Match |
+| Single Authority | Section 4.1 | M04-U-009 | ✅ Match |
+
+### 5.4 Ready for Implementation
+
+Milestone 04 documentation is complete. All gaps from original specs have been addressed.
+
+---
+
+## 6. Action Items
+
+### High Priority (Address Before Milestone 05)
 
 - [x] Add `rice-factor override` command to CLI requirements (Added 2026-01-10)
-- [ ] Document capability registry YAML schema
-- [ ] Define run_mode.yaml configuration schema
+- [x] Define run_mode.yaml configuration schema (Added 2026-01-10)
+- [ ] Document capability registry YAML schema (Milestone 05)
 
 ### Medium Priority (Address During Implementation)
 
@@ -187,17 +252,23 @@ Milestone 02 is ready to begin implementation. All schemas match original spec.
 
 ---
 
-## 6. Conclusion
+## 7. Conclusion
 
-**Overall Coverage**: ~97% of original specifications are covered in documentation.
+**Overall Coverage**: ~98% of original specifications are covered in documentation.
 
 **Milestone 02 Status**: ✅ Complete. All 7 features implemented, 197 tests passing.
 
-**Milestone 03 Status**: Ready for implementation. Requirements updated, design complete, 9 feature task files created.
+**Milestone 03 Status**: ✅ Complete. All 9 features implemented, 672+ tests passing.
+
+**Milestone 04 Status**: Documentation complete, ready for implementation. All gaps addressed:
+- run_mode.yaml schema defined (Section 5.1)
+- Agent roles documented (Section 6)
+- FailureReport artifact added (F04-07)
+- 7 feature task files created
 
 **Key Remaining Gaps**:
-1. ~~Override command missing from CLI (Milestone 03)~~ ✅ Addressed
-2. Capability registry schema not detailed (Milestone 05)
-3. Run mode configuration format not specified (Milestone 04)
+1. Capability registry schema not detailed (Milestone 05)
+2. Lint runner integration details (Milestone 06)
+3. Artifact aging policy (Post-MVP)
 
-**Next Steps**: Begin Milestone 03 implementation with F03-01 CLI Framework Setup.
+**Next Steps**: Begin Milestone 04 implementation with F04-01 LLM Protocol Interface.

@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rice-factor.io/schemas/failure_report.schema.json",
+  "title": "FailureReport",
+  "description": "Records blocking failures that occur during LLM operations",
+  "type": "object",
+  "required": [
+    "phase",
+    "category",
+    "summary",
+    "blocking",
+    "recovery_action",
+    "timestamp"
+  ],
+  "properties": {
+    "phase": {
+      "type": "string",
+      "description": "Lifecycle phase where failure occurred",
+      "examples": ["plan_project", "plan_architecture", "impl"]
+    },
+    "artifact_id": {
+      "type": ["string", "null"],
+      "description": "Related artifact ID if failure is associated with an artifact",
+      "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category of the failure for classification",
+      "enum": [
+        "missing_information",
+        "invalid_request",
+        "api_error",
+        "timeout",
+        "rate_limit",
+        "validation_error",
+        "internal_error"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary of what went wrong",
+      "minLength": 1
+    },
+    "details": {
+      "type": "object",
+      "description": "Detailed error information",
+      "additionalProperties": true
+    },
+    "blocking": {
+      "type": "boolean",
+      "description": "Whether this failure blocks further progress"
+    },
+    "recovery_action": {
+      "type": "string",
+      "description": "Recommended action to recover from this failure",
+      "enum": [
+        "human_input_required",
+        "retry",
+        "retry_after_delay",
+        "abort",
+        "fix_and_retry"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "When the failure occurred (ISO 8601 UTC)",
+      "format": "date-time"
+    },
+    "raw_response": {
+      "type": ["string", "null"],
+      "description": "Raw LLM response if available, for debugging"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "phase": "plan_project",
+      "artifact_id": null,
+      "category": "missing_information",
+      "summary": "LLM reported missing information: Domain 'UserAuthentication' not defined",
+      "details": {
+        "error_type": "LLMMissingInformationError",
+        "message": "LLM reported missing information",
+        "missing_items": ["UserAuthentication domain definition"],
+        "recoverable": false
+      },
+      "blocking": true,
+      "recovery_action": "human_input_required",
+      "timestamp": "2026-01-10T12:00:00Z",
+      "raw_response": "{\"error\": \"missing_information\", \"details\": \"Domain 'UserAuthentication' not defined\"}"
+    },
+    {
+      "phase": "plan_architecture",
+      "artifact_id": "abc-123",
+      "category": "api_error",
+      "summary": "[claude] LLM API error (HTTP 500)",
+      "details": {
+        "error_type": "LLMAPIError",
+        "message": "LLM API error",
+        "status_code": 500,
+        "provider": "claude",
+        "recoverable": true
+      },
+      "blocking": false,
+      "recovery_action": "retry",
+      "timestamp": "2026-01-10T12:05:00Z",
+      "raw_response": null
+    }
+  ]
+}

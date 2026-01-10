@@ -3,17 +3,46 @@
 This module provides services that coordinate domain operations.
 """
 
+from rice_factor.domain.services.artifact_builder import (
+    ArtifactBuilder,
+    ArtifactBuilderError,
+)
 from rice_factor.domain.services.artifact_resolver import ArtifactResolver
 from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.capability_service import CapabilityService
+from rice_factor.domain.services.code_detector import CodeDetector, detect_code
+from rice_factor.domain.services.compiler_pass import CompilerPass
+from rice_factor.domain.services.context_builder import (
+    PASS_REQUIREMENTS,
+    ContextBuilder,
+    ContextBuilderError,
+    ForbiddenInputError,
+    MissingRequiredInputError,
+)
 from rice_factor.domain.services.diff_service import (
     Diff,
     DiffResult,
     DiffService,
     DiffStatus,
 )
+from rice_factor.domain.services.failure_parser import FailureParser
+from rice_factor.domain.services.failure_service import FailureService
 from rice_factor.domain.services.init_service import InitService
+from rice_factor.domain.services.json_extractor import JSONExtractor, extract_json
+from rice_factor.domain.services.llm_error_handler import (
+    LLMErrorHandler,
+    handle_llm_errors,
+)
+from rice_factor.domain.services.output_validator import (
+    OutputValidator,
+    validate_llm_output,
+)
 from rice_factor.domain.services.override_service import Override, OverrideService
+from rice_factor.domain.services.passes import (
+    PassNotFoundError,
+    PassRegistry,
+    get_pass,
+)
 from rice_factor.domain.services.phase_service import (
     COMMAND_PHASES,
     PHASE_DESCRIPTIONS,
@@ -45,17 +74,33 @@ from rice_factor.domain.services.validation_orchestrator import (
 __all__ = [
     "COMMAND_PHASES",
     "INIT_QUESTIONS",
+    "PASS_REQUIREMENTS",
     "PHASE_DESCRIPTIONS",
+    "ArtifactBuilder",
+    "ArtifactBuilderError",
     "ArtifactResolver",
     "ArtifactService",
     "CapabilityService",
+    "CodeDetector",
+    "CompilerPass",
+    "ContextBuilder",
+    "ContextBuilderError",
     "Diff",
     "DiffResult",
     "DiffService",
     "DiffStatus",
+    "FailureParser",
+    "FailureService",
+    "ForbiddenInputError",
     "InitService",
+    "JSONExtractor",
+    "LLMErrorHandler",
+    "MissingRequiredInputError",
+    "OutputValidator",
     "Override",
     "OverrideService",
+    "PassNotFoundError",
+    "PassRegistry",
     "Phase",
     "PhaseService",
     "Question",
@@ -70,4 +115,9 @@ __all__ = [
     "ValidationOrchestrator",
     "ValidationResult",
     "ValidationStep",
+    "detect_code",
+    "extract_json",
+    "get_pass",
+    "handle_llm_errors",
+    "validate_llm_output",
 ]

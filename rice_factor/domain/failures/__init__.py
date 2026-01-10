@@ -11,6 +11,18 @@ This module provides the exception hierarchy for Rice-Factor including:
 - PhaseError: Invalid phase for command
 - MissingPrerequisiteError: Missing required prerequisite
 - ConfirmationRequired: User confirmation not provided
+- LLMError: Base LLM error
+- LLMAPIError: Provider API failures
+- LLMTimeoutError: Request timeout
+- LLMRateLimitError: Rate limiting
+- LLMMissingInformationError: Explicit missing info error
+- LLMInvalidRequestError: Explicit invalid request error
+- LLMOutputError: Base output validation error
+- InvalidJSONError: LLM returned non-JSON
+- SchemaViolationError: LLM output doesn't match schema
+- CodeInOutputError: LLM returned source code
+- MultipleArtifactsError: LLM returned multiple artifacts
+- ExplanatoryTextError: LLM included text outside JSON
 """
 
 from rice_factor.domain.failures.cli_errors import (
@@ -27,6 +39,20 @@ from rice_factor.domain.failures.errors import (
     ArtifactValidationError,
     RiceFactorError,
 )
+from rice_factor.domain.failures.llm_errors import (
+    CodeInOutputError,
+    ExplanatoryTextError,
+    InvalidJSONError,
+    LLMAPIError,
+    LLMError,
+    LLMInvalidRequestError,
+    LLMMissingInformationError,
+    LLMOutputError,
+    LLMRateLimitError,
+    LLMTimeoutError,
+    MultipleArtifactsError,
+    SchemaViolationError,
+)
 
 __all__ = [
     "ArtifactDependencyError",
@@ -35,8 +61,20 @@ __all__ = [
     "ArtifactStatusError",
     "ArtifactValidationError",
     "CLIError",
+    "CodeInOutputError",
     "ConfirmationRequired",
+    "ExplanatoryTextError",
+    "InvalidJSONError",
+    "LLMAPIError",
+    "LLMError",
+    "LLMInvalidRequestError",
+    "LLMMissingInformationError",
+    "LLMOutputError",
+    "LLMRateLimitError",
+    "LLMTimeoutError",
     "MissingPrerequisiteError",
+    "MultipleArtifactsError",
     "PhaseError",
     "RiceFactorError",
+    "SchemaViolationError",
 ]

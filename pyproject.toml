@@ -87,6 +87,10 @@ ignore_missing_imports = false
 [[tool.mypy.overrides]]
 module = [
     "dynaconf.*",
+    "anthropic",
+    "anthropic.*",
+    "openai",
+    "openai.*",
 ]
 ignore_missing_imports = true
 

@@ -2,10 +2,20 @@
 # Override these values via environment variables (RICE_*) or config files
 
 llm:
-  provider: "claude"           # claude | openai | local
-  model: "claude-3-5-sonnet"   # Model identifier
+  provider: "claude"           # claude | openai | stub
+  model: "claude-3-5-sonnet-20241022"  # Model identifier
   max_tokens: 4096             # Max tokens per request
-  temperature: 0.0             # Temperature for generation
+  temperature: 0.0             # Temperature for generation (0.0-0.2 for determinism)
+  top_p: 0.3                   # Top-p sampling (<=0.3 for determinism)
+  timeout: 120                 # Timeout in seconds per API call
+  max_retries: 3               # Max retries on transient errors
+
+openai:
+  model: "gpt-4-turbo"         # OpenAI model identifier
+
+azure:
+  openai_endpoint: null        # Azure OpenAI endpoint URL (optional)
+  openai_api_version: "2024-02-15-preview"  # Azure OpenAI API version
 
 execution:
   dry_run: false               # Preview changes without applying
