@@ -74,6 +74,7 @@ from rice_factor.entrypoints.cli.commands import (
     impl,
     init,
     lock,
+    override,
     plan,
     refactor,
     resume,
@@ -96,6 +97,7 @@ app.command(name="lock")(lock.lock)
 app.add_typer(refactor.app, name="refactor")
 app.command(name="validate")(validate.validate)
 app.command(name="resume")(resume.resume)
+app.add_typer(override.app, name="override")
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from rice_factor.domain.services.diff_service import (
     DiffStatus,
 )
 from rice_factor.domain.services.init_service import InitService
+from rice_factor.domain.services.override_service import Override, OverrideService
 from rice_factor.domain.services.phase_service import (
     COMMAND_PHASES,
     PHASE_DESCRIPTIONS,
@@ -34,6 +35,12 @@ from rice_factor.domain.services.scaffold_service import (
     ScaffoldResult,
     ScaffoldService,
 )
+from rice_factor.domain.services.validation_orchestrator import (
+    StepResult,
+    ValidationOrchestrator,
+    ValidationResult,
+    ValidationStep,
+)
 
 __all__ = [
     "COMMAND_PHASES",
@@ -47,6 +54,8 @@ __all__ = [
     "DiffService",
     "DiffStatus",
     "InitService",
+    "Override",
+    "OverrideService",
     "Phase",
     "PhaseService",
     "Question",
@@ -57,4 +66,8 @@ __all__ = [
     "RefactorResult",
     "ScaffoldResult",
     "ScaffoldService",
+    "StepResult",
+    "ValidationOrchestrator",
+    "ValidationResult",
+    "ValidationStep",
 ]
