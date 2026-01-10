@@ -5,15 +5,21 @@ from typing import TYPE_CHECKING, Any, cast
 
 import typer
 
+from rice_factor.adapters.llm import create_llm_adapter_from_config
 from rice_factor.adapters.llm.stub import StubLLMAdapter
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
+from rice_factor.adapters.llm import LLMAdapter
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
-from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType, CreatedBy
+from rice_factor.config.settings import settings
+from rice_factor.domain.artifacts.compiler_types import CompilerPassType
+from rice_factor.domain.artifacts.enums import ArtifactType
 from rice_factor.domain.artifacts.envelope import ArtifactEnvelope
+from rice_factor.domain.services.artifact_builder import ArtifactBuilder
 from rice_factor.domain.services.artifact_service import ArtifactService
+from rice_factor.domain.services.context_builder import ContextBuilder, ContextBuilderError
 from rice_factor.domain.services.phase_service import PhaseService
 from rice_factor.entrypoints.cli.utils import (
     console,
@@ -40,6 +46,29 @@ def _get_artifact_service(project_root: Path) -> ArtifactService:
     storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
     approvals = ApprovalsTracker(artifacts_dir=artifacts_dir)
     return ArtifactService(storage=storage, approvals=approvals)
+
+
+def _get_artifact_builder(project_root: Path, use_stub: bool = False) -> ArtifactBuilder:
+    """Create an artifact builder with configured LLM.
+
+    Args:
+        project_root: Root directory of the project
+        use_stub: If True, use StubLLMAdapter instead of real LLM
+
+    Returns:
+        Configured ArtifactBuilder
+    """
+    artifacts_dir = project_root / "artifacts"
+    storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+    context_builder = ContextBuilder(storage_adapter=storage)
+
+    llm: LLMAdapter = StubLLMAdapter() if use_stub else create_llm_adapter_from_config()
+
+    return ArtifactBuilder(
+        llm_port=llm,  # type: ignore[arg-type]  # LLM adapters implement LLMPort
+        storage=storage,  # type: ignore[arg-type]  # FilesystemStorageAdapter implements StoragePort
+        context_builder=context_builder,
+    )
 
 
 def _check_phase(project_root: Path, command: str) -> None:
@@ -80,6 +109,24 @@ def _display_artifact_created(
     info(f"Run 'rice-factor approve {artifact_id}' to approve this artifact")
 
 
+def _display_failure(artifact: ArtifactEnvelope[Any]) -> None:
+    """Display failure report details.
+
+    Args:
+        artifact: The failure report artifact
+    """
+    error("Failed to generate artifact")
+    if hasattr(artifact.payload, "summary"):
+        console.print(f"  [red]Error:[/red] {artifact.payload.summary}")
+    if hasattr(artifact.payload, "details"):
+        details = artifact.payload.details
+        if isinstance(details, dict):
+            for key, value in details.items():
+                console.print(f"  [dim]{key}:[/dim] {value}")
+    if hasattr(artifact.payload, "recovery_action"):
+        info(f"Recovery: {artifact.payload.recovery_action.value}")
+
+
 def _save_artifact(service: ArtifactService, artifact: ArtifactEnvelope[Any]) -> None:
     """Save an artifact using the service.
 
@@ -91,6 +138,22 @@ def _save_artifact(service: ArtifactService, artifact: ArtifactEnvelope[Any]) ->
     service.storage.save(cast("ArtifactEnvelope[BaseModel]", artifact))
 
 
+def _get_llm_provider_info() -> str:
+    """Get description of the configured LLM provider.
+
+    Returns:
+        String describing the LLM provider and model
+    """
+    provider = settings.get("llm.provider", "claude")
+    if provider == "claude":
+        model = settings.get("llm.model", "claude-3-5-sonnet-20241022")
+    elif provider == "openai":
+        model = settings.get("openai.model", "gpt-4-turbo")
+    else:
+        model = "stub"
+    return f"{provider}/{model}"
+
+
 @app.command()
 @handle_errors
 def project(
@@ -98,30 +161,26 @@ def project(
     dry_run: bool = typer.Option(
         False, "--dry-run", "-n", help="Show what would be created without saving"
     ),
+    use_stub: bool = typer.Option(
+        False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
 ) -> None:
     """Generate a ProjectPlan artifact.
 
     Defines the project structure including domains, modules, and constraints.
     Requires project to be initialized (Phase: INIT+).
+
+    Uses the configured LLM provider (set via RICE_LLM_PROVIDER or config).
     """
     project_root = Path(path).resolve()
 
     # Check phase
     _check_phase(project_root, "plan project")
 
-    # Generate stub payload
-    llm = StubLLMAdapter()
-    payload = llm.generate_project_plan()
-
-    # Create envelope
-    artifact = ArtifactEnvelope(
-        artifact_type=ArtifactType.PROJECT_PLAN,
-        status=ArtifactStatus.DRAFT,
-        created_by=CreatedBy.LLM,
-        payload=payload,
-    )
-
     if dry_run:
+        # Use stub for dry run to avoid API calls
+        llm = StubLLMAdapter()
+        payload = llm.generate_project_plan()
         info("Dry run mode - artifact not saved")
         console.print()
         console.print("[bold]Would create ProjectPlan:[/bold]")
@@ -130,9 +189,26 @@ def project(
         console.print(f"  Architecture: {payload.constraints.architecture.value}")
         return
 
-    # Save artifact
-    service = _get_artifact_service(project_root)
-    _save_artifact(service, artifact)
+    # Show which LLM we're using
+    provider_info = _get_llm_provider_info()
+    if not use_stub:
+        info(f"Using LLM: {provider_info}")
+
+    # Build artifact using ArtifactBuilder
+    try:
+        builder = _get_artifact_builder(project_root, use_stub=use_stub)
+        artifact = builder.build(
+            pass_type=CompilerPassType.PROJECT,
+            project_root=project_root,
+        )
+    except ContextBuilderError as e:
+        error(f"Context error: {e}")
+        raise typer.Exit(1) from None
+
+    # Check if it's a failure report
+    if artifact.artifact_type == ArtifactType.FAILURE_REPORT:
+        _display_failure(artifact)
+        raise typer.Exit(1)
 
     # Display success
     file_path = (
@@ -151,6 +227,9 @@ def architecture(
     dry_run: bool = typer.Option(
         False, "--dry-run", "-n", help="Show what would be created without saving"
     ),
+    use_stub: bool = typer.Option(
+        False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
 ) -> None:
     """Generate an ArchitecturePlan artifact.
 
@@ -162,19 +241,10 @@ def architecture(
     # Check phase
     _check_phase(project_root, "plan architecture")
 
-    # Generate stub payload
-    llm = StubLLMAdapter()
-    payload = llm.generate_architecture_plan()
-
-    # Create envelope
-    artifact = ArtifactEnvelope(
-        artifact_type=ArtifactType.ARCHITECTURE_PLAN,
-        status=ArtifactStatus.DRAFT,
-        created_by=CreatedBy.LLM,
-        payload=payload,
-    )
-
     if dry_run:
+        # Use stub for dry run to avoid API calls
+        llm = StubLLMAdapter()
+        payload = llm.generate_architecture_plan()
         info("Dry run mode - artifact not saved")
         console.print()
         console.print("[bold]Would create ArchitecturePlan:[/bold]")
@@ -182,9 +252,26 @@ def architecture(
         console.print(f"  Rules: {len(payload.rules)}")
         return
 
-    # Save artifact
-    service = _get_artifact_service(project_root)
-    _save_artifact(service, artifact)
+    # Show which LLM we're using
+    provider_info = _get_llm_provider_info()
+    if not use_stub:
+        info(f"Using LLM: {provider_info}")
+
+    # Build artifact using ArtifactBuilder
+    try:
+        builder = _get_artifact_builder(project_root, use_stub=use_stub)
+        artifact = builder.build(
+            pass_type=CompilerPassType.ARCHITECTURE,
+            project_root=project_root,
+        )
+    except ContextBuilderError as e:
+        error(f"Context error: {e}")
+        raise typer.Exit(1) from None
+
+    # Check if it's a failure report
+    if artifact.artifact_type == ArtifactType.FAILURE_REPORT:
+        _display_failure(artifact)
+        raise typer.Exit(1)
 
     # Display success
     file_path = (
@@ -205,6 +292,9 @@ def tests(
     dry_run: bool = typer.Option(
         False, "--dry-run", "-n", help="Show what would be created without saving"
     ),
+    use_stub: bool = typer.Option(
+        False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
 ) -> None:
     """Generate a TestPlan artifact.
 
@@ -216,19 +306,10 @@ def tests(
     # Check phase
     _check_phase(project_root, "plan tests")
 
-    # Generate stub payload
-    llm = StubLLMAdapter()
-    payload = llm.generate_test_plan()
-
-    # Create envelope
-    artifact = ArtifactEnvelope(
-        artifact_type=ArtifactType.TEST_PLAN,
-        status=ArtifactStatus.DRAFT,
-        created_by=CreatedBy.LLM,
-        payload=payload,
-    )
-
     if dry_run:
+        # Use stub for dry run to avoid API calls
+        llm = StubLLMAdapter()
+        payload = llm.generate_test_plan()
         info("Dry run mode - artifact not saved")
         console.print()
         console.print("[bold]Would create TestPlan:[/bold]")
@@ -239,9 +320,26 @@ def tests(
             console.print(f"    ... and {len(payload.tests) - 3} more")
         return
 
-    # Save artifact
-    service = _get_artifact_service(project_root)
-    _save_artifact(service, artifact)
+    # Show which LLM we're using
+    provider_info = _get_llm_provider_info()
+    if not use_stub:
+        info(f"Using LLM: {provider_info}")
+
+    # Build artifact using ArtifactBuilder
+    try:
+        builder = _get_artifact_builder(project_root, use_stub=use_stub)
+        artifact = builder.build(
+            pass_type=CompilerPassType.TEST,
+            project_root=project_root,
+        )
+    except ContextBuilderError as e:
+        error(f"Context error: {e}")
+        raise typer.Exit(1) from None
+
+    # Check if it's a failure report
+    if artifact.artifact_type == ArtifactType.FAILURE_REPORT:
+        _display_failure(artifact)
+        raise typer.Exit(1)
 
     # Display success
     file_path = (
@@ -259,6 +357,9 @@ def implementation(
     dry_run: bool = typer.Option(
         False, "--dry-run", "-n", help="Show what would be created without saving"
     ),
+    use_stub: bool = typer.Option(
+        False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
 ) -> None:
     """Generate an ImplementationPlan artifact for a specific file.
 
@@ -270,19 +371,10 @@ def implementation(
     # Check phase
     _check_phase(project_root, "plan impl")
 
-    # Generate stub payload
-    llm = StubLLMAdapter()
-    payload = llm.generate_implementation_plan(target)
-
-    # Create envelope
-    artifact = ArtifactEnvelope(
-        artifact_type=ArtifactType.IMPLEMENTATION_PLAN,
-        status=ArtifactStatus.DRAFT,
-        created_by=CreatedBy.LLM,
-        payload=payload,
-    )
-
     if dry_run:
+        # Use stub for dry run to avoid API calls
+        llm = StubLLMAdapter()
+        payload = llm.generate_implementation_plan(target)
         info("Dry run mode - artifact not saved")
         console.print()
         console.print("[bold]Would create ImplementationPlan:[/bold]")
@@ -292,9 +384,27 @@ def implementation(
             console.print(f"    {i}. {step}")
         return
 
-    # Save artifact
-    service = _get_artifact_service(project_root)
-    _save_artifact(service, artifact)
+    # Show which LLM we're using
+    provider_info = _get_llm_provider_info()
+    if not use_stub:
+        info(f"Using LLM: {provider_info}")
+
+    # Build artifact using ArtifactBuilder
+    try:
+        builder = _get_artifact_builder(project_root, use_stub=use_stub)
+        artifact = builder.build(
+            pass_type=CompilerPassType.IMPLEMENTATION,
+            project_root=project_root,
+            target_file=target,
+        )
+    except ContextBuilderError as e:
+        error(f"Context error: {e}")
+        raise typer.Exit(1) from None
+
+    # Check if it's a failure report
+    if artifact.artifact_type == ArtifactType.FAILURE_REPORT:
+        _display_failure(artifact)
+        raise typer.Exit(1)
 
     # Display success
     file_path = (
@@ -316,6 +426,9 @@ def refactor(
     dry_run: bool = typer.Option(
         False, "--dry-run", "-n", help="Show what would be created without saving"
     ),
+    use_stub: bool = typer.Option(
+        False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
 ) -> None:
     """Generate a RefactorPlan artifact.
 
@@ -327,19 +440,10 @@ def refactor(
     # Check phase
     _check_phase(project_root, "plan refactor")
 
-    # Generate stub payload
-    llm = StubLLMAdapter()
-    payload = llm.generate_refactor_plan(goal)
-
-    # Create envelope
-    artifact = ArtifactEnvelope(
-        artifact_type=ArtifactType.REFACTOR_PLAN,
-        status=ArtifactStatus.DRAFT,
-        created_by=CreatedBy.LLM,
-        payload=payload,
-    )
-
     if dry_run:
+        # Use stub for dry run to avoid API calls
+        llm = StubLLMAdapter()
+        payload = llm.generate_refactor_plan(goal)
         info("Dry run mode - artifact not saved")
         console.print()
         console.print("[bold]Would create RefactorPlan:[/bold]")
@@ -349,9 +453,27 @@ def refactor(
             console.print(f"    - {op.type.value}")
         return
 
-    # Save artifact
-    service = _get_artifact_service(project_root)
-    _save_artifact(service, artifact)
+    # Show which LLM we're using
+    provider_info = _get_llm_provider_info()
+    if not use_stub:
+        info(f"Using LLM: {provider_info}")
+
+    # Build artifact using ArtifactBuilder
+    try:
+        builder = _get_artifact_builder(project_root, use_stub=use_stub)
+        artifact = builder.build(
+            pass_type=CompilerPassType.REFACTOR,
+            project_root=project_root,
+            # Note: goal would be passed via artifacts parameter in full implementation
+        )
+    except ContextBuilderError as e:
+        error(f"Context error: {e}")
+        raise typer.Exit(1) from None
+
+    # Check if it's a failure report
+    if artifact.artifact_type == ArtifactType.FAILURE_REPORT:
+        _display_failure(artifact)
+        raise typer.Exit(1)
 
     # Display success
     file_path = (

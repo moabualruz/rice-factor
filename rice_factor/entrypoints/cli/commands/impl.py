@@ -8,6 +8,7 @@ from rich.syntax import Syntax
 from rice_factor.adapters.audit.trail import AuditTrail
 from rice_factor.domain.services.diff_service import DiffService
 from rice_factor.domain.services.phase_service import PhaseService
+from rice_factor.domain.services.safety_enforcer import SafetyEnforcer
 from rice_factor.entrypoints.cli.utils import (
     console,
     error,
@@ -32,6 +33,26 @@ def _check_phase(project_root: Path) -> None:
     except Exception as e:
         error(str(e))
         raise typer.Exit(1) from None
+
+
+def _check_test_lock(project_root: Path) -> None:
+    """Verify that test files haven't been modified since lock.
+
+    Args:
+        project_root: The project root directory.
+
+    Raises:
+        typer.Exit: If test lock is violated.
+    """
+    safety = SafetyEnforcer(project_root=project_root)
+    result = safety.check_test_lock_intact()
+
+    if not result.is_valid:
+        error("TestPlan lock violated!")
+        for modified in result.modified_files:
+            error(f"  Modified: {modified}")
+        info("Recovery: Reset tests to locked state with 'git checkout <test_files>'")
+        raise typer.Exit(1)
 
 
 def _display_diff(content: str, target_file: str) -> None:
@@ -68,6 +89,9 @@ def impl(
 
     # Check phase
     _check_phase(project_root)
+
+    # Verify test lock is intact (M07-E-001)
+    _check_test_lock(project_root)
 
     # Initialize services
     diff_service = DiffService(project_root=project_root)

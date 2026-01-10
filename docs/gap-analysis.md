@@ -365,7 +365,84 @@ Milestone 06 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 8. Action Items
+## 8. Milestone 07 MVP Integration - Pre-Implementation Check
+
+### 8.1 MVP Requirements Compliance
+
+Verified against `raw/Phase-01-mvp.md`:
+
+| Requirement | Original Spec | M07 Requirements | Status |
+|-------------|--------------|------------------|--------|
+| Single repository | Section 1 | Section 2.1 | ✅ Match |
+| Single language (Rust/Go/JVM) | Section 1 | Section 2.1 | ✅ Match |
+| One module/bounded context | Section 1 | Section 2.1 | ✅ Match |
+| Test-driven implementation | Section 1 | Section 2.1 | ✅ Match |
+| One refactor operation | Section 1 | Section 2.1 | ✅ Match |
+| CLI only | Section 1 | Section 2.1 | ✅ Match |
+| Git-backed safety | Section 1 | Section 2.1 | ✅ Match |
+
+### 8.2 MVP Exit Criteria Verification
+
+| Criterion | Original Spec | Implementation Path | Status |
+|-----------|--------------|---------------------|--------|
+| EC-001: Init via CLI | Section 11 | M03 init command | ✅ Ready |
+| EC-002: Scaffold from plans | Section 11 | M05 ScaffoldExecutor | ✅ Ready |
+| EC-003: Tests locked before impl | Section 11 | M02 ArtifactService.lock() | ✅ Ready |
+| EC-004: File via plan→diff→test | Section 11 | M04+M05+M06 integration | ⚠️ Needs wiring |
+| EC-005: Refactor dry-run | Section 11 | M05 RefactorExecutor | ✅ Ready |
+| EC-006: No manual cleanup | Section 11 | All executors | ⚠️ Needs testing |
+| EC-007: Full audit trail | Section 11 | M05+M06 audit logging | ✅ Ready |
+
+### 8.3 Safety Guarantees Compliance
+
+Verified against `raw/Phase-01-mvp.md` Section 7:
+
+| Hard-Fail Condition | Original Spec | Implementation | Status |
+|---------------------|--------------|----------------|--------|
+| Tests modified after lock | Section 7 | Hash-based lock verification | ⚠️ Needs implementation |
+| Artifact missing | Section 7 | StoragePort.exists() | ✅ Ready |
+| Schema validation fails | Section 7 | Pydantic validation | ✅ Ready |
+| LLM outputs non-JSON | Section 7 | OutputValidator | ✅ Ready |
+| Diff touches unauthorized files | Section 7 | Diff authorization check | ⚠️ Needs implementation |
+
+### 8.4 Prerequisite Components Status
+
+| Component | Milestone | Status | Location |
+|-----------|-----------|--------|----------|
+| PhaseService | M03 | ✅ Complete | `domain/services/phase_service.py` |
+| ArtifactService | M02 | ✅ Complete | `domain/services/artifact_service.py` |
+| ArtifactBuilder | M04 | ✅ Complete | `domain/services/artifact_builder.py` |
+| ClaudeAdapter | M04 | ✅ Complete | `adapters/llm/claude.py` |
+| OpenAIAdapter | M04 | ✅ Complete | `adapters/llm/openai_adapter.py` |
+| ScaffoldExecutor | M05 | ✅ Complete | `adapters/executors/scaffold_executor.py` |
+| DiffExecutor | M05 | ✅ Complete | `adapters/executors/diff_executor.py` |
+| RefactorExecutor | M05 | ✅ Complete | `adapters/executors/refactor_executor.py` |
+| TestRunnerAdapter | M06 | ✅ Complete | `adapters/validators/test_runner_adapter.py` |
+| ValidationOrchestrator | M06 | ✅ Complete | `domain/services/validation_orchestrator.py` |
+
+### 8.5 Integration Gaps Identified
+
+| Gap | Description | Resolution |
+|-----|-------------|------------|
+| GAP-M07-001 | CLI plan commands use StubLLMAdapter | Replace with ClaudeAdapter/OpenAIAdapter |
+| GAP-M07-002 | No hash-based TestPlan lock verification | Implement in F07-04 |
+| GAP-M07-003 | Diff authorization not enforced | Implement in F07-07 |
+| GAP-M07-004 | No end-to-end integration tests | Create in F07-08 |
+| GAP-M07-005 | Executors not wired to CLI commands | Wire in F07-03, F07-05, F07-06 |
+
+### 8.6 Ready for Implementation
+
+Milestone 07 prerequisites are met. All foundational components from M01-M06 are complete.
+Key integration work needed:
+1. Replace stub LLM with real providers in CLI commands
+2. Wire executors to CLI commands
+3. Implement hash-based TestPlan lock verification
+4. Implement diff authorization checking
+5. Create comprehensive integration test suite
+
+---
+
+## 9. Action Items
 
 ### High Priority (Address Before Milestone 05)
 
@@ -387,7 +464,7 @@ Milestone 06 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 9. Conclusion
+## 10. Conclusion
 
 **Overall Coverage**: ~99% of original specifications are covered in documentation.
 
@@ -399,18 +476,20 @@ Milestone 06 documentation is complete. All gaps from original specs have been a
 
 **Milestone 05 Status**: ✅ Complete. All 6 features implemented.
 
-**Milestone 06 Status**: Documentation complete, ready for implementation. All gaps addressed:
+**Milestone 06 Status**: ✅ Complete. All 5 features implemented:
 - ValidatorPort protocol defined (analogous to ExecutorPort)
-- Test runner with language-specific commands (Section 4.1)
-- Lint runner with language-specific linters (Section 4.2)
-- Architecture validator design (optional, P1)
+- Test runner with language-specific commands
+- Lint runner with language-specific linters
+- Architecture validator
 - Invariant checker for domain constraints
 - ValidationResult generator with audit trail
-- 5 feature task files created (F06-01 through F06-05)
+- **Completed**: 2026-01-10
+
+**Milestone 07 Status**: Documentation in progress. See Section 8 for pre-implementation check.
 
 **Key Remaining Gaps**:
 1. Reconciliation cycle workflow (Post-MVP)
 2. Artifact aging policy (Post-MVP)
 3. Drift detection mechanism (Post-MVP)
 
-**Next Steps**: Begin Milestone 06 implementation with F06-05 ValidationResult Generator (foundation).
+**Next Steps**: Complete Milestone 07 documentation, then begin implementation.

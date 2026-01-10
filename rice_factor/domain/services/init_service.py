@@ -206,6 +206,33 @@ TEMPLATE_GENERATORS: dict[str, Callable[[QuestionnaireResponse], str]] = {
 }
 
 
+class IntakeValidationResult:
+    """Result of intake file validation.
+
+    Attributes:
+        is_valid: Whether all required intake files are populated.
+        empty_files: List of empty or missing files.
+        populated_files: List of populated files.
+    """
+
+    def __init__(
+        self,
+        is_valid: bool,
+        empty_files: list[str] | None = None,
+        populated_files: list[str] | None = None,
+    ) -> None:
+        """Initialize validation result.
+
+        Args:
+            is_valid: Whether validation passed.
+            empty_files: List of empty or missing file names.
+            populated_files: List of populated file names.
+        """
+        self.is_valid = is_valid
+        self.empty_files = empty_files or []
+        self.populated_files = populated_files or []
+
+
 class InitService:
     """Service for project initialization.
 
@@ -214,12 +241,20 @@ class InitService:
     """
 
     PROJECT_DIR: ClassVar[str] = ".project"
+    ARTIFACTS_DIR: ClassVar[str] = "artifacts"
+    AUDIT_DIR: ClassVar[str] = "audit"
     TEMPLATE_FILES: ClassVar[list[str]] = [
         "requirements.md",
         "constraints.md",
         "glossary.md",
         "non_goals.md",
         "risks.md",
+    ]
+    # Required intake files that must be non-empty for validation
+    REQUIRED_INTAKE_FILES: ClassVar[list[str]] = [
+        "requirements.md",
+        "constraints.md",
+        "glossary.md",
     ]
 
     def __init__(self, project_root: Path | None = None) -> None:
@@ -235,6 +270,16 @@ class InitService:
         """Get the .project/ directory path."""
         return self.project_root / self.PROJECT_DIR
 
+    @property
+    def artifacts_dir(self) -> Path:
+        """Get the artifacts/ directory path."""
+        return self.project_root / self.ARTIFACTS_DIR
+
+    @property
+    def audit_dir(self) -> Path:
+        """Get the audit/ directory path."""
+        return self.project_root / self.AUDIT_DIR
+
     def is_initialized(self) -> bool:
         """Check if the project is already initialized.
 
@@ -249,6 +294,9 @@ class InitService:
         force: bool = False,
     ) -> list[Path]:
         """Initialize the project with .project/ directory and template files.
+
+        Also creates artifacts/ and audit/ directories for artifact storage
+        and audit trail.
 
         Args:
             responses: Questionnaire responses for template generation.
@@ -269,6 +317,12 @@ class InitService:
 
         # Create .project/ directory
         self.project_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create artifacts/ directory for artifact storage
+        self.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create audit/ directory for audit trail
+        self.audit_dir.mkdir(parents=True, exist_ok=True)
 
         # Use empty responses if none provided
         if responses is None:
@@ -311,3 +365,63 @@ class InitService:
             responses = QuestionnaireResponse()
 
         return generator(responses)
+
+    def validate_intake_files(self) -> IntakeValidationResult:
+        """Validate that required intake files are non-empty.
+
+        Checks that requirements.md, constraints.md, and glossary.md exist
+        and have non-trivial content (more than just the template markers).
+
+        Returns:
+            IntakeValidationResult with validation status and file details.
+        """
+        empty_files: list[str] = []
+        populated_files: list[str] = []
+
+        for filename in self.REQUIRED_INTAKE_FILES:
+            file_path = self.project_dir / filename
+            if not file_path.exists():
+                empty_files.append(filename)
+                continue
+
+            content = file_path.read_text(encoding="utf-8").strip()
+            if not content:
+                empty_files.append(filename)
+                continue
+
+            # Check if content is just the template (still has placeholder markers)
+            # A file is considered "populated" if it doesn't contain placeholder markers
+            # or has significant custom content beyond the template
+            if self._is_template_only(content):
+                empty_files.append(filename)
+            else:
+                populated_files.append(filename)
+
+        is_valid = len(empty_files) == 0
+        return IntakeValidationResult(
+            is_valid=is_valid,
+            empty_files=empty_files,
+            populated_files=populated_files,
+        )
+
+    def _is_template_only(self, content: str) -> bool:
+        """Check if content is still just the template.
+
+        A file is considered "template only" if it still contains
+        placeholder markers like [Not provided] or [Not specified].
+
+        Args:
+            content: File content to check.
+
+        Returns:
+            True if content appears to be unchanged template.
+        """
+        # These markers indicate the file hasn't been customized
+        template_markers = [
+            "[Not provided]",
+            "[Not specified]",
+            "[Requirement description]",
+            "[Term 1]",
+            "[Definition]",
+        ]
+        return any(marker in content for marker in template_markers)

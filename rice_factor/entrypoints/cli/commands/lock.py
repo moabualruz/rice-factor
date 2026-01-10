@@ -9,7 +9,9 @@ from rich.table import Table
 from rice_factor.adapters.audit.trail import AuditTrail
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
+from rice_factor.adapters.storage.lock_manager import LockManager
 from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
+from rice_factor.domain.artifacts.payloads.scaffold_plan import FileKind
 from rice_factor.domain.services.artifact_resolver import ArtifactResolver
 from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.phase_service import PhaseService
@@ -42,14 +44,14 @@ def _check_phase(project_root: Path) -> None:
 
 def _get_services(
     project_root: Path,
-) -> tuple[ArtifactService, ArtifactResolver, AuditTrail]:
+) -> tuple[ArtifactService, ArtifactResolver, AuditTrail, LockManager]:
     """Get services for the lock command.
 
     Args:
         project_root: The project root directory.
 
     Returns:
-        Tuple of (ArtifactService, ArtifactResolver, AuditTrail).
+        Tuple of (ArtifactService, ArtifactResolver, AuditTrail, LockManager).
     """
     artifacts_dir = project_root / "artifacts"
     storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
@@ -57,7 +59,37 @@ def _get_services(
     artifact_service = ArtifactService(storage=storage, approvals=approvals)
     resolver = ArtifactResolver(storage=storage)
     audit_trail = AuditTrail(project_root=project_root)
-    return artifact_service, resolver, audit_trail
+    lock_manager = LockManager(project_root=project_root)
+    return artifact_service, resolver, audit_trail, lock_manager
+
+
+def _get_test_files_from_scaffold(
+    resolver: ArtifactResolver,
+) -> list[str]:
+    """Get test file paths from the most recent ScaffoldPlan.
+
+    Args:
+        resolver: Artifact resolver to find ScaffoldPlan.
+
+    Returns:
+        List of test file paths from ScaffoldPlan.
+    """
+    from rice_factor.domain.artifacts.payloads.scaffold_plan import ScaffoldPlanPayload
+
+    scaffold = resolver.resolve_latest_by_type(ArtifactType.SCAFFOLD_PLAN)
+    if scaffold is None:
+        return []
+
+    # Type narrowing - payload is ScaffoldPlanPayload for SCAFFOLD_PLAN type
+    if not isinstance(scaffold.payload, ScaffoldPlanPayload):
+        return []
+
+    test_files = []
+    for file_entry in scaffold.payload.files:
+        if file_entry.kind == FileKind.TEST:
+            test_files.append(file_entry.path)
+
+    return test_files
 
 
 def _display_artifact_summary(
@@ -127,7 +159,7 @@ def lock(
     _check_phase(project_root)
 
     # Initialize services
-    artifact_service, resolver, audit_trail = _get_services(project_root)
+    artifact_service, resolver, audit_trail, lock_manager = _get_services(project_root)
 
     # Handle 'tests' shorthand
     if artifact.lower() == "tests":
@@ -197,13 +229,40 @@ def lock(
         info("Lock cancelled")
         return
 
-    # Perform lock
+    # Get test files from ScaffoldPlan for hash-based locking
+    test_files = _get_test_files_from_scaffold(resolver)
+    if not test_files:
+        warning("No test files found in ScaffoldPlan - lock file will be empty")
+
+    # Filter to only files that exist
+    existing_test_files = []
+    for tf in test_files:
+        if (project_root / tf).exists():
+            existing_test_files.append(tf)
+        else:
+            warning(f"Test file not found, skipping: {tf}")
+
+    # Create hash-based lock file
+    try:
+        if existing_test_files:
+            lock_file = lock_manager.lock_test_plan(
+                test_plan_id=envelope.id,
+                test_files=existing_test_files,
+            )
+            info(f"Locked {len(lock_file.test_files)} test files with SHA-256 hashes")
+    except FileNotFoundError as e:
+        error(f"Failed to create lock file: {e}")
+        raise typer.Exit(1) from None
+
+    # Perform artifact lock (status transition)
     try:
         artifact_service.lock(
             artifact_id=envelope.id,
             artifact_type=ArtifactType.TEST_PLAN,
         )
     except Exception as e:
+        # Remove hash lock file if artifact lock fails
+        lock_manager.remove_lock()
         error(f"Failed to lock artifact: {e}")
         raise typer.Exit(1) from None
 
@@ -214,5 +273,7 @@ def lock(
 
     console.print()
     success(f"TestPlan {envelope.id} is now LOCKED")
+    if existing_test_files:
+        info("Test file hashes stored in .project/.lock")
     warning("This artifact is permanently immutable")
     info("Proceed to implementation with 'rice-factor plan impl <file>'")

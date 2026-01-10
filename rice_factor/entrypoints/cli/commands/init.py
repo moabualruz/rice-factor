@@ -7,6 +7,7 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 
+from rice_factor.adapters.audit.trail import AuditTrail
 from rice_factor.domain.services.init_service import InitService
 from rice_factor.domain.services.questionnaire import (
     INIT_QUESTIONS,
@@ -69,14 +70,25 @@ def _display_welcome() -> None:
     display_panel("Project Initialization", welcome_text, style="blue")
 
 
-def _display_summary(created_files: list[Path], project_dir: Path) -> None:
-    """Display summary of created files.
+def _display_summary(
+    created_files: list[Path],
+    service: InitService,
+) -> None:
+    """Display summary of created files and directories.
 
     Args:
         created_files: List of files that were created
-        project_dir: Path to the .project/ directory
+        service: The init service with directory paths
     """
-    table = Table(title="Created Files", show_header=True, header_style="bold")
+    # Display directories created
+    console.print()
+    console.print("[bold]Directories created:[/bold]")
+    console.print("  [cyan].project/[/cyan] - Project intake files")
+    console.print("  [cyan]artifacts/[/cyan] - Artifact storage")
+    console.print("  [cyan]audit/[/cyan] - Audit trail")
+
+    # Display files table
+    table = Table(title="Intake Files", show_header=True, header_style="bold")
     table.add_column("File", style="cyan")
     table.add_column("Description", style="dim")
 
@@ -90,13 +102,14 @@ def _display_summary(created_files: list[Path], project_dir: Path) -> None:
 
     for file_path in created_files:
         desc = descriptions.get(file_path.name, "Template file")
-        table.add_row(str(file_path.relative_to(project_dir.parent)), desc)
+        table.add_row(str(file_path.relative_to(service.project_root)), desc)
 
     console.print()
     console.print(table)
     console.print()
-    success(f"Project initialized at {project_dir}")
-    info("Edit the files in .project/ to customize your project before running 'rice-factor plan'")
+    success(f"Project initialized at {service.project_dir}")
+    warning("Edit the intake files in .project/ before running 'rice-factor plan'")
+    info("Required files: requirements.md, constraints.md, glossary.md")
 
 
 def _run_questionnaire(questions: list[Question]) -> QuestionnaireResponse:
@@ -208,7 +221,13 @@ def init(
     # Perform initialization
     try:
         created_files = service.initialize(responses=responses, force=force)
-        _display_summary(created_files, service.project_dir)
     except FileExistsError as e:
         error(str(e))
         raise typer.Exit(1) from None
+
+    # Record in audit trail
+    audit_trail = AuditTrail(project_root=project_root)
+    audit_trail.record_init(files_created=[str(f) for f in created_files])
+
+    # Display summary
+    _display_summary(created_files, service)

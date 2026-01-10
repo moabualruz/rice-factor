@@ -60,6 +60,10 @@ from rice_factor.domain.services.refactor_executor import (
     RefactorExecutor,
     RefactorResult,
 )
+from rice_factor.domain.services.safety_enforcer import (
+    LockVerificationResult as SafetyLockVerificationResult,
+    SafetyEnforcer,
+)
 from rice_factor.domain.services.scaffold_service import (
     ScaffoldResult,
     ScaffoldService,
@@ -109,6 +113,8 @@ __all__ = [
     "RefactorDiff",
     "RefactorExecutor",
     "RefactorResult",
+    "SafetyEnforcer",
+    "SafetyLockVerificationResult",
     "ScaffoldResult",
     "ScaffoldService",
     "StepResult",

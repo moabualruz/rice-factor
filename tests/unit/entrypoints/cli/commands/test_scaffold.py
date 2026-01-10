@@ -37,13 +37,19 @@ class TestScaffoldCommandHelp:
         assert result.exit_code == 0
         assert "--path" in result.stdout
 
+    def test_help_shows_stub_option(self) -> None:
+        """--help should show --stub option."""
+        result = runner.invoke(app, ["scaffold", "--help"])
+        assert result.exit_code == 0
+        assert "--stub" in result.stdout
+
 
 class TestScaffoldRequiresInit:
     """Tests for scaffold phase requirements."""
 
     def test_scaffold_requires_init(self, tmp_path: Path) -> None:
         """scaffold should fail if project not initialized."""
-        result = runner.invoke(app, ["scaffold", "--path", str(tmp_path)])
+        result = runner.invoke(app, ["scaffold", "--path", str(tmp_path), "--stub"])
         assert result.exit_code == 1
         assert "not initialized" in result.stdout.lower()
 
@@ -52,7 +58,7 @@ class TestScaffoldRequiresInit:
         # Create .project directory (INIT phase)
         (tmp_path / ".project").mkdir()
 
-        result = runner.invoke(app, ["scaffold", "--path", str(tmp_path)])
+        result = runner.invoke(app, ["scaffold", "--path", str(tmp_path), "--stub"])
         assert result.exit_code == 1
         # Should fail because we need PLANNING phase (ProjectPlan approved)
         assert "phase" in result.stdout.lower() or "cannot" in result.stdout.lower()
@@ -122,7 +128,7 @@ class TestScaffoldConfirmation:
         ):
             # Simulate user typing 'n' for no
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path)], input="n\n"
+                app, ["scaffold", "--path", str(tmp_path), "--stub"], input="n\n"
             )
 
         # Should exit cleanly when user declines
@@ -138,7 +144,7 @@ class TestScaffoldConfirmation:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         # Should complete without asking
@@ -158,7 +164,7 @@ class TestScaffoldExecution:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -174,7 +180,7 @@ class TestScaffoldExecution:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -188,7 +194,7 @@ class TestScaffoldExecution:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -202,7 +208,7 @@ class TestScaffoldExecution:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -217,7 +223,7 @@ class TestScaffoldExecution:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -242,7 +248,7 @@ class TestScaffoldSkipsExisting:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -268,7 +274,7 @@ class TestScaffoldSkipsExisting:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -287,7 +293,7 @@ class TestScaffoldSummary:
             "rice_factor.entrypoints.cli.commands.scaffold._check_phase"
         ):
             result = runner.invoke(
-                app, ["scaffold", "--path", str(tmp_path), "--yes"]
+                app, ["scaffold", "--path", str(tmp_path), "--yes", "--stub"]
             )
 
         assert result.exit_code == 0

@@ -6,10 +6,14 @@ artifacts to various backends.
 
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
+from rice_factor.adapters.storage.lock_manager import LockFile, LockManager, LockVerificationResult
 from rice_factor.adapters.storage.registry import ArtifactRegistry
 
 __all__ = [
     "ApprovalsTracker",
     "ArtifactRegistry",
     "FilesystemStorageAdapter",
+    "LockFile",
+    "LockManager",
+    "LockVerificationResult",
 ]

@@ -1,5 +1,6 @@
 """Unit tests for lock command."""
 
+import json
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import patch
@@ -16,6 +17,11 @@ from rice_factor.domain.artifacts.payloads.project_plan import (
     Domain,
     Module,
     ProjectPlanPayload,
+)
+from rice_factor.domain.artifacts.payloads.scaffold_plan import (
+    FileEntry,
+    FileKind,
+    ScaffoldPlanPayload,
 )
 from rice_factor.domain.artifacts.payloads.test_plan import (
     TestDefinition,
@@ -44,6 +50,24 @@ def _create_test_plan_payload() -> TestPlanPayload:
                 target="main_function",
                 assertions=["result == expected"],
             )
+        ],
+    )
+
+
+def _create_scaffold_plan_payload() -> ScaffoldPlanPayload:
+    """Create a valid ScaffoldPlanPayload for testing."""
+    return ScaffoldPlanPayload(
+        files=[
+            FileEntry(
+                path="src/main.py",
+                description="Main module",
+                kind=FileKind.SOURCE,
+            ),
+            FileEntry(
+                path="tests/test_main.py",
+                description="Main tests",
+                kind=FileKind.TEST,
+            ),
         ],
     )
 
@@ -322,3 +346,168 @@ class TestLockCreatesAuditEntry:
         # Audit trail should exist
         trail_file = tmp_path / "audit" / "trail.json"
         assert trail_file.exists()
+
+
+class TestLockCreatesHashFile:
+    """Tests for hash-based lock file creation."""
+
+    def test_lock_creates_project_lock_file(self, tmp_path: Path) -> None:
+        """lock should create .project/.lock with hashes."""
+        (tmp_path / ".project").mkdir()
+
+        # Create test file
+        (tmp_path / "tests").mkdir()
+        test_file = tmp_path / "tests" / "test_main.py"
+        test_file.write_text("def test_main(): pass")
+
+        # Create ScaffoldPlan with test file
+        artifacts_dir = tmp_path / "artifacts"
+        storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+
+        scaffold: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.SCAFFOLD_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_scaffold_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", scaffold))
+
+        # Create TestPlan
+        test_plan: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.TEST_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_test_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", test_plan))
+
+        with patch(
+            "rice_factor.entrypoints.cli.commands.lock._check_phase"
+        ):
+            result = runner.invoke(
+                app,
+                ["lock", "tests", "--path", str(tmp_path)],
+                input="LOCK\n",
+            )
+
+        assert result.exit_code == 0
+
+        # Verify .project/.lock exists
+        lock_file = tmp_path / ".project" / ".lock"
+        assert lock_file.exists()
+
+        # Verify lock file content
+        lock_data = json.loads(lock_file.read_text())
+        assert "test_plan_id" in lock_data
+        assert "locked_at" in lock_data
+        assert "test_files" in lock_data
+        assert "tests/test_main.py" in lock_data["test_files"]
+        assert lock_data["test_files"]["tests/test_main.py"].startswith("sha256:")
+
+    def test_lock_without_scaffold_warns(self, tmp_path: Path) -> None:
+        """lock should warn when no ScaffoldPlan exists."""
+        (tmp_path / ".project").mkdir()
+
+        # Create only TestPlan (no ScaffoldPlan)
+        artifacts_dir = tmp_path / "artifacts"
+        storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+
+        test_plan: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.TEST_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_test_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", test_plan))
+
+        with patch(
+            "rice_factor.entrypoints.cli.commands.lock._check_phase"
+        ):
+            result = runner.invoke(
+                app,
+                ["lock", "tests", "--path", str(tmp_path)],
+                input="LOCK\n",
+            )
+
+        assert result.exit_code == 0
+        # Should warn about empty lock file
+        assert "no test files found" in result.stdout.lower()
+
+    def test_lock_skips_missing_files(self, tmp_path: Path) -> None:
+        """lock should skip test files that don't exist."""
+        (tmp_path / ".project").mkdir()
+
+        # Create ScaffoldPlan but don't create the test file
+        artifacts_dir = tmp_path / "artifacts"
+        storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+
+        scaffold: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.SCAFFOLD_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_scaffold_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", scaffold))
+
+        test_plan: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.TEST_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_test_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", test_plan))
+
+        with patch(
+            "rice_factor.entrypoints.cli.commands.lock._check_phase"
+        ):
+            result = runner.invoke(
+                app,
+                ["lock", "tests", "--path", str(tmp_path)],
+                input="LOCK\n",
+            )
+
+        assert result.exit_code == 0
+        # Should warn about missing file
+        assert "skipping" in result.stdout.lower() or "not found" in result.stdout.lower()
+
+    def test_lock_reports_file_count(self, tmp_path: Path) -> None:
+        """lock should report how many files were locked."""
+        (tmp_path / ".project").mkdir()
+
+        # Create test file
+        (tmp_path / "tests").mkdir()
+        test_file = tmp_path / "tests" / "test_main.py"
+        test_file.write_text("def test_main(): pass")
+
+        # Create ScaffoldPlan
+        artifacts_dir = tmp_path / "artifacts"
+        storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+
+        scaffold: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.SCAFFOLD_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_scaffold_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", scaffold))
+
+        test_plan: ArtifactEnvelope[Any] = ArtifactEnvelope(
+            artifact_type=ArtifactType.TEST_PLAN,
+            status=ArtifactStatus.APPROVED,
+            created_by=CreatedBy.LLM,
+            payload=_create_test_plan_payload(),
+        )
+        storage.save(cast("ArtifactEnvelope[BaseModel]", test_plan))
+
+        with patch(
+            "rice_factor.entrypoints.cli.commands.lock._check_phase"
+        ):
+            result = runner.invoke(
+                app,
+                ["lock", "tests", "--path", str(tmp_path)],
+                input="LOCK\n",
+            )
+
+        assert result.exit_code == 0
+        # Should report 1 test file locked
+        assert "1 test file" in result.stdout.lower() or "locked 1" in result.stdout.lower()
