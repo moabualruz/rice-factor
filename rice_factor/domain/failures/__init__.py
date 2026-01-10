@@ -23,6 +23,11 @@ This module provides the exception hierarchy for Rice-Factor including:
 - CodeInOutputError: LLM returned source code
 - MultipleArtifactsError: LLM returned multiple artifacts
 - ExplanatoryTextError: LLM included text outside JSON
+- ExecutorError: Base executor error
+- ExecutorPreconditionError: Preconditions not met
+- ExecutorCapabilityError: Operation not supported
+- ExecutorArtifactError: Invalid artifact
+- ExecutorApplyError: Apply failed
 """
 
 from rice_factor.domain.failures.cli_errors import (
@@ -38,6 +43,26 @@ from rice_factor.domain.failures.errors import (
     ArtifactStatusError,
     ArtifactValidationError,
     RiceFactorError,
+)
+from rice_factor.domain.failures.executor_errors import (
+    ArtifactNotApprovedError,
+    ArtifactSchemaError,
+    ArtifactTypeError,
+    DestinationExistsError,
+    DiffNotApprovedError,
+    ExecutorApplyError,
+    ExecutorArtifactError,
+    ExecutorCapabilityError,
+    ExecutorError,
+    ExecutorPreconditionError,
+    FileAlreadyExistsError,
+    FileWriteError,
+    GitApplyError,
+    PathEscapesRepoError,
+    SourceFileNotFoundError,
+    TestsLockedError,
+    UnauthorizedFileModificationError,
+    UnsupportedOperationError,
 )
 from rice_factor.domain.failures.llm_errors import (
     CodeInOutputError,
@@ -55,14 +80,40 @@ from rice_factor.domain.failures.llm_errors import (
 )
 
 __all__ = [
+    # Base errors
+    "RiceFactorError",
+    # Artifact errors
     "ArtifactDependencyError",
     "ArtifactError",
     "ArtifactNotFoundError",
     "ArtifactStatusError",
     "ArtifactValidationError",
+    # CLI errors
     "CLIError",
-    "CodeInOutputError",
     "ConfirmationRequired",
+    "MissingPrerequisiteError",
+    "PhaseError",
+    # Executor errors
+    "ArtifactNotApprovedError",
+    "ArtifactSchemaError",
+    "ArtifactTypeError",
+    "DestinationExistsError",
+    "DiffNotApprovedError",
+    "ExecutorApplyError",
+    "ExecutorArtifactError",
+    "ExecutorCapabilityError",
+    "ExecutorError",
+    "ExecutorPreconditionError",
+    "FileAlreadyExistsError",
+    "FileWriteError",
+    "GitApplyError",
+    "PathEscapesRepoError",
+    "SourceFileNotFoundError",
+    "TestsLockedError",
+    "UnauthorizedFileModificationError",
+    "UnsupportedOperationError",
+    # LLM errors
+    "CodeInOutputError",
     "ExplanatoryTextError",
     "InvalidJSONError",
     "LLMAPIError",
@@ -72,9 +123,6 @@ __all__ = [
     "LLMOutputError",
     "LLMRateLimitError",
     "LLMTimeoutError",
-    "MissingPrerequisiteError",
     "MultipleArtifactsError",
-    "PhaseError",
-    "RiceFactorError",
     "SchemaViolationError",
 ]

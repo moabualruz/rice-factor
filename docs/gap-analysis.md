@@ -63,9 +63,10 @@ This document identifies gaps between the original specification documents (`doc
 
 #### Capability Registry
 - **Source**: `raw/04-repository-and-system-layout.md` Section 4.6
-- **Docs**: Mentioned in design but not detailed
-- **Gap**: YAML schema and language operation matrix not specified
-- **Action**: Add capability registry design to Milestone 05
+- **Docs**: `milestones/05-executor-engine/requirements.md` Section 4.2
+- **Status**: ✅ Addressed
+- **Details**: Full YAML schema defined with language-operation matrix
+- **Addressed**: 2026-01-10
 
 #### Reconciliation Cycle
 - **Source**: `raw/item-05-Failure-Recovery-and-Resilience-Model.md` Section 5.5.2
@@ -144,6 +145,19 @@ This document identifies gaps between the original specification documents (`doc
   - Created design.md with LLM compiler architecture
   - Created 7 feature task files (F04-01 through F04-07)
   - Full `run_mode.yaml` schema defined (addressing gap from item-04)
+- **Added**: 2026-01-10
+
+#### Milestone 05 Documentation Prepared
+- **Source**: Milestone 05 requirements
+- **Status**: ✅ Documentation complete
+- **Details**:
+  - Updated requirements.md v1.2.0 with:
+    - ExecutionResult schema from raw spec
+    - Capability Registry YAML schema (addressing gap from item-04/raw-04)
+    - Domain-specific requirements for all executors
+    - Out of scope clarifications (Test Runner → M06, Architecture Validator → post-MVP)
+  - Created design.md with executor engine architecture
+  - Created 6 feature task files (F05-01 through F05-06)
 - **Added**: 2026-01-10
 
 ---
@@ -230,13 +244,65 @@ Milestone 04 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 6. Action Items
+## 6. Milestone 05 Executor Engine - Pre-Implementation Check
+
+### 6.1 Executor Contract Compliance
+
+Verified against `raw/item-02-executor-design-and-pseudocode.md`:
+
+| Requirement | Original Spec | M05 Requirements | Status |
+|-------------|--------------|------------------|--------|
+| Stateless | Section 2.1 | M05-U-001 | ✅ Match |
+| Deterministic | Section 2.1 | M05-U-002 | ✅ Match |
+| Fail-fast | Section 2.1 | M05-U-003 | ✅ Match |
+| Emit diffs | Section 2.1 | M05-U-004 | ✅ Match |
+| Auditable | Section 2.1 | M05-U-005 | ✅ Match |
+| No LLM calls | Section 2.1 | M05-U-007 | ✅ Match |
+| No artifact mutation | Section 2.1 | M05-U-008 | ✅ Match |
+
+### 6.2 Executor Types Verified
+
+| Executor | Original Spec | M05 Requirements | Status |
+|----------|--------------|------------------|--------|
+| Scaffold Executor | Section 2.5 | Section 7.1 | ✅ Match |
+| Diff Executor | Section 2.6 | Section 7.2 | ✅ Match |
+| Refactor Executor | Section 2.7 | Section 7.3 | ✅ Match |
+| Test Runner | Section 2.8 | Out of Scope (M06) | ✅ Documented |
+| Architecture Validator | Section 2.9 | Out of Scope (post-MVP) | ✅ Documented |
+
+### 6.3 Capability Registry Verified
+
+Verified against `raw/04-repository-and-system-layout.md` Section 4.6:
+
+| Requirement | Original Spec | M05 Requirements | Status |
+|-------------|--------------|------------------|--------|
+| YAML schema | Section 4.6 | Section 4.2 | ✅ Match |
+| Language operations | Section 4.6 | Section 4.2 | ✅ Match |
+| Rejection before execution | Section 4.6 | M05-CR-004 | ✅ Match |
+
+### 6.4 Existing Code to Wrap/Extend
+
+The following existing domain services will be wrapped by executor adapters:
+
+| Service | Location | Status |
+|---------|----------|--------|
+| ScaffoldService | `domain/services/scaffold_service.py` | Working implementation |
+| RefactorExecutor | `domain/services/refactor_executor.py` | Stub implementation |
+| DiffService | `domain/services/diff_service.py` | Stub implementation |
+
+### 6.5 Ready for Implementation
+
+Milestone 05 documentation is complete. All gaps from original specs have been addressed.
+
+---
+
+## 7. Action Items
 
 ### High Priority (Address Before Milestone 05)
 
 - [x] Add `rice-factor override` command to CLI requirements (Added 2026-01-10)
 - [x] Define run_mode.yaml configuration schema (Added 2026-01-10)
-- [ ] Document capability registry YAML schema (Milestone 05)
+- [x] Document capability registry YAML schema (Added 2026-01-10)
 
 ### Medium Priority (Address During Implementation)
 
@@ -252,23 +318,25 @@ Milestone 04 documentation is complete. All gaps from original specs have been a
 
 ---
 
-## 7. Conclusion
+## 8. Conclusion
 
-**Overall Coverage**: ~98% of original specifications are covered in documentation.
+**Overall Coverage**: ~99% of original specifications are covered in documentation.
 
 **Milestone 02 Status**: ✅ Complete. All 7 features implemented, 197 tests passing.
 
 **Milestone 03 Status**: ✅ Complete. All 9 features implemented, 672+ tests passing.
 
-**Milestone 04 Status**: Documentation complete, ready for implementation. All gaps addressed:
-- run_mode.yaml schema defined (Section 5.1)
-- Agent roles documented (Section 6)
-- FailureReport artifact added (F04-07)
-- 7 feature task files created
+**Milestone 04 Status**: ✅ Complete. All 7 features implemented.
+
+**Milestone 05 Status**: Documentation complete, ready for implementation. All gaps addressed:
+- ExecutionResult schema defined (Section 4.1)
+- Capability Registry YAML schema defined (Section 4.2)
+- Domain-specific requirements for all executors (Section 7)
+- 6 feature task files created (F05-01 through F05-06)
 
 **Key Remaining Gaps**:
-1. Capability registry schema not detailed (Milestone 05)
-2. Lint runner integration details (Milestone 06)
+1. Lint runner integration details (Milestone 06)
+2. Architecture rule enforcement (Milestone 06)
 3. Artifact aging policy (Post-MVP)
 
-**Next Steps**: Begin Milestone 04 implementation with F04-01 LLM Protocol Interface.
+**Next Steps**: Begin Milestone 05 implementation with F05-01 Executor Base Interface.
