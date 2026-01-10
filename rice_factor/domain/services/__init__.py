@@ -3,7 +3,9 @@
 This module provides services that coordinate domain operations.
 """
 
+from rice_factor.domain.services.artifact_resolver import ArtifactResolver
 from rice_factor.domain.services.artifact_service import ArtifactService
+from rice_factor.domain.services.capability_service import CapabilityService
 from rice_factor.domain.services.diff_service import (
     Diff,
     DiffResult,
@@ -23,6 +25,11 @@ from rice_factor.domain.services.questionnaire import (
     QuestionnaireResponse,
     QuestionnaireRunner,
 )
+from rice_factor.domain.services.refactor_executor import (
+    RefactorDiff,
+    RefactorExecutor,
+    RefactorResult,
+)
 from rice_factor.domain.services.scaffold_service import (
     ScaffoldResult,
     ScaffoldService,
@@ -32,7 +39,9 @@ __all__ = [
     "COMMAND_PHASES",
     "INIT_QUESTIONS",
     "PHASE_DESCRIPTIONS",
+    "ArtifactResolver",
     "ArtifactService",
+    "CapabilityService",
     "Diff",
     "DiffResult",
     "DiffService",
@@ -43,6 +52,9 @@ __all__ = [
     "Question",
     "QuestionnaireResponse",
     "QuestionnaireRunner",
+    "RefactorDiff",
+    "RefactorExecutor",
+    "RefactorResult",
     "ScaffoldResult",
     "ScaffoldService",
 ]

@@ -28,15 +28,23 @@
             "description": "Type of refactoring operation"
           },
           "from": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Source path (for move_file)"
           },
+          "from_path": {
+            "type": ["string", "null"],
+            "description": "Source path alias (for move_file)"
+          },
           "to": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Destination path (for move_file)"
           },
+          "to_path": {
+            "type": ["string", "null"],
+            "description": "Destination path alias (for move_file)"
+          },
           "symbol": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Symbol name (for rename_symbol, extract_interface)"
           }
         },
@@ -45,14 +53,19 @@
       "description": "Refactoring operations"
     },
     "constraints": {
-      "type": "object",
-      "properties": {
-        "preserve_behavior": {
-          "type": "boolean",
-          "description": "Whether behavior must be preserved"
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "preserve_behavior": {
+              "type": "boolean",
+              "description": "Whether behavior must be preserved"
+            }
+          },
+          "additionalProperties": false
         }
-      },
-      "additionalProperties": false,
+      ],
       "description": "Refactoring constraints"
     }
   },

@@ -93,7 +93,7 @@ app.command(name="test")(test.test)
 app.command(name="diagnose")(diagnose.diagnose)
 app.command(name="approve")(approve.approve)
 app.command(name="lock")(lock.lock)
-app.command(name="refactor")(refactor.refactor)
+app.add_typer(refactor.app, name="refactor")
 app.command(name="validate")(validate.validate)
 app.command(name="resume")(resume.resume)
 
