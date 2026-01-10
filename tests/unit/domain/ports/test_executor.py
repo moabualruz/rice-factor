@@ -17,8 +17,9 @@ class TestExecutorPortProtocol:
 
     def test_executor_port_is_protocol(self) -> None:
         """ExecutorPort should be a Protocol."""
-        # Protocol classes have __protocol_attrs__
-        assert hasattr(ExecutorPort, "__protocol_attrs__")
+        # Protocol classes are marked with _is_protocol
+        from typing import Protocol
+        assert issubclass(ExecutorPort, Protocol)
 
     def test_executor_port_is_runtime_checkable(self) -> None:
         """ExecutorPort should be runtime checkable."""

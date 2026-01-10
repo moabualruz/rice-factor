@@ -80,23 +80,17 @@ from rice_factor.domain.failures.llm_errors import (
 )
 
 __all__ = [
-    # Base errors
-    "RiceFactorError",
-    # Artifact errors
     "ArtifactDependencyError",
     "ArtifactError",
-    "ArtifactNotFoundError",
-    "ArtifactStatusError",
-    "ArtifactValidationError",
-    # CLI errors
-    "CLIError",
-    "ConfirmationRequired",
-    "MissingPrerequisiteError",
-    "PhaseError",
-    # Executor errors
     "ArtifactNotApprovedError",
+    "ArtifactNotFoundError",
     "ArtifactSchemaError",
+    "ArtifactStatusError",
     "ArtifactTypeError",
+    "ArtifactValidationError",
+    "CLIError",
+    "CodeInOutputError",
+    "ConfirmationRequired",
     "DestinationExistsError",
     "DiffNotApprovedError",
     "ExecutorApplyError",
@@ -104,17 +98,10 @@ __all__ = [
     "ExecutorCapabilityError",
     "ExecutorError",
     "ExecutorPreconditionError",
+    "ExplanatoryTextError",
     "FileAlreadyExistsError",
     "FileWriteError",
     "GitApplyError",
-    "PathEscapesRepoError",
-    "SourceFileNotFoundError",
-    "TestsLockedError",
-    "UnauthorizedFileModificationError",
-    "UnsupportedOperationError",
-    # LLM errors
-    "CodeInOutputError",
-    "ExplanatoryTextError",
     "InvalidJSONError",
     "LLMAPIError",
     "LLMError",
@@ -123,6 +110,14 @@ __all__ = [
     "LLMOutputError",
     "LLMRateLimitError",
     "LLMTimeoutError",
+    "MissingPrerequisiteError",
     "MultipleArtifactsError",
+    "PathEscapesRepoError",
+    "PhaseError",
+    "RiceFactorError",
     "SchemaViolationError",
+    "SourceFileNotFoundError",
+    "TestsLockedError",
+    "UnauthorizedFileModificationError",
+    "UnsupportedOperationError",
 ]

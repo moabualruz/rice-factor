@@ -1,0 +1,69 @@
+# Rice-Factor Capability Registry
+# Defines which refactoring operations are supported for each programming language.
+#
+# Operation values:
+#   true    - Fully supported
+#   false   - Not supported
+#   partial - Limited support (treated as false in strict mode)
+#
+# This is the bundled default. Projects can override by placing a file at:
+#   tools/registry/capability_registry.yaml
+#
+# Schema: docs/milestones/05-executor-engine/requirements.md Section 4.2
+
+languages:
+  python:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
+
+  rust:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: partial
+
+  go:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
+
+  javascript:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
+
+  typescript:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
+
+  java:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: partial
+
+  csharp:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
+
+  kotlin:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: false
+      enforce_dependency: false
