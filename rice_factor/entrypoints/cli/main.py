@@ -70,6 +70,7 @@ def main(
 from rice_factor.entrypoints.cli.commands import (
     apply,
     approve,
+    artifact,
     audit,
     ci,
     diagnose,
@@ -103,6 +104,7 @@ app.command(name="resume")(resume.resume)
 app.add_typer(override.app, name="override")
 app.add_typer(ci.app, name="ci")
 app.add_typer(audit.app, name="audit")
+app.add_typer(artifact.app, name="artifact")
 app.command(name="reconcile")(reconcile.reconcile)
 
 

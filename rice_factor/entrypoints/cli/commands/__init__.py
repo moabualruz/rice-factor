@@ -3,6 +3,7 @@
 from rice_factor.entrypoints.cli.commands import (
     apply,
     approve,
+    artifact,
     audit,
     impl,
     init,
@@ -19,6 +20,7 @@ from rice_factor.entrypoints.cli.commands import (
 __all__ = [
     "apply",
     "approve",
+    "artifact",
     "audit",
     "impl",
     "init",

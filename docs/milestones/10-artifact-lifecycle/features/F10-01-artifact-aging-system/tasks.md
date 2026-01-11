@@ -1,8 +1,8 @@
 # Feature F10-01: Artifact Aging System - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.1
-> **Status**: In Progress
+> **Version**: 1.0.2
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -15,7 +15,7 @@
 | T10-01-02 | Add age calculation methods | **Complete** | P0 |
 | T10-01-03 | Update storage adapter | **Complete** | P0 |
 | T10-01-04 | Migrate existing artifacts | Deferred | P1 |
-| T10-01-05 | Add artifact age CLI command | Pending | P0 |
+| T10-01-05 | Add artifact age CLI command | **Complete** | P0 |
 | T10-01-06 | Write unit tests | **Complete** | P0 |
 
 ---
@@ -111,34 +111,38 @@ def migrate_artifact(artifact_path: Path) -> None:
 
 **Objective**: Show artifact ages via CLI.
 
-**Files to Create/Modify**:
-- [ ] `rice_factor/entrypoints/cli/commands/artifact.py`
+**Files Created**:
+- [x] `rice_factor/entrypoints/cli/commands/artifact.py`
 
-**Command**:
-```bash
-rice-factor artifact age [--json] [--type TYPE]
-```
+**Files Modified**:
+- [x] `rice_factor/entrypoints/cli/main.py`
+- [x] `rice_factor/entrypoints/cli/commands/__init__.py`
 
-**Output**:
-```
-Artifact Age Report
-===================
+**Commands**:
+- [x] `rice-factor artifact age` - List all artifacts with ages
+- [x] `rice-factor artifact extend` - Extend artifact validity period
 
-ProjectPlan (id-001):
-  Created: 2025-10-15
-  Age: 3 months
-  Last Reviewed: 2025-11-01 (2 months ago)
+**Options (age)**:
+- [x] `--path` - Project root path
+- [x] `--type` - Filter by artifact type
+- [x] `--json` - JSON output format
 
-TestPlan (id-002):
-  Created: 2025-11-01
-  Age: 2 months
-  Last Reviewed: Never
-```
+**Options (extend)**:
+- [x] `--reason` - Required reason for extension
+- [x] `--months` - Extension period (optional)
+- [x] `--path` - Project root path
+
+**Exit Codes**:
+- 0: All artifacts healthy
+- 1: Some artifacts need review (3+ months old)
+- 2: Artifacts overdue (6+ months old)
 
 **Acceptance Criteria**:
-- [ ] Lists all artifacts with ages
-- [ ] Supports JSON output
-- [ ] Can filter by type
+- [x] Lists all artifacts with ages
+- [x] Supports JSON output
+- [x] Can filter by type
+- [x] extend command updates last_reviewed_at
+- [x] Cannot extend LOCKED artifacts
 
 ---
 
@@ -204,3 +208,4 @@ T10-01-01 (Fields) ──→ T10-01-02 (Methods) ──→ T10-01-03 (Storage)
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
 | 1.0.1 | 2026-01-11 | Implementation | Core aging system complete - 32 tests, T10-01-04 deferred, T10-01-05 pending |
+| 1.0.2 | 2026-01-11 | Implementation | CLI commands complete - 50 tests (32 envelope + 18 artifact CLI), T10-01-04 deferred |
