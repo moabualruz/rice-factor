@@ -135,15 +135,30 @@ rice-factor refactor dry-run        # Preview refactor
 
 ## Milestones
 
+### MVP Complete (01-07)
+
 | # | Milestone | Status | Description |
 |---|-----------|--------|-------------|
-| 01 | Architecture | In Progress | Hexagonal structure, tooling setup |
-| 02 | Artifact System | Pending | Models, schemas, validation, storage |
-| 03 | CLI Core | Pending | All `rice-factor` commands |
-| 04 | LLM Compiler | Pending | Artifact builder, provider adapters |
-| 05 | Executor Engine | Pending | Scaffold, diff, refactor executors |
-| 06 | Validation Engine | Pending | Test runner, lint, arch rules |
-| 07 | MVP Integration | Pending | End-to-end workflow |
+| 01 | Architecture | Complete | Hexagonal structure, tooling setup |
+| 02 | Artifact System | Complete | Models, schemas, validation, storage |
+| 03 | CLI Core | Complete | All `rice-factor` commands |
+| 04 | LLM Compiler | Complete | Artifact builder, provider adapters |
+| 05 | Executor Engine | Complete | Scaffold, diff, refactor executors |
+| 06 | Validation Engine | Complete | Test runner, lint, arch rules |
+| 07 | MVP Integration | Complete | End-to-end workflow |
+
+### Post-MVP (08-13)
+
+| # | Milestone | Status | Priority | Description |
+|---|-----------|--------|----------|-------------|
+| 08 | CI/CD Integration | Planned | P0 | CI pipeline, artifact validation, invariant enforcement |
+| 09 | Drift Detection | Planned | P1 | Drift detection, reconciliation, ReconciliationPlan |
+| 10 | Artifact Lifecycle | Planned | P1 | Aging system, expiration policies, review prompts |
+| 11 | Enhanced Intake | Planned | P1 | decisions.md, blocking questionnaire, glossary validation |
+| 12 | Language Refactoring | Planned | P2 | OpenRewrite, gopls, rust-analyzer, jscodeshift adapters |
+| 13 | Multi-Agent | Planned | P2 | Run modes B-E, agent roles, orchestration |
+
+> See `docs/gap-analysis-v2.md` for detailed gap analysis and feature breakdown.
 
 ---
 
@@ -191,11 +206,18 @@ Rice-Factor follows **12-Factor App** methodology for configuration:
 1. **Read the original spec first**: Check `docs/raw/` for authoritative requirements
 2. **Check milestone docs**: `docs/milestones/<milestone>/` for task breakdown
 3. **Cross-reference**: Verify implementation matches original spec intent
-4. **Track progress**: Update `docs/gap-analysis.md` when completing items
+4. **Track progress**: Update `docs/gap-analysis-v2.md` when completing items
 
 ### Before Moving to Next Milestone
 
 1. Verify all tasks in current milestone are complete
-2. Run `docs/gap-analysis.md` cross-check
+2. Run `docs/gap-analysis-v2.md` cross-check
 3. Ensure all tests pass
 4. Update milestone status in this file
+
+### Gap Analysis Documents
+
+| Document | Purpose |
+|----------|---------|
+| `docs/gap-analysis-v1-mvp.md` | MVP completion report (Milestones 01-07) |
+| `docs/gap-analysis-v2.md` | Post-MVP gap analysis (Milestones 08-13) |

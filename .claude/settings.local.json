@@ -30,7 +30,8 @@
       "Bash(uv run:*)",
       "Bash(grep:*)",
       "Bash(wc:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python -m pytest:*)"
     ]
   }
 }
