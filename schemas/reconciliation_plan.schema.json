@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rice-factor.dev/schemas/reconciliation_plan.schema.json",
+  "title": "ReconciliationPlanPayload",
+  "description": "Defines steps to resolve drift between code and artifacts",
+  "type": "object",
+  "required": ["drift_report_id", "steps", "freeze_new_work"],
+  "properties": {
+    "drift_report_id": {
+      "type": "string",
+      "description": "Reference to the drift report that triggered this plan"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "target", "reason", "drift_signal_id", "priority"],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "update_artifact",
+              "archive_artifact",
+              "create_artifact",
+              "update_requirements",
+              "review_code",
+              "delete_code"
+            ],
+            "description": "The type of action to take"
+          },
+          "target": {
+            "type": "string",
+            "description": "File path or artifact ID to act on"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why this step is needed"
+          },
+          "drift_signal_id": {
+            "type": "string",
+            "description": "Reference to the drift signal that triggered this step"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Execution order (1 = first)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Ordered list of reconciliation steps"
+    },
+    "freeze_new_work": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether new work should be frozen until resolved"
+    }
+  },
+  "additionalProperties": false
+}

@@ -55,6 +55,10 @@ from rice_factor.domain.services.questionnaire import (
     QuestionnaireResponse,
     QuestionnaireRunner,
 )
+from rice_factor.domain.services.reconciliation_service import (
+    ReconciliationService,
+    check_work_freeze,
+)
 from rice_factor.domain.services.refactor_executor import (
     RefactorDiff,
     RefactorExecutor,
@@ -112,6 +116,7 @@ __all__ = [
     "Question",
     "QuestionnaireResponse",
     "QuestionnaireRunner",
+    "ReconciliationService",
     "RefactorDiff",
     "RefactorExecutor",
     "RefactorResult",
@@ -128,4 +133,5 @@ __all__ = [
     "get_pass",
     "handle_llm_errors",
     "validate_llm_output",
+    "check_work_freeze",
 ]

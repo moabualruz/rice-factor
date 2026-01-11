@@ -1,0 +1,91 @@
+# Rice-Factor CI Pipeline
+# This workflow validates that all changes follow the rice-factor methodology.
+#
+# For more information, see: https://github.com/example/rice-factor
+#
+# To use this template:
+# 1. Copy to .github/workflows/rice-factor.yml
+# 2. Customize the Python version if needed
+# 3. Add any project-specific test commands
+
+name: Rice-Factor CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  validate:
+    name: Validate Changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for diff comparisons
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install rice-factor
+
+      - name: Stage 1 - Validate Artifacts
+        run: rice-factor ci validate-artifacts
+        continue-on-error: false
+
+      - name: Stage 2 - Verify Approvals
+        run: rice-factor ci validate-approvals
+        continue-on-error: false
+
+      - name: Stage 3 - Enforce Invariants
+        run: rice-factor ci validate-invariants
+        continue-on-error: false
+
+      - name: Stage 4 - Run Tests
+        run: rice-factor test
+        continue-on-error: false
+
+      - name: Stage 5 - Verify Audit Trail
+        run: rice-factor ci validate-audit
+        continue-on-error: false
+
+  report:
+    name: Generate Report
+    runs-on: ubuntu-latest
+    needs: validate
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install rice-factor
+
+      - name: Generate Full Report
+        run: rice-factor ci validate --json --continue-on-failure > ci-report.json || true
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-report
+          path: ci-report.json
+          retention-days: 30

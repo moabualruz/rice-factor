@@ -29,6 +29,7 @@ TYPE_DIR_MAP: dict[ArtifactType, str] = {
     ArtifactType.IMPLEMENTATION_PLAN: "implementation_plans",
     ArtifactType.REFACTOR_PLAN: "refactor_plans",
     ArtifactType.VALIDATION_RESULT: "validation_results",
+    ArtifactType.RECONCILIATION_PLAN: "reconciliation_plans",
 }
 
 

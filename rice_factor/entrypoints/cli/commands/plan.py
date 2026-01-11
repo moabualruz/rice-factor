@@ -21,6 +21,7 @@ from rice_factor.domain.artifacts.envelope import ArtifactEnvelope
 from rice_factor.domain.services.artifact_builder import ArtifactBuilder
 from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.context_builder import ContextBuilder, ContextBuilderError
+from rice_factor.domain.services.intake_validator import IntakeValidator
 from rice_factor.domain.services.phase_service import PhaseService
 from rice_factor.domain.services.safety_enforcer import SafetyEnforcer
 from rice_factor.entrypoints.cli.utils import (
@@ -89,6 +90,30 @@ def _check_phase(project_root: Path, command: str) -> None:
     except Exception as e:
         error(str(e))
         raise typer.Exit(1) from None
+
+
+def _validate_intake(project_root: Path) -> None:
+    """Validate intake files before planning.
+
+    Ensures all required files exist and have meaningful content.
+    This enforces "clarity before intelligence" - LLM cannot proceed
+    without well-defined inputs.
+
+    Args:
+        project_root: Root directory of the project
+
+    Raises:
+        typer.Exit: If intake validation fails
+    """
+    project_dir = project_root / ".project"
+    validator = IntakeValidator(project_dir=project_dir)
+    result = validator.validate()
+
+    if not result.valid:
+        error("Intake validation failed")
+        console.print()
+        console.print(result.format_errors())
+        raise typer.Exit(1)
 
 
 def _display_artifact_created(
@@ -179,6 +204,9 @@ def project(
     # Check phase
     _check_phase(project_root, "plan project")
 
+    # Validate intake files
+    _validate_intake(project_root)
+
     if dry_run:
         # Use stub for dry run to avoid API calls
         llm = StubLLMAdapter()
@@ -242,6 +270,9 @@ def architecture(
 
     # Check phase
     _check_phase(project_root, "plan architecture")
+
+    # Validate intake files
+    _validate_intake(project_root)
 
     if dry_run:
         # Use stub for dry run to avoid API calls
@@ -308,6 +339,9 @@ def tests(
     # Check phase
     _check_phase(project_root, "plan tests")
 
+    # Validate intake files
+    _validate_intake(project_root)
+
     if dry_run:
         # Use stub for dry run to avoid API calls
         llm = StubLLMAdapter()
@@ -372,6 +406,9 @@ def implementation(
 
     # Check phase
     _check_phase(project_root, "plan impl")
+
+    # Validate intake files
+    _validate_intake(project_root)
 
     # Verify TestPlan lock integrity (GAP-M07-002)
     audit_logger = AuditLogger(project_root=project_root)
@@ -466,6 +503,9 @@ def refactor(
 
     # Check phase
     _check_phase(project_root, "plan refactor")
+
+    # Validate intake files
+    _validate_intake(project_root)
 
     # Verify TestPlan lock integrity (GAP-M07-002)
     audit_logger = AuditLogger(project_root=project_root)

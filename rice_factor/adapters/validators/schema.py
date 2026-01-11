@@ -17,6 +17,7 @@ from rice_factor.domain.artifacts.payloads import (
     ArchitecturePlanPayload,
     ImplementationPlanPayload,
     ProjectPlanPayload,
+    ReconciliationPlanPayload,
     RefactorPlanPayload,
     ScaffoldPlanPayload,
     TestPlanPayload,
@@ -36,6 +37,7 @@ PAYLOAD_TYPE_MAP: dict[ArtifactType, type[BaseModel]] = {
     ArtifactType.IMPLEMENTATION_PLAN: ImplementationPlanPayload,
     ArtifactType.REFACTOR_PLAN: RefactorPlanPayload,
     ArtifactType.VALIDATION_RESULT: ValidationResultPayload,
+    ArtifactType.RECONCILIATION_PLAN: ReconciliationPlanPayload,
 }
 
 # Mapping from ArtifactType to schema filename
@@ -47,6 +49,7 @@ SCHEMA_FILE_MAP: dict[ArtifactType, str] = {
     ArtifactType.IMPLEMENTATION_PLAN: "implementation_plan.schema.json",
     ArtifactType.REFACTOR_PLAN: "refactor_plan.schema.json",
     ArtifactType.VALIDATION_RESULT: "validation_result.schema.json",
+    ArtifactType.RECONCILIATION_PLAN: "reconciliation_plan.schema.json",
 }
 
 

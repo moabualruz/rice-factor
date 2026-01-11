@@ -26,7 +26,7 @@ def mvp_project(tmp_path: Path) -> Path:
     project_config = project_dir / ".project"
     project_config.mkdir()
 
-    # Create intake files with minimal content
+    # Create all 6 required intake files with minimal content
     (project_config / "requirements.md").write_text(
         "# Requirements\n\n- Feature 1: Basic functionality\n"
     )
@@ -34,7 +34,16 @@ def mvp_project(tmp_path: Path) -> Path:
         "# Constraints\n\n- Must use Python 3.11+\n"
     )
     (project_config / "glossary.md").write_text(
-        "# Glossary\n\n- **API**: Application Programming Interface\n"
+        "# Glossary\n\n| Term | Definition |\n|------|------------|\n| API | Application Programming Interface |\n"
+    )
+    (project_config / "non_goals.md").write_text(
+        "# Non-Goals\n\nNot in scope for this project.\n"
+    )
+    (project_config / "risks.md").write_text(
+        "# Risks\n\nNo major risks identified.\n"
+    )
+    (project_config / "decisions.md").write_text(
+        "# Decisions\n\nNo decisions recorded yet.\n"
     )
 
     # Create artifacts directory

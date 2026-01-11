@@ -1,0 +1,1 @@
+"""Rice-Factor templates."""

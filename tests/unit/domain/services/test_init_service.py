@@ -59,17 +59,18 @@ class TestInitialize:
         assert (tmp_path / ".project").is_dir()
 
     def test_creates_all_template_files(self, tmp_path: Path) -> None:
-        """initialize() should create all 5 template files."""
+        """initialize() should create all 6 template files."""
         service = InitService(project_root=tmp_path)
         created_files = service.initialize()
 
-        assert len(created_files) == 5
+        assert len(created_files) == 6
         expected_files = [
             "requirements.md",
             "constraints.md",
             "glossary.md",
             "non_goals.md",
             "risks.md",
+            "decisions.md",
         ]
         for filename in expected_files:
             assert (tmp_path / ".project" / filename).exists()
@@ -81,7 +82,7 @@ class TestInitialize:
 
         assert isinstance(created_files, list)
         assert all(isinstance(f, Path) for f in created_files)
-        assert len(created_files) == 5
+        assert len(created_files) == 6
 
     def test_raises_error_when_already_initialized(self, tmp_path: Path) -> None:
         """initialize() should raise FileExistsError if already initialized."""
@@ -177,6 +178,16 @@ class TestGetTemplateContent:
         content = service.get_template_content("risks.md")
         assert "Risk Register" in content
 
+    def test_returns_decisions_template(self, tmp_path: Path) -> None:
+        """get_template_content() should return decisions.md content."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        assert "Decision Log" in content
+        assert "Architecture Choices" in content
+        assert "Rejected Approaches" in content
+        assert "Tradeoffs Accepted" in content
+        assert "Future Considerations" in content
+
     def test_includes_responses_in_content(self, tmp_path: Path) -> None:
         """get_template_content() should include responses in content."""
         service = InitService(project_root=tmp_path)
@@ -199,16 +210,62 @@ class TestTemplateFilesConstant:
     """Tests for TEMPLATE_FILES class variable."""
 
     def test_contains_all_expected_files(self) -> None:
-        """TEMPLATE_FILES should contain all 5 template files."""
+        """TEMPLATE_FILES should contain all 6 template files."""
         expected = [
             "requirements.md",
             "constraints.md",
             "glossary.md",
             "non_goals.md",
             "risks.md",
+            "decisions.md",
         ]
         assert expected == InitService.TEMPLATE_FILES
 
     def test_project_dir_constant(self) -> None:
         """PROJECT_DIR should be '.project'."""
         assert InitService.PROJECT_DIR == ".project"
+
+
+class TestDecisionsTemplate:
+    """Tests for decisions.md template content."""
+
+    def test_decisions_template_has_architecture_choices_section(
+        self, tmp_path: Path
+    ) -> None:
+        """decisions.md should have Architecture Choices table."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        assert "## Architecture Choices" in content
+        assert "| Decision | Alternatives Considered | Rationale |" in content
+
+    def test_decisions_template_has_rejected_approaches_section(
+        self, tmp_path: Path
+    ) -> None:
+        """decisions.md should have Rejected Approaches table."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        assert "## Rejected Approaches" in content
+        assert "| Approach | Reason for Rejection |" in content
+
+    def test_decisions_template_has_tradeoffs_section(self, tmp_path: Path) -> None:
+        """decisions.md should have Tradeoffs Accepted table."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        assert "## Tradeoffs Accepted" in content
+        assert "| Tradeoff | Benefit | Cost |" in content
+
+    def test_decisions_template_has_future_considerations_section(
+        self, tmp_path: Path
+    ) -> None:
+        """decisions.md should have Future Considerations section."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        assert "## Future Considerations" in content
+
+    def test_decisions_template_has_placeholder_markers(self, tmp_path: Path) -> None:
+        """decisions.md should have template placeholder markers."""
+        service = InitService(project_root=tmp_path)
+        content = service.get_template_content("decisions.md")
+        # These markers are used by IntakeValidator to detect unfilled templates
+        assert "[Decision 1]" in content
+        assert "[Alt A, Alt B]" in content

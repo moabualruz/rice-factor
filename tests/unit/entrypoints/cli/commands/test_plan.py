@@ -10,6 +10,20 @@ from rice_factor.entrypoints.cli.commands.plan import app
 runner = CliRunner()
 
 
+def _create_intake_files(project_dir: Path) -> None:
+    """Create required intake files with minimal valid content."""
+    required_files = [
+        "requirements.md",
+        "constraints.md",
+        "glossary.md",
+        "non_goals.md",
+        "risks.md",
+        "decisions.md",
+    ]
+    for filename in required_files:
+        (project_dir / filename).write_text(f"# {filename.replace('.md', '').title()}\n\nValid content.")
+
+
 class TestPlanCommandHelp:
     """Tests for plan command help."""
 
@@ -67,7 +81,9 @@ class TestProjectCommand:
 
     def test_project_dry_run(self, tmp_path: Path) -> None:
         """plan project --dry-run should show what would be created."""
-        (tmp_path / ".project").mkdir()
+        project_dir = tmp_path / ".project"
+        project_dir.mkdir()
+        _create_intake_files(project_dir)
         result = runner.invoke(
             app, ["project", "--path", str(tmp_path), "--dry-run"]
         )
@@ -160,7 +176,9 @@ class TestDryRunMode:
 
     def test_project_dry_run_does_not_create_files(self, tmp_path: Path) -> None:
         """plan project --dry-run should not create any files."""
-        (tmp_path / ".project").mkdir()
+        project_dir = tmp_path / ".project"
+        project_dir.mkdir()
+        _create_intake_files(project_dir)
         result = runner.invoke(
             app, ["project", "--path", str(tmp_path), "--dry-run"]
         )
@@ -171,7 +189,9 @@ class TestDryRunMode:
         self, tmp_path: Path
     ) -> None:
         """plan architecture --dry-run should not create any files."""
-        (tmp_path / ".project").mkdir()
+        project_dir = tmp_path / ".project"
+        project_dir.mkdir()
+        _create_intake_files(project_dir)
 
         # Mock the phase check to allow architecture planning
         with patch(
@@ -190,7 +210,9 @@ class TestPathOption:
 
     def test_project_uses_path_option(self, tmp_path: Path) -> None:
         """plan project should use the specified path."""
-        (tmp_path / ".project").mkdir()
+        project_dir = tmp_path / ".project"
+        project_dir.mkdir()
+        _create_intake_files(project_dir)
         result = runner.invoke(
             app, ["project", "--path", str(tmp_path), "--dry-run"]
         )

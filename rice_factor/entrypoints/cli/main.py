@@ -70,12 +70,15 @@ def main(
 from rice_factor.entrypoints.cli.commands import (
     apply,
     approve,
+    audit,
+    ci,
     diagnose,
     impl,
     init,
     lock,
     override,
     plan,
+    reconcile,
     refactor,
     resume,
     review,
@@ -98,6 +101,9 @@ app.add_typer(refactor.app, name="refactor")
 app.command(name="validate")(validate.validate)
 app.command(name="resume")(resume.resume)
 app.add_typer(override.app, name="override")
+app.add_typer(ci.app, name="ci")
+app.add_typer(audit.app, name="audit")
+app.command(name="reconcile")(reconcile.reconcile)
 
 
 if __name__ == "__main__":

@@ -196,6 +196,53 @@ def _risks_template(responses: QuestionnaireResponse) -> str:
 """
 
 
+def _decisions_template(responses: QuestionnaireResponse) -> str:  # noqa: ARG001
+    """Generate decisions.md content.
+
+    This is the 6th required intake file, documenting architecture decisions,
+    rejected approaches, and accepted tradeoffs.
+
+    Args:
+        responses: Questionnaire responses (unused but kept for consistency)
+
+    Returns:
+        Template content for decisions.md
+    """
+    return """# Decision Log
+
+## Architecture Choices
+
+<!-- Document key architectural decisions and their rationale -->
+
+| Decision | Alternatives Considered | Rationale |
+|----------|------------------------|-----------|
+| [Decision 1] | [Alt A, Alt B] | [Why this choice] |
+
+## Rejected Approaches
+
+<!-- Document approaches that were considered but rejected -->
+
+| Approach | Reason for Rejection |
+|----------|---------------------|
+| [Approach 1] | [Reason] |
+
+## Tradeoffs Accepted
+
+<!-- Document explicit tradeoffs made in the design -->
+
+| Tradeoff | Benefit | Cost |
+|----------|---------|------|
+| [Tradeoff 1] | [Benefit] | [Cost] |
+
+## Future Considerations
+
+<!-- Items that may be revisited based on new information -->
+
+- [Future consideration 1]
+- [Future consideration 2]
+"""
+
+
 # Mapping of file names to template generators
 TEMPLATE_GENERATORS: dict[str, Callable[[QuestionnaireResponse], str]] = {
     "requirements.md": _requirements_template,
@@ -203,6 +250,7 @@ TEMPLATE_GENERATORS: dict[str, Callable[[QuestionnaireResponse], str]] = {
     "glossary.md": _glossary_template,
     "non_goals.md": _non_goals_template,
     "risks.md": _risks_template,
+    "decisions.md": _decisions_template,
 }
 
 
@@ -236,8 +284,14 @@ class IntakeValidationResult:
 class InitService:
     """Service for project initialization.
 
-    Handles creating the .project/ directory structure and template files
-    based on questionnaire responses.
+    Handles creating the .project/ directory structure and 6 template files
+    based on questionnaire responses:
+    - requirements.md: Functional and non-functional requirements
+    - constraints.md: Technical constraints and stack
+    - glossary.md: Domain terminology definitions
+    - non_goals.md: Explicit exclusions
+    - risks.md: Risk register and assumptions
+    - decisions.md: Architecture decisions and tradeoffs
     """
 
     PROJECT_DIR: ClassVar[str] = ".project"
@@ -249,6 +303,7 @@ class InitService:
         "glossary.md",
         "non_goals.md",
         "risks.md",
+        "decisions.md",
     ]
     # Required intake files that must be non-empty for validation
     REQUIRED_INTAKE_FILES: ClassVar[list[str]] = [

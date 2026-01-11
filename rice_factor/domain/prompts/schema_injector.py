@@ -37,6 +37,7 @@ class SchemaInjector:
         ArtifactType.REFACTOR_PLAN: "refactor_plan.schema.json",
         ArtifactType.VALIDATION_RESULT: "validation_result.schema.json",
         ArtifactType.FAILURE_REPORT: "failure_report.schema.json",
+        ArtifactType.RECONCILIATION_PLAN: "reconciliation_plan.schema.json",
     }
 
     def __init__(self, schemas_dir: Path | None = None) -> None:
