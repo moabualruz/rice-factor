@@ -299,3 +299,112 @@ class TestDriftConfig:
         assert config.matches_code_pattern("main.py") is True
         assert config.matches_code_pattern("app.ts") is True
         assert config.matches_code_pattern("readme.md") is False
+
+    def test_from_file_missing_file(self, tmp_path: "Path") -> None:
+        """from_file should return defaults when file doesn't exist."""
+        from pathlib import Path
+
+        config = DriftConfig.from_file(tmp_path / "nonexistent.yaml")
+
+        assert config.drift_threshold == 3
+        assert config.refactor_threshold == 3
+
+    def test_from_file_valid_yaml(self, tmp_path: "Path") -> None:
+        """from_file should load values from valid YAML."""
+        from pathlib import Path
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(
+            """
+drift:
+  drift_threshold: 5
+  refactor_threshold: 4
+  refactor_window_days: 60
+  code_patterns:
+    - "*.py"
+    - "*.go"
+  source_dirs:
+    - "lib"
+            """
+        )
+
+        config = DriftConfig.from_file(config_file)
+
+        assert config.drift_threshold == 5
+        assert config.refactor_threshold == 4
+        assert config.refactor_window_days == 60
+        assert config.code_patterns == ["*.py", "*.go"]
+        assert config.source_dirs == ["lib"]
+
+    def test_from_file_partial_config(self, tmp_path: "Path") -> None:
+        """from_file should merge partial config with defaults."""
+        from pathlib import Path
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(
+            """
+drift:
+  drift_threshold: 10
+            """
+        )
+
+        config = DriftConfig.from_file(config_file)
+
+        assert config.drift_threshold == 10
+        # Should use defaults for other fields
+        assert config.refactor_threshold == 3
+        assert "*.py" in config.code_patterns
+
+    def test_from_file_invalid_yaml(self, tmp_path: "Path") -> None:
+        """from_file should return defaults for invalid YAML."""
+        from pathlib import Path
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("invalid: yaml: content: [")
+
+        config = DriftConfig.from_file(config_file)
+
+        assert config.drift_threshold == 3
+
+    def test_from_file_empty_file(self, tmp_path: "Path") -> None:
+        """from_file should return defaults for empty file."""
+        from pathlib import Path
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("")
+
+        config = DriftConfig.from_file(config_file)
+
+        assert config.drift_threshold == 3
+
+    def test_from_file_root_level_config(self, tmp_path: "Path") -> None:
+        """from_file should handle config at root level (no 'drift' key)."""
+        from pathlib import Path
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(
+            """
+drift_threshold: 7
+refactor_threshold: 5
+            """
+        )
+
+        config = DriftConfig.from_file(config_file)
+
+        assert config.drift_threshold == 7
+        assert config.refactor_threshold == 5
+
+    def test_from_file_with_string_path(self, tmp_path: "Path") -> None:
+        """from_file should accept string paths."""
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(
+            """
+drift:
+  drift_threshold: 8
+            """
+        )
+
+        # Pass string path instead of Path object
+        config = DriftConfig.from_file(str(config_file))  # type: ignore
+
+        assert config.drift_threshold == 8

@@ -6,6 +6,7 @@ This module provides data models for drift detection between code and artifacts.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 
@@ -186,16 +187,59 @@ class DriftConfig:
         """Check if a path should be ignored based on patterns."""
         from fnmatch import fnmatch
 
-        for pattern in self.ignore_patterns:
-            if fnmatch(path, pattern):
-                return True
-        return False
+        return any(fnmatch(path, pattern) for pattern in self.ignore_patterns)
 
     def matches_code_pattern(self, path: str) -> bool:
         """Check if a path matches code patterns."""
         from fnmatch import fnmatch
 
-        for pattern in self.code_patterns:
-            if fnmatch(path, pattern):
-                return True
-        return False
+        return any(fnmatch(path, pattern) for pattern in self.code_patterns)
+
+    @classmethod
+    def from_file(cls, path: Path | str) -> "DriftConfig":
+        """Load configuration from a YAML file.
+
+        Args:
+            path: Path to the configuration file.
+
+        Returns:
+            DriftConfig with values from file merged with defaults.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if not path.exists():
+            return cls()
+
+        try:
+            import yaml
+
+            with path.open(encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+
+            if not data or not isinstance(data, dict):
+                return cls()
+
+            # Get drift section if it exists
+            drift_data = data.get("drift", data)
+
+            # Build config from known fields
+            config_kwargs: dict[str, Any] = {}
+            if "drift_threshold" in drift_data:
+                config_kwargs["drift_threshold"] = drift_data["drift_threshold"]
+            if "code_patterns" in drift_data:
+                config_kwargs["code_patterns"] = drift_data["code_patterns"]
+            if "ignore_patterns" in drift_data:
+                config_kwargs["ignore_patterns"] = drift_data["ignore_patterns"]
+            if "refactor_threshold" in drift_data:
+                config_kwargs["refactor_threshold"] = drift_data["refactor_threshold"]
+            if "refactor_window_days" in drift_data:
+                config_kwargs["refactor_window_days"] = drift_data["refactor_window_days"]
+            if "source_dirs" in drift_data:
+                config_kwargs["source_dirs"] = drift_data["source_dirs"]
+
+            return cls(**config_kwargs)
+
+        except Exception:
+            # On any error, return defaults
+            return cls()

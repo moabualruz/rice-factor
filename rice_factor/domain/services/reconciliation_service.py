@@ -183,9 +183,16 @@ class ReconciliationService:
         )
 
         # Lower priority number = higher priority
-        # Subtract severity boost so critical signals come first
-        priority_boost = SEVERITY_PRIORITY_BOOST.get(signal.severity, 0)
-        effective_priority = max(1, base_priority * 100 - priority_boost)
+        # Use severity order as primary sort key (CRITICAL=1, HIGH=2, MEDIUM=3, LOW=4)
+        # Then use base_priority as secondary sort key within same severity
+        severity_order = {
+            DriftSeverity.CRITICAL: 1,
+            DriftSeverity.HIGH: 2,
+            DriftSeverity.MEDIUM: 3,
+            DriftSeverity.LOW: 4,
+        }
+        severity_value = severity_order.get(signal.severity, 5)
+        effective_priority = severity_value * 1000 + base_priority
 
         # Generate a signal ID from the signal content
         signal_id = self._generate_signal_id(signal)
