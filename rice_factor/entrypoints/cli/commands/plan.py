@@ -14,6 +14,7 @@ from rice_factor.adapters.executors.audit_logger import AuditLogger
 from rice_factor.adapters.llm import LLMAdapter
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
+from rice_factor.config.run_mode_config import RunMode
 from rice_factor.config.settings import settings
 from rice_factor.domain.artifacts.compiler_types import CompilerPassType
 from rice_factor.domain.artifacts.enums import ArtifactType
@@ -23,6 +24,7 @@ from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.context_builder import ContextBuilder, ContextBuilderError
 from rice_factor.domain.services.intake_validator import IntakeValidator
 from rice_factor.domain.services.phase_service import PhaseService
+from rice_factor.domain.services.run_mode_router import RunModeRouter
 from rice_factor.domain.services.safety_enforcer import SafetyEnforcer
 from rice_factor.entrypoints.cli.utils import (
     console,
@@ -181,6 +183,28 @@ def _get_llm_provider_info() -> str:
     return f"{provider}/{model}"
 
 
+def _get_mode_help() -> str:
+    """Get help text for the --mode option."""
+    valid_modes = ", ".join(m.value for m in RunMode)
+    return f"Run mode for multi-agent coordination ({valid_modes})"
+
+
+def _display_mode_info(mode_str: str | None, project_root: Path) -> None:
+    """Display information about the run mode being used.
+
+    Args:
+        mode_str: Mode string from CLI option.
+        project_root: Project root directory.
+    """
+    try:
+        router = RunModeRouter.from_cli_mode(mode_str, project_root)
+        info(f"Run mode: {router.mode.value}")
+        console.print(f"  [dim]{router.describe()}[/dim]")
+    except ValueError as e:
+        error(str(e))
+        raise typer.Exit(1) from None
+
+
 @app.command()
 @handle_errors
 def project(
@@ -191,6 +215,9 @@ def project(
     use_stub: bool = typer.Option(
         False, "--stub", help="Use stub LLM for testing (no API calls)"
     ),
+    mode: str | None = typer.Option(
+        None, "--mode", "-m", help=_get_mode_help()
+    ),
 ) -> None:
     """Generate a ProjectPlan artifact.
 
@@ -198,6 +225,9 @@ def project(
     Requires project to be initialized (Phase: INIT+).
 
     Uses the configured LLM provider (set via RICE_LLM_PROVIDER or config).
+
+    Multi-agent coordination can be enabled via --mode (solo, orchestrator,
+    voting, role_locked, or hybrid).
     """
     project_root = Path(path).resolve()
 
@@ -223,6 +253,10 @@ def project(
     provider_info = _get_llm_provider_info()
     if not use_stub:
         info(f"Using LLM: {provider_info}")
+
+    # Show run mode info if specified
+    if mode:
+        _display_mode_info(mode, project_root)
 
     # Build artifact using ArtifactBuilder
     try:
@@ -260,6 +294,9 @@ def architecture(
     use_stub: bool = typer.Option(
         False, "--stub", help="Use stub LLM for testing (no API calls)"
     ),
+    mode: str | None = typer.Option(
+        None, "--mode", "-m", help=_get_mode_help()
+    ),
 ) -> None:
     """Generate an ArchitecturePlan artifact.
 
@@ -289,6 +326,10 @@ def architecture(
     provider_info = _get_llm_provider_info()
     if not use_stub:
         info(f"Using LLM: {provider_info}")
+
+    # Show run mode info if specified
+    if mode:
+        _display_mode_info(mode, project_root)
 
     # Build artifact using ArtifactBuilder
     try:
@@ -328,6 +369,9 @@ def tests(
     use_stub: bool = typer.Option(
         False, "--stub", help="Use stub LLM for testing (no API calls)"
     ),
+    mode: str | None = typer.Option(
+        None, "--mode", "-m", help=_get_mode_help()
+    ),
 ) -> None:
     """Generate a TestPlan artifact.
 
@@ -360,6 +404,10 @@ def tests(
     provider_info = _get_llm_provider_info()
     if not use_stub:
         info(f"Using LLM: {provider_info}")
+
+    # Show run mode info if specified
+    if mode:
+        _display_mode_info(mode, project_root)
 
     # Build artifact using ArtifactBuilder
     try:
@@ -395,6 +443,9 @@ def implementation(
     ),
     use_stub: bool = typer.Option(
         False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
+    mode: str | None = typer.Option(
+        None, "--mode", "-m", help=_get_mode_help()
     ),
 ) -> None:
     """Generate an ImplementationPlan artifact for a specific file.
@@ -453,6 +504,10 @@ def implementation(
     if not use_stub:
         info(f"Using LLM: {provider_info}")
 
+    # Show run mode info if specified
+    if mode:
+        _display_mode_info(mode, project_root)
+
     # Build artifact using ArtifactBuilder
     try:
         builder = _get_artifact_builder(project_root, use_stub=use_stub)
@@ -492,6 +547,9 @@ def refactor(
     ),
     use_stub: bool = typer.Option(
         False, "--stub", help="Use stub LLM for testing (no API calls)"
+    ),
+    mode: str | None = typer.Option(
+        None, "--mode", "-m", help=_get_mode_help()
     ),
 ) -> None:
     """Generate a RefactorPlan artifact.
@@ -549,6 +607,10 @@ def refactor(
     provider_info = _get_llm_provider_info()
     if not use_stub:
         info(f"Using LLM: {provider_info}")
+
+    # Show run mode info if specified
+    if mode:
+        _display_mode_info(mode, project_root)
 
     # Build artifact using ArtifactBuilder
     try:

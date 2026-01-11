@@ -2,7 +2,8 @@
 
 This module provides the RefactorExecutorAdapter that performs mechanical
 refactoring operations (move_file, rename_symbol) from an approved RefactorPlan
-artifact. It integrates with the capability registry to check operation support.
+artifact. It integrates with the capability registry to check operation support
+and optionally uses language-specific refactoring tools.
 
 Example:
     >>> executor = RefactorExecutorAdapter(
@@ -14,6 +15,16 @@ Example:
     ...     artifact_path=Path("artifacts/refactor_plan.json"),
     ...     repo_root=Path("/project"),
     ...     mode=ExecutionMode.DRY_RUN,
+    ... )
+
+With language-specific tools:
+    >>> from rice_factor.adapters.refactoring import RefactoringToolRegistry
+    >>> tool_registry = RefactoringToolRegistry(repo_root)
+    >>> executor = RefactorExecutorAdapter(
+    ...     storage=storage,
+    ...     capability_registry=registry,
+    ...     audit_logger=logger,
+    ...     tool_registry=tool_registry,
     ... )
 """
 
@@ -48,6 +59,7 @@ from rice_factor.domain.failures.executor_errors import (
 
 if TYPE_CHECKING:
     from rice_factor.adapters.executors.capability_registry import CapabilityRegistry
+    from rice_factor.adapters.refactoring import RefactoringToolRegistry
     from rice_factor.domain.ports.storage import StoragePort
 
 
@@ -88,6 +100,7 @@ class RefactorExecutorAdapter:
         storage: StoragePort,
         capability_registry: CapabilityRegistry,
         audit_logger: AuditLogger,
+        tool_registry: RefactoringToolRegistry | None = None,
     ) -> None:
         """Initialize the refactor executor adapter.
 
@@ -95,10 +108,15 @@ class RefactorExecutorAdapter:
             storage: Storage port for loading artifacts.
             capability_registry: Registry for checking operation support.
             audit_logger: Logger for recording execution audit trail.
+            tool_registry: Optional registry of language-specific refactoring tools.
+                If provided, uses native tools (OpenRewrite, gopls, rust-analyzer,
+                jscodeshift) for more accurate refactoring. Falls back to text-based
+                refactoring if not provided or if no suitable tool is available.
         """
         self._storage = storage
         self._capability_registry = capability_registry
         self._audit_logger = audit_logger
+        self._tool_registry = tool_registry
 
     def execute(
         self,
@@ -480,6 +498,9 @@ class RefactorExecutorAdapter:
     ) -> None:
         """Apply symbol rename operation.
 
+        If a tool registry is configured, attempts to use a language-specific
+        tool for more accurate renaming. Falls back to text-based replacement.
+
         Args:
             operation: The rename operation.
             repo_root: Repository root.
@@ -491,6 +512,27 @@ class RefactorExecutorAdapter:
         if not file_path or not old_symbol or new_symbol is None:
             return
 
+        # Try language-specific tool if available
+        if self._tool_registry is not None:
+            language = self._tool_registry.detect_language(file_path)
+            tool = self._tool_registry.get_tool_for_language(language)
+            if tool is not None and tool.is_available():
+                from rice_factor.domain.ports.refactor import (  # noqa: I001
+                    RefactorOperation as ToolRefactorOperation,
+                    RefactorRequest,
+                )
+
+                request = RefactorRequest(
+                    operation=ToolRefactorOperation.RENAME,
+                    target=old_symbol,
+                    new_value=new_symbol,
+                    file_path=file_path,
+                )
+                result = tool.execute(request, dry_run=False)
+                if result.success:
+                    return  # Tool handled the rename
+
+        # Fallback to text-based replacement
         source = repo_root / file_path
         content = source.read_text(encoding="utf-8")
         new_content = content.replace(old_symbol, new_symbol)
