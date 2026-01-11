@@ -50,9 +50,9 @@ class TestLLMPort:
 
             def generate(
                 self,
-                pass_type: CompilerPassType,
-                context: CompilerContext,
-                schema: dict,
+                _pass_type: CompilerPassType,
+                _context: CompilerContext,
+                _schema: dict,
             ) -> CompilerResult:
                 return CompilerResult(success=True, payload={"test": "data"})
 

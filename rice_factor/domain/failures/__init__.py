@@ -28,6 +28,7 @@ This module provides the exception hierarchy for Rice-Factor including:
 - ExecutorCapabilityError: Operation not supported
 - ExecutorArtifactError: Invalid artifact
 - ExecutorApplyError: Apply failed
+- ValidationError: Validation engine errors
 """
 
 from rice_factor.domain.failures.cli_errors import (
@@ -78,6 +79,21 @@ from rice_factor.domain.failures.llm_errors import (
     MultipleArtifactsError,
     SchemaViolationError,
 )
+from rice_factor.domain.failures.validation_errors import (
+    CommandNotFoundError,
+    InvalidStatusError,
+    InvariantViolationError,
+    LanguageNotSupportedError,
+    MissingApprovalError,
+    MissingDependencyError,
+    ProcessError,
+    TestPlanNotLockedError,
+    ValidationError,
+    ValidationTimeoutError,
+    ValidatorConfigError,
+    ValidatorExecutionError,
+    ValidatorNotFoundError,
+)
 
 __all__ = [
     "ArtifactDependencyError",
@@ -90,6 +106,7 @@ __all__ = [
     "ArtifactValidationError",
     "CLIError",
     "CodeInOutputError",
+    "CommandNotFoundError",
     "ConfirmationRequired",
     "DestinationExistsError",
     "DiffNotApprovedError",
@@ -103,6 +120,8 @@ __all__ = [
     "FileWriteError",
     "GitApplyError",
     "InvalidJSONError",
+    "InvalidStatusError",
+    "InvariantViolationError",
     "LLMAPIError",
     "LLMError",
     "LLMInvalidRequestError",
@@ -110,14 +129,24 @@ __all__ = [
     "LLMOutputError",
     "LLMRateLimitError",
     "LLMTimeoutError",
+    "LanguageNotSupportedError",
+    "MissingApprovalError",
+    "MissingDependencyError",
     "MissingPrerequisiteError",
     "MultipleArtifactsError",
     "PathEscapesRepoError",
     "PhaseError",
+    "ProcessError",
     "RiceFactorError",
     "SchemaViolationError",
     "SourceFileNotFoundError",
+    "TestPlanNotLockedError",
     "TestsLockedError",
     "UnauthorizedFileModificationError",
     "UnsupportedOperationError",
+    "ValidationError",
+    "ValidationTimeoutError",
+    "ValidatorConfigError",
+    "ValidatorExecutionError",
+    "ValidatorNotFoundError",
 ]

@@ -44,21 +44,26 @@ class TestRunAll:
         assert ValidationStep.ARCHITECTURE in steps
         assert ValidationStep.TESTS in steps
         assert ValidationStep.LINT in steps
+        assert ValidationStep.INVARIANTS in steps
 
-    def test_run_all_has_four_step_results(self, tmp_path: Path) -> None:
-        """run_all should have results for all 4 steps."""
+    def test_run_all_has_five_step_results(self, tmp_path: Path) -> None:
+        """run_all should have results for all 5 steps."""
         orchestrator = ValidationOrchestrator(project_path=tmp_path)
         result = orchestrator.run_all()
-        assert len(result.step_results) == 4
+        assert len(result.step_results) == 5
 
-    def test_run_all_all_pass_gives_passed_status(self, tmp_path: Path) -> None:
-        """run_all should return PASSED if all steps pass."""
+    def test_run_all_failure_gives_failed_status(self, tmp_path: Path) -> None:
+        """run_all should return FAILED if any step fails."""
         orchestrator = ValidationOrchestrator(project_path=tmp_path)
         result = orchestrator.run_all()
 
-        # With stubs, all steps should pass
-        assert result.overall_status == ValidationStatus.PASSED
-        assert result.passed is True
+        # Tests step will fail if pytest finds no tests in tmp_path
+        # This is expected behavior - validation should reflect reality
+        has_failures = any(r.status == ValidationStatus.FAILED for r in result.step_results)
+        if has_failures:
+            assert result.overall_status == ValidationStatus.FAILED
+        else:
+            assert result.overall_status == ValidationStatus.PASSED
 
 
 class TestRunStep:
@@ -73,31 +78,43 @@ class TestRunStep:
         assert result.step == ValidationStep.SCHEMA
 
     def test_run_step_architecture(self, tmp_path: Path) -> None:
-        """run_step should run architecture validation (stub)."""
+        """run_step should run architecture validation."""
         orchestrator = ValidationOrchestrator(project_path=tmp_path)
         result = orchestrator.run_step(ValidationStep.ARCHITECTURE)
 
         assert result.step == ValidationStep.ARCHITECTURE
+        # Passes if no domain directory exists (nothing to check)
         assert result.status == ValidationStatus.PASSED
-        assert "stub" in result.details
+        assert result.details.get("validator") == "architecture_validator"
 
     def test_run_step_tests(self, tmp_path: Path) -> None:
-        """run_step should run test validation (stub)."""
+        """run_step should run test validation."""
         orchestrator = ValidationOrchestrator(project_path=tmp_path)
         result = orchestrator.run_step(ValidationStep.TESTS)
 
         assert result.step == ValidationStep.TESTS
-        assert result.status == ValidationStatus.PASSED
-        assert "stub" in result.details
+        # May fail if pytest finds no tests - that's real behavior
+        assert result.details.get("validator") == "test_runner"
 
     def test_run_step_lint(self, tmp_path: Path) -> None:
-        """run_step should run lint validation (stub)."""
+        """run_step should run lint validation."""
         orchestrator = ValidationOrchestrator(project_path=tmp_path)
         result = orchestrator.run_step(ValidationStep.LINT)
 
         assert result.step == ValidationStep.LINT
+        # Lint is optional - passes even if linter not found
         assert result.status == ValidationStatus.PASSED
-        assert "stub" in result.details
+        assert result.details.get("validator") == "lint_runner"
+
+    def test_run_step_invariants(self, tmp_path: Path) -> None:
+        """run_step should run invariant validation."""
+        orchestrator = ValidationOrchestrator(project_path=tmp_path)
+        result = orchestrator.run_step(ValidationStep.INVARIANTS)
+
+        assert result.step == ValidationStep.INVARIANTS
+        # Passes if no artifacts directory exists
+        assert result.status == ValidationStatus.PASSED
+        assert result.details.get("validator") == "invariant_checker"
 
 
 class TestSchemaValidation:
@@ -217,7 +234,8 @@ class TestValidationStep:
         assert ValidationStep.ARCHITECTURE.value == "architecture"
         assert ValidationStep.TESTS.value == "tests"
         assert ValidationStep.LINT.value == "lint"
+        assert ValidationStep.INVARIANTS.value == "invariants"
 
     def test_validation_step_count(self) -> None:
-        """ValidationStep should have 4 steps."""
-        assert len(ValidationStep) == 4
+        """ValidationStep should have 5 steps."""
+        assert len(ValidationStep) == 5

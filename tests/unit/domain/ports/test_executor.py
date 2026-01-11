@@ -33,9 +33,9 @@ class TestExecutorPortProtocol:
         class ConcreteExecutor:
             def execute(
                 self,
-                artifact_path: Path,
-                repo_root: Path,
-                mode: ExecutionMode,
+                _artifact_path: Path,
+                _repo_root: Path,
+                _mode: ExecutionMode,
             ) -> ExecutionResult:
                 return ExecutionResult.success_result()
 

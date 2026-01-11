@@ -34,19 +34,19 @@ class TestCodeDetector:
     def test_detects_python_import(self, detector: CodeDetector) -> None:
         """Should detect Python import statement."""
         data = {"snippet": "import os\nimport sys\nfrom pathlib import Path"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_python_decorator(self, detector: CodeDetector) -> None:
         """Should detect Python decorator."""
         data = {"func": "@property\ndef name(self):\n    return self._name"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_python_async_function(self, detector: CodeDetector) -> None:
         """Should detect Python async function."""
         data = {"handler": "async def fetch_data(url):\n    return await request(url)"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     # =========================================================================
@@ -56,25 +56,25 @@ class TestCodeDetector:
     def test_detects_javascript_function(self, detector: CodeDetector) -> None:
         """Should detect JavaScript function definition."""
         data = {"js": "function calculateTotal(items) {\n  return items.reduce((a, b) => a + b, 0);\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_javascript_arrow_function(self, detector: CodeDetector) -> None:
         """Should detect JavaScript arrow function."""
         data = {"handler": "const handleClick = (event) => {\n  console.log(event);\n};"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_javascript_export(self, detector: CodeDetector) -> None:
         """Should detect JavaScript export statement."""
         data = {"module": "export default function Component() {\n  return <div>Hello</div>;\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_javascript_import(self, detector: CodeDetector) -> None:
         """Should detect JavaScript import statement."""
         data = {"imports": "import React from 'react';\nimport { useState } from 'react';"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     # =========================================================================
@@ -84,25 +84,25 @@ class TestCodeDetector:
     def test_detects_rust_function(self, detector: CodeDetector) -> None:
         """Should detect Rust function definition."""
         data = {"rust": "fn calculate_sum(numbers: &[i32]) -> i32 {\n    numbers.iter().sum()\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_rust_impl(self, detector: CodeDetector) -> None:
         """Should detect Rust impl block."""
         data = {"impl": "impl Calculator {\n    fn new() -> Self {\n        Calculator {}\n    }\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_rust_struct(self, detector: CodeDetector) -> None:
         """Should detect Rust struct definition."""
         data = {"type": "struct Point {\n    x: f64,\n    y: f64,\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_rust_mod(self, detector: CodeDetector) -> None:
         """Should detect Rust module declaration."""
         data = {"module": "mod utils;\nmod helpers;\nuse crate::utils::*;"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     # =========================================================================
@@ -112,25 +112,25 @@ class TestCodeDetector:
     def test_detects_go_function(self, detector: CodeDetector) -> None:
         """Should detect Go function definition."""
         data = {"go": "func calculateSum(numbers []int) int {\n    sum := 0\n    return sum\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_go_method(self, detector: CodeDetector) -> None:
         """Should detect Go method definition."""
         data = {"method": "func (c *Calculator) Add(a, b int) int {\n    return a + b\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_go_package(self, detector: CodeDetector) -> None:
         """Should detect Go package declaration."""
         data = {"pkg": "package main\n\nimport \"fmt\"\n\nfunc main() {}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_go_type(self, detector: CodeDetector) -> None:
         """Should detect Go type definition."""
         data = {"typedef": "type Calculator struct {\n    value int\n}"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     # =========================================================================
@@ -140,13 +140,13 @@ class TestCodeDetector:
     def test_detects_code_block_markers(self, detector: CodeDetector) -> None:
         """Should detect markdown code block markers."""
         data = {"content": "Here is some code:\n```python\nprint('hello')\n```"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     def test_detects_code_block_without_language(self, detector: CodeDetector) -> None:
         """Should detect code blocks without language tag."""
         data = {"content": "Example:\n```\nconst x = 1;\n```"}
-        found, location = detector.contains_code(data)
+        found, _location = detector.contains_code(data)
         assert found is True
 
     # =========================================================================

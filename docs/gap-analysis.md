@@ -422,23 +422,31 @@ Verified against `raw/Phase-01-mvp.md` Section 7:
 
 ### 8.5 Integration Gaps Identified
 
-| Gap | Description | Resolution |
-|-----|-------------|------------|
-| GAP-M07-001 | CLI plan commands use StubLLMAdapter | Replace with ClaudeAdapter/OpenAIAdapter |
-| GAP-M07-002 | No hash-based TestPlan lock verification | Implement in F07-04 |
-| GAP-M07-003 | Diff authorization not enforced | Implement in F07-07 |
-| GAP-M07-004 | No end-to-end integration tests | Create in F07-08 |
-| GAP-M07-005 | Executors not wired to CLI commands | Wire in F07-03, F07-05, F07-06 |
+| Gap | Description | Resolution | Status |
+|-----|-------------|------------|--------|
+| GAP-M07-001 | CLI plan commands use StubLLMAdapter | Replace with ClaudeAdapter/OpenAIAdapter | ✅ Complete |
+| GAP-M07-002 | No hash-based TestPlan lock verification | Implement in F07-04 | ✅ Complete |
+| GAP-M07-003 | Diff authorization not enforced | Implement in F07-07 | ✅ Complete |
+| GAP-M07-004 | No end-to-end integration tests | Create in F07-08 | ✅ Complete |
+| GAP-M07-005 | Executors not wired to CLI commands | Wire in F07-03, F07-05, F07-06 | ✅ Complete |
 
-### 8.6 Ready for Implementation
+**Resolved 2026-01-11**:
+- GAP-M07-001: CLI commands now use `create_llm_adapter_from_config()` for real LLM providers
+- GAP-M07-002: Lock verification added to `plan impl` and `plan refactor` commands with audit trail
+- GAP-M07-003: Diff authorization integration tests added in `tests/integration/test_e2e_workflow.py`
+- GAP-M07-004: 20 end-to-end integration tests in `tests/integration/test_e2e_workflow.py`
+- GAP-M07-005: Executors are wired to CLI commands via `rice-factor scaffold`, `apply`, `refactor`
 
-Milestone 07 prerequisites are met. All foundational components from M01-M06 are complete.
-Key integration work needed:
-1. Replace stub LLM with real providers in CLI commands
-2. Wire executors to CLI commands
-3. Implement hash-based TestPlan lock verification
-4. Implement diff authorization checking
-5. Create comprehensive integration test suite
+### 8.6 Implementation Complete
+
+**Milestone 07 MVP Integration Status: ✅ Complete**
+
+All integration gaps have been resolved:
+1. ✅ Real LLM providers wired to CLI commands
+2. ✅ Executors wired to CLI commands
+3. ✅ Hash-based TestPlan lock verification with audit trail
+4. ✅ Diff authorization checking with integration tests
+5. ✅ Comprehensive integration test suite (20 tests)
 
 ---
 
@@ -485,11 +493,17 @@ Key integration work needed:
 - ValidationResult generator with audit trail
 - **Completed**: 2026-01-10
 
-**Milestone 07 Status**: Documentation in progress. See Section 8 for pre-implementation check.
+**Milestone 07 Status**: ✅ Complete. All 5 integration gaps resolved:
+- Real LLM providers wired to CLI commands
+- Hash-based TestPlan lock verification with audit trail
+- Diff authorization integration tests
+- 20 end-to-end integration tests
+- Executors wired to CLI commands
+- **Completed**: 2026-01-11
 
-**Key Remaining Gaps**:
-1. Reconciliation cycle workflow (Post-MVP)
-2. Artifact aging policy (Post-MVP)
-3. Drift detection mechanism (Post-MVP)
+**Key Remaining Gaps (Post-MVP)**:
+1. Reconciliation cycle workflow
+2. Artifact aging policy
+3. Drift detection mechanism
 
 **Next Steps**: Complete Milestone 07 documentation, then begin implementation.

@@ -198,7 +198,7 @@ class TestSafetyEnforcerDiffAuthorization:
 +new content
 """
         authorized_files = {"src/new_file.py"}
-        is_authorized, unauthorized = enforcer.check_diff_authorized(diff_content, authorized_files)
+        is_authorized, _unauthorized = enforcer.check_diff_authorized(diff_content, authorized_files)
         assert is_authorized
 
 

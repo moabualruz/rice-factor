@@ -10,6 +10,7 @@ from rice_factor.adapters.llm.stub import StubLLMAdapter
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
+from rice_factor.adapters.executors.audit_logger import AuditLogger
 from rice_factor.adapters.llm import LLMAdapter
 from rice_factor.adapters.storage.approvals import ApprovalsTracker
 from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
@@ -21,6 +22,7 @@ from rice_factor.domain.services.artifact_builder import ArtifactBuilder
 from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.context_builder import ContextBuilder, ContextBuilderError
 from rice_factor.domain.services.phase_service import PhaseService
+from rice_factor.domain.services.safety_enforcer import SafetyEnforcer
 from rice_factor.entrypoints.cli.utils import (
     console,
     error,
@@ -371,6 +373,31 @@ def implementation(
     # Check phase
     _check_phase(project_root, "plan impl")
 
+    # Verify TestPlan lock integrity (GAP-M07-002)
+    audit_logger = AuditLogger(project_root=project_root)
+    try:
+        safety = SafetyEnforcer(project_root=project_root)
+        result = safety.check_test_lock_intact()
+        if not result.is_valid:
+            # Log the failure before raising
+            audit_logger.log_safety_check(
+                check_type="lock_verification",
+                passed=False,
+                details={"modified_files": result.modified_files},
+                command="plan impl",
+            )
+            safety.require_test_lock_intact()  # This raises the proper error
+        else:
+            # Log successful verification
+            audit_logger.log_safety_check(
+                check_type="lock_verification",
+                passed=True,
+                command="plan impl",
+            )
+    except Exception as e:
+        error(f"Lock verification failed: {e}")
+        raise typer.Exit(1) from None
+
     if dry_run:
         # Use stub for dry run to avoid API calls
         llm = StubLLMAdapter()
@@ -439,6 +466,31 @@ def refactor(
 
     # Check phase
     _check_phase(project_root, "plan refactor")
+
+    # Verify TestPlan lock integrity (GAP-M07-002)
+    audit_logger = AuditLogger(project_root=project_root)
+    try:
+        safety = SafetyEnforcer(project_root=project_root)
+        result = safety.check_test_lock_intact()
+        if not result.is_valid:
+            # Log the failure before raising
+            audit_logger.log_safety_check(
+                check_type="lock_verification",
+                passed=False,
+                details={"modified_files": result.modified_files},
+                command="plan refactor",
+            )
+            safety.require_test_lock_intact()  # This raises the proper error
+        else:
+            # Log successful verification
+            audit_logger.log_safety_check(
+                check_type="lock_verification",
+                passed=True,
+                command="plan refactor",
+            )
+    except Exception as e:
+        error(f"Lock verification failed: {e}")
+        raise typer.Exit(1) from None
 
     if dry_run:
         # Use stub for dry run to avoid API calls

@@ -297,6 +297,60 @@ class AuditLogger:
 
         return entries
 
+    def log_safety_check(
+        self,
+        check_type: str,
+        passed: bool,
+        details: dict[str, object] | None = None,
+        command: str | None = None,
+    ) -> AuditLogEntry:
+        """Log a safety check result.
+
+        Records safety check outcomes (lock verification, diff authorization)
+        to the audit trail. This provides complete traceability for all
+        security-critical operations.
+
+        Args:
+            check_type: Type of safety check (lock_verification, diff_authorization).
+            passed: Whether the check passed.
+            details: Additional details about the check.
+            command: Command that triggered the check.
+
+        Returns:
+            The created and logged AuditLogEntry.
+        """
+        mode = f"safety_check:{check_type}"
+        artifact = command or "unknown"
+        details_dict = details or {}
+
+        files = details_dict.get("files", [])
+        files_affected = [str(v) for v in files] if files else []
+
+        if passed:
+            entry = AuditLogEntry.success(
+                executor="safety_enforcer",
+                artifact=artifact,
+                mode=mode,
+                files_affected=files_affected,
+            )
+        else:
+            error_msg = str(details_dict.get("error", "Safety check failed"))
+            if details_dict.get("modified_files"):
+                error_msg += f" Modified: {details_dict['modified_files']}"
+            if details_dict.get("unauthorized_files"):
+                error_msg += f" Unauthorized: {details_dict['unauthorized_files']}"
+
+            entry = AuditLogEntry.failure(
+                executor="safety_enforcer",
+                artifact=artifact,
+                mode=mode,
+                error=error_msg,
+                files_affected=files_affected,
+            )
+
+        self.log_execution(entry)
+        return entry
+
 
 @contextlib.contextmanager
 def execution_timer() -> Iterator[dict[str, int]]:
