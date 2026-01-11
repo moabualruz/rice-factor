@@ -1,8 +1,8 @@
 # Feature F10-01: Artifact Aging System - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.0.1
+> **Status**: In Progress
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T10-01-01 | Extend ArtifactEnvelope with timestamps | Pending | P0 |
-| T10-01-02 | Add age calculation methods | Pending | P0 |
-| T10-01-03 | Update storage adapter | Pending | P0 |
-| T10-01-04 | Migrate existing artifacts | Pending | P1 |
+| T10-01-01 | Extend ArtifactEnvelope with timestamps | **Complete** | P0 |
+| T10-01-02 | Add age calculation methods | **Complete** | P0 |
+| T10-01-03 | Update storage adapter | **Complete** | P0 |
+| T10-01-04 | Migrate existing artifacts | Deferred | P1 |
 | T10-01-05 | Add artifact age CLI command | Pending | P0 |
-| T10-01-06 | Write unit tests | Pending | P0 |
+| T10-01-06 | Write unit tests | **Complete** | P0 |
 
 ---
 
@@ -26,26 +26,20 @@
 
 **Objective**: Add lifecycle tracking fields to artifacts.
 
-**Files to Modify**:
-- [ ] `rice_factor/domain/artifacts/base.py`
+**Files Modified**:
+- [x] `rice_factor/domain/artifacts/envelope.py`
+- [x] `schemas/artifact.schema.json`
 
 **New Fields**:
-```python
-@dataclass
-class ArtifactEnvelope:
-    # Existing fields...
-
-    # Lifecycle fields (new)
-    created_at: datetime
-    updated_at: datetime
-    last_reviewed_at: datetime | None = None
-    review_notes: str | None = None
-```
+- [x] `updated_at: datetime` - timestamp of last modification
+- [x] `last_reviewed_at: datetime | None` - timestamp of last review
+- [x] `review_notes: str | None` - notes from last review
 
 **Acceptance Criteria**:
-- [ ] All new fields have proper types
-- [ ] Datetime fields are timezone-aware
-- [ ] Fields serialize to JSON correctly
+- [x] All new fields have proper types
+- [x] Datetime fields are timezone-aware (UTC)
+- [x] Fields serialize to JSON correctly
+- [x] JSON Schema updated to allow new fields
 
 ---
 
@@ -53,33 +47,20 @@ class ArtifactEnvelope:
 
 **Objective**: Implement age calculation properties.
 
-**Files to Modify**:
-- [ ] `rice_factor/domain/artifacts/base.py`
+**Files Modified**:
+- [x] `rice_factor/domain/artifacts/envelope.py`
 
 **Implementation**:
-```python
-@property
-def age_days(self) -> int:
-    """Calculate artifact age in days."""
-    return (datetime.now(timezone.utc) - self.created_at).days
-
-@property
-def age_months(self) -> float:
-    """Calculate artifact age in months."""
-    return self.age_days / 30.44
-
-@property
-def days_since_review(self) -> int | None:
-    """Days since last review."""
-    if self.last_reviewed_at is None:
-        return None
-    return (datetime.now(timezone.utc) - self.last_reviewed_at).days
-```
+- [x] `age_days` property - returns integer days since creation
+- [x] `age_months` property - returns float months since creation
+- [x] `days_since_review` property - returns days since review or None
+- [x] `days_since_update` property - returns days since last update
 
 **Acceptance Criteria**:
-- [ ] age_days returns integer
-- [ ] age_months returns float
-- [ ] days_since_review handles None
+- [x] age_days returns integer
+- [x] age_months returns float
+- [x] days_since_review handles None
+- [x] Timezone-aware datetime comparisons
 
 ---
 
@@ -87,18 +68,12 @@ def days_since_review(self) -> int | None:
 
 **Objective**: Persist and load timestamp fields.
 
-**Files to Modify**:
-- [ ] `rice_factor/adapters/storage/filesystem_adapter.py`
-
-**Implementation**:
-- [ ] Serialize datetime to ISO-8601
-- [ ] Parse datetime from JSON
-- [ ] Handle missing fields (migration)
+**Note**: Pydantic BaseModel automatically handles datetime serialization to ISO-8601 format and deserialization. No additional adapter changes needed.
 
 **Acceptance Criteria**:
-- [ ] Timestamps persisted correctly
-- [ ] Old artifacts load without error
-- [ ] UTC timezone preserved
+- [x] Timestamps persisted correctly (via Pydantic)
+- [x] Old artifacts load without error (new fields optional)
+- [x] UTC timezone preserved
 
 ---
 
@@ -171,21 +146,26 @@ TestPlan (id-002):
 
 **Objective**: Test aging system functionality.
 
-**Files to Create**:
-- [ ] `tests/unit/domain/artifacts/test_aging.py`
+**Files Modified**:
+- [x] `tests/unit/domain/artifacts/test_envelope.py` (12 new tests)
 
 **Test Cases**:
-- [ ] age_days calculation
-- [ ] age_months calculation
-- [ ] days_since_review with review
-- [ ] days_since_review without review
-- [ ] Timestamp serialization
-- [ ] Timestamp deserialization
-- [ ] Migration of old artifacts
+- [x] test_updated_at_defaults_to_created_at
+- [x] test_last_reviewed_at_defaults_to_none
+- [x] test_review_notes_defaults_to_none
+- [x] test_can_set_lifecycle_fields
+- [x] test_age_days_calculation
+- [x] test_age_days_for_new_artifact
+- [x] test_age_months_calculation
+- [x] test_age_months_for_new_artifact
+- [x] test_days_since_review_when_never_reviewed
+- [x] test_days_since_review_calculation
+- [x] test_days_since_update_calculation
+- [x] test_days_since_update_for_new_artifact
 
 **Acceptance Criteria**:
-- [ ] All calculations verified
-- [ ] Edge cases covered
+- [x] All calculations verified
+- [x] Edge cases covered (32 total tests in envelope file)
 
 ---
 
@@ -223,3 +203,4 @@ T10-01-01 (Fields) ──→ T10-01-02 (Methods) ──→ T10-01-03 (Storage)
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.0.1 | 2026-01-11 | Implementation | Core aging system complete - 32 tests, T10-01-04 deferred, T10-01-05 pending |
