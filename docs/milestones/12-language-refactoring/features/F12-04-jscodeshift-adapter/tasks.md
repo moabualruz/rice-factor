@@ -1,8 +1,8 @@
 # Feature F12-04: jscodeshift Adapter - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T12-04-01 | Implement jscodeshift detection | Pending | P0 |
-| T12-04-02 | Create transform templates | Pending | P0 |
-| T12-04-03 | Implement rename transform | Pending | P0 |
-| T12-04-04 | Implement extract transform | Pending | P1 |
-| T12-04-05 | Handle TypeScript | Pending | P0 |
-| T12-04-06 | Write unit tests | Pending | P0 |
+| T12-04-01 | Implement jscodeshift detection | Complete | P0 |
+| T12-04-02 | Create transform templates | Complete | P0 |
+| T12-04-03 | Implement rename transform | Complete | P0 |
+| T12-04-04 | Implement extract transform | Complete | P1 |
+| T12-04-05 | Handle TypeScript | Complete | P0 |
+| T12-04-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -27,12 +27,12 @@
 **Objective**: Detect if jscodeshift is available.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
 
 **Detection Logic**:
-- [ ] Check `npx jscodeshift --version`
-- [ ] Verify package.json exists
-- [ ] Check for node_modules
+- [x] Check `npx jscodeshift --version`
+- [x] Verify package.json exists
+- [x] Check for node_modules
 
 **Implementation**:
 ```python
@@ -52,9 +52,9 @@ def is_available(self) -> bool:
 ```
 
 **Acceptance Criteria**:
-- [ ] Detects jscodeshift
-- [ ] Works with npx
-- [ ] Verifies JS project
+- [x] Detects jscodeshift
+- [x] Works with npx
+- [x] Verifies JS project
 
 ---
 
@@ -63,9 +63,9 @@ def is_available(self) -> bool:
 **Objective**: Bundle transform scripts for operations.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/transforms/rename-symbol.js`
-- [ ] `rice_factor/adapters/refactoring/transforms/extract-function.js`
-- [ ] `rice_factor/adapters/refactoring/transforms/extract-variable.js`
+- [x] `rice_factor/adapters/refactoring/transforms/rename-symbol.js`
+- [x] `rice_factor/adapters/refactoring/transforms/extract-function.js`
+- [x] `rice_factor/adapters/refactoring/transforms/extract-variable.js`
 
 **Rename Transform**:
 ```javascript
@@ -87,9 +87,9 @@ module.exports = function(fileInfo, api, options) {
 ```
 
 **Acceptance Criteria**:
-- [ ] Transforms are valid JS
-- [ ] Accept options correctly
-- [ ] Preserve formatting
+- [x] Transforms are valid JS
+- [x] Accept options correctly
+- [x] Preserve formatting
 
 ---
 
@@ -98,7 +98,7 @@ module.exports = function(fileInfo, api, options) {
 **Objective**: Rename symbols using jscodeshift.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
 
 **Command**:
 ```bash
@@ -145,9 +145,9 @@ def _rename(
 ```
 
 **Acceptance Criteria**:
-- [ ] Renames identifiers
-- [ ] Works with JSX/TSX
-- [ ] Dry-run shows changes
+- [x] Renames identifiers
+- [x] Works with JSX/TSX
+- [x] Dry-run shows changes
 
 ---
 
@@ -156,7 +156,7 @@ def _rename(
 **Objective**: Extract function/variable transforms.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/transforms/extract-function.js`
+- [x] `rice_factor/adapters/refactoring/transforms/extract-function.js`
 
 **Extract Function Transform**:
 ```javascript
@@ -211,9 +211,9 @@ def _extract_function(
 ```
 
 **Acceptance Criteria**:
-- [ ] Extracts code range
-- [ ] Creates new function
-- [ ] Updates call site
+- [x] Extracts code range
+- [x] Creates new function
+- [x] Updates call site
 
 ---
 
@@ -222,13 +222,13 @@ def _extract_function(
 **Objective**: Full TypeScript support.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
 
 **TypeScript Considerations**:
-- [ ] Use `tsx` parser
-- [ ] Handle type annotations
-- [ ] Support .ts, .tsx, .d.ts files
-- [ ] Preserve type imports
+- [x] Use `tsx` parser
+- [x] Handle type annotations
+- [x] Support .ts, .tsx, .d.ts files
+- [x] Preserve type imports
 
 **Implementation**:
 ```python
@@ -262,9 +262,9 @@ def _get_js_files(self) -> list[str]:
 ```
 
 **Acceptance Criteria**:
-- [ ] TS files refactored
-- [ ] Types preserved
-- [ ] node_modules ignored
+- [x] TS files refactored
+- [x] Types preserved
+- [x] node_modules ignored
 
 ---
 
@@ -273,20 +273,20 @@ def _get_js_files(self) -> list[str]:
 **Objective**: Test jscodeshift adapter.
 
 **Files to Create**:
-- [ ] `tests/unit/adapters/refactoring/test_jscodeshift_adapter.py`
+- [x] `tests/unit/adapters/refactoring/test_jscodeshift_adapter.py`
 
 **Test Cases**:
-- [ ] jscodeshift detection
-- [ ] Transform execution
-- [ ] Rename transform
-- [ ] Extract transform
-- [ ] TypeScript handling
-- [ ] Dry-run output parsing
-- [ ] Error handling
+- [x] jscodeshift detection
+- [x] Transform execution
+- [x] Rename transform
+- [x] Extract transform
+- [x] TypeScript handling
+- [x] Dry-run output parsing
+- [x] Error handling
 
 **Acceptance Criteria**:
-- [ ] All transforms tested
-- [ ] Output parsing verified
+- [x] All transforms tested
+- [x] Output parsing verified
 
 ---
 
@@ -325,3 +325,4 @@ T12-04-01 (Detection) ──→ T12-04-02 (Templates) ──→ T12-04-03 (Renam
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

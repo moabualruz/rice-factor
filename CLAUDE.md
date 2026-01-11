@@ -155,8 +155,8 @@ rice-factor refactor dry-run        # Preview refactor
 | 09 | Drift Detection | Planned | P1 | Drift detection, reconciliation, ReconciliationPlan |
 | 10 | Artifact Lifecycle | Planned | P1 | Aging system, expiration policies, review prompts |
 | 11 | Enhanced Intake | Planned | P1 | decisions.md, blocking questionnaire, glossary validation |
-| 12 | Language Refactoring | Planned | P2 | OpenRewrite, gopls, rust-analyzer, jscodeshift adapters |
-| 13 | Multi-Agent | Planned | P2 | Run modes B-E, agent roles, orchestration |
+| 12 | Language Refactoring | Complete | P2 | OpenRewrite, gopls, rust-analyzer, jscodeshift adapters |
+| 13 | Multi-Agent | Complete | P2 | Run modes B-E, agent roles, orchestration |
 
 > See `docs/gap-analysis-v2.md` for detailed gap analysis and feature breakdown.
 

@@ -1,8 +1,8 @@
 # Feature F13-01: Run Mode Configuration - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T13-01-01 | Create agent domain models | Pending | P0 |
-| T13-01-02 | Define RunMode enum | Pending | P0 |
-| T13-01-03 | Create RunModeConfig model | Pending | P0 |
-| T13-01-04 | Implement YAML loader | Pending | P0 |
-| T13-01-05 | Add CLI mode override | Pending | P1 |
-| T13-01-06 | Write unit tests | Pending | P0 |
+| T13-01-01 | Create agent domain models | Complete | P0 |
+| T13-01-02 | Define RunMode enum | Complete | P0 |
+| T13-01-03 | Create RunModeConfig model | Complete | P0 |
+| T13-01-04 | Implement YAML loader | Complete | P0 |
+| T13-01-05 | Add CLI mode override | Complete | P1 |
+| T13-01-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -27,7 +27,7 @@
 **Objective**: Define core models for agents.
 
 **Files to Create**:
-- [ ] `rice_factor/domain/models/agent.py`
+- [x] `rice_factor/domain/models/agent.py`
 
 **Implementation**:
 ```python
@@ -54,9 +54,9 @@ class AgentConfig:
 ```
 
 **Acceptance Criteria**:
-- [ ] All roles defined
-- [ ] All capabilities defined
-- [ ] AgentConfig is complete
+- [x] All roles defined
+- [x] All capabilities defined
+- [x] AgentConfig is complete
 
 ---
 
@@ -65,7 +65,7 @@ class AgentConfig:
 **Objective**: Define available run modes.
 
 **Files to Create**:
-- [ ] `rice_factor/config/run_mode_config.py`
+- [x] `rice_factor/config/run_mode_config.py`
 
 **Implementation**:
 ```python
@@ -78,8 +78,8 @@ class RunMode(str, Enum):
 ```
 
 **Acceptance Criteria**:
-- [ ] All 5 modes defined
-- [ ] String-based for YAML
+- [x] All 5 modes defined
+- [x] String-based for YAML
 
 ---
 
@@ -88,7 +88,7 @@ class RunMode(str, Enum):
 **Objective**: Configuration model for all modes.
 
 **Files to Modify**:
-- [ ] `rice_factor/config/run_mode_config.py`
+- [x] `rice_factor/config/run_mode_config.py`
 
 **Implementation**:
 ```python
@@ -114,9 +114,9 @@ class RunModeConfig:
 ```
 
 **Acceptance Criteria**:
-- [ ] All mode settings included
-- [ ] Sensible defaults
-- [ ] Dataclass pattern
+- [x] All mode settings included
+- [x] Sensible defaults
+- [x] Dataclass pattern
 
 ---
 
@@ -125,7 +125,7 @@ class RunModeConfig:
 **Objective**: Load run_mode.yaml configuration.
 
 **Files to Modify**:
-- [ ] `rice_factor/config/run_mode_config.py`
+- [x] `rice_factor/config/run_mode_config.py`
 
 **File Location**: `.project/run_mode.yaml`
 
@@ -154,9 +154,9 @@ def from_file(cls, path: Path) -> "RunModeConfig":
 ```
 
 **Acceptance Criteria**:
-- [ ] Missing file returns default
-- [ ] All modes parsed correctly
-- [ ] Invalid YAML handled
+- [x] Missing file returns default
+- [x] All modes parsed correctly
+- [x] Invalid YAML handled
 
 ---
 
@@ -165,8 +165,8 @@ def from_file(cls, path: Path) -> "RunModeConfig":
 **Objective**: Allow CLI to override configured mode.
 
 **Files to Modify**:
-- [ ] `rice_factor/entrypoints/cli/commands/plan.py`
-- [ ] Other relevant commands
+- [x] `rice_factor/entrypoints/cli/commands/plan.py`
+- [x] Other relevant commands
 
 **Implementation**:
 ```python
@@ -189,9 +189,9 @@ def plan(
 ```
 
 **Acceptance Criteria**:
-- [ ] --mode flag works
-- [ ] Overrides file config
-- [ ] Invalid mode rejected
+- [x] --mode flag works
+- [x] Overrides file config
+- [x] Invalid mode rejected
 
 ---
 
@@ -200,21 +200,21 @@ def plan(
 **Objective**: Test configuration loading.
 
 **Files to Create**:
-- [ ] `tests/unit/config/test_run_mode_config.py`
+- [x] `tests/unit/config/test_run_mode_config.py`
 
 **Test Cases**:
-- [ ] Default config (solo mode)
-- [ ] Load orchestrator config
-- [ ] Load voting config
-- [ ] Load role-locked config
-- [ ] Load hybrid config
-- [ ] Missing file handling
-- [ ] Invalid YAML handling
-- [ ] CLI override
+- [x] Default config (solo mode)
+- [x] Load orchestrator config
+- [x] Load voting config
+- [x] Load role-locked config
+- [x] Load hybrid config
+- [x] Missing file handling
+- [x] Invalid YAML handling
+- [x] CLI override
 
 **Acceptance Criteria**:
-- [ ] All modes tested
-- [ ] Edge cases covered
+- [x] All modes tested
+- [x] Edge cases covered
 
 ---
 
@@ -253,3 +253,4 @@ T13-01-01 (Models) ──→ T13-01-02 (Enum) ──→ T13-01-03 (Config)
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

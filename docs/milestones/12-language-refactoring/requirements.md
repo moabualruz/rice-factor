@@ -1,8 +1,8 @@
 # Milestone 12: Language-Specific Refactoring - Requirements
 
 > **Document Type**: Milestone Requirements Specification
-> **Version**: 1.0.0
-> **Status**: Planned
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [Project Requirements](../../project/requirements.md)
 > **Source**: [06-tools-to-integrte-with-or-learn-from.md](../../raw/06-tools-to-integrte-with-or-learn-from.md)
 
@@ -93,21 +93,21 @@ From the spec:
 
 | Feature ID | Feature Name | Priority | Status |
 |------------|--------------|----------|--------|
-| F12-01 | OpenRewrite Adapter | P0 | Pending |
-| F12-02 | gopls Adapter | P1 | Pending |
-| F12-03 | rust-analyzer Adapter | P1 | Pending |
-| F12-04 | jscodeshift Adapter | P1 | Pending |
+| F12-01 | OpenRewrite Adapter | P0 | Complete |
+| F12-02 | gopls Adapter | P1 | Complete |
+| F12-03 | rust-analyzer Adapter | P1 | Complete |
+| F12-04 | jscodeshift Adapter | P1 | Complete |
 
 ---
 
 ## 5. Success Criteria
 
-- [ ] OpenRewrite can rename classes across JVM codebase
-- [ ] gopls can perform Go refactorings via LSP
-- [ ] rust-analyzer can rename Rust symbols
-- [ ] jscodeshift can transform JS/TS code
-- [ ] Capability registry accurately reflects tool availability
-- [ ] Fallback to diff/patch works for unsupported languages
+- [x] OpenRewrite can rename classes across JVM codebase
+- [x] gopls can perform Go refactorings via LSP
+- [x] rust-analyzer can rename Rust symbols
+- [x] jscodeshift can transform JS/TS code
+- [x] Capability registry accurately reflects tool availability
+- [x] Fallback to diff/patch works for unsupported languages
 
 ---
 
@@ -184,3 +184,4 @@ Run 'rice-factor refactor apply' to execute.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial requirements |
+| 1.1.0 | 2026-01-11 | Implementation | Milestone completed |

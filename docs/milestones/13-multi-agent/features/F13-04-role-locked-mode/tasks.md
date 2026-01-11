@@ -1,8 +1,8 @@
 # Feature F13-04: Role-Locked Mode - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T13-04-01 | Implement RoleLockedMode coordinator | Pending | P0 |
-| T13-04-02 | Define workflow determination | Pending | P0 |
-| T13-04-03 | Implement role handoff | Pending | P0 |
-| T13-04-04 | Add mandatory critic review | Pending | P0 |
-| T13-04-05 | Create role-specific prompts | Pending | P1 |
-| T13-04-06 | Write unit tests | Pending | P0 |
+| T13-04-01 | Implement RoleLockedMode coordinator | Complete | P0 |
+| T13-04-02 | Define workflow determination | Complete | P0 |
+| T13-04-03 | Implement role handoff | Complete | P0 |
+| T13-04-04 | Add mandatory critic review | Complete | P0 |
+| T13-04-05 | Create role-specific prompts | Complete | P1 |
+| T13-04-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -27,7 +27,7 @@
 **Objective**: Create role-locked mode coordinator.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/agents/role_locked_mode.py`
+- [x] `rice_factor/adapters/agents/role_locked_mode.py`
 
 **Implementation**:
 ```python
@@ -58,9 +58,9 @@ class RoleLockedMode(CoordinatorPort):
 ```
 
 **Acceptance Criteria**:
-- [ ] Implements CoordinatorPort
-- [ ] Roles are fixed
-- [ ] Critic configurable
+- [x] Implements CoordinatorPort
+- [x] Roles are fixed
+- [x] Critic configurable
 
 ---
 
@@ -69,7 +69,7 @@ class RoleLockedMode(CoordinatorPort):
 **Objective**: Determine which roles participate.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/agents/role_locked_mode.py`
+- [x] `rice_factor/adapters/agents/role_locked_mode.py`
 
 **Workflow Rules**:
 | Task Type | Roles |
@@ -102,9 +102,9 @@ def _determine_workflow(self, task: str) -> list[str]:
 ```
 
 **Acceptance Criteria**:
-- [ ] Task type detected
-- [ ] Only available roles used
-- [ ] Reasonable defaults
+- [x] Task type detected
+- [x] Only available roles used
+- [x] Reasonable defaults
 
 ---
 
@@ -113,7 +113,7 @@ def _determine_workflow(self, task: str) -> list[str]:
 **Objective**: Pass work between roles.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/agents/role_locked_mode.py`
+- [x] `rice_factor/adapters/agents/role_locked_mode.py`
 
 **Implementation**:
 ```python
@@ -156,9 +156,9 @@ async def _execute_workflow(
 ```
 
 **Acceptance Criteria**:
-- [ ] Context passed forward
-- [ ] Roles execute in order
-- [ ] Rejection handled
+- [x] Context passed forward
+- [x] Roles execute in order
+- [x] Rejection handled
 
 ---
 
@@ -167,7 +167,7 @@ async def _execute_workflow(
 **Objective**: Critic must review before approval.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/agents/role_locked_mode.py`
+- [x] `rice_factor/adapters/agents/role_locked_mode.py`
 
 **Implementation**:
 ```python
@@ -206,9 +206,9 @@ async def _execute_workflow(
 ```
 
 **Acceptance Criteria**:
-- [ ] Critic reviews each output
-- [ ] Rejection triggers revision
-- [ ] Can be disabled
+- [x] Critic reviews each output
+- [x] Rejection triggers revision
+- [x] Can be disabled
 
 ---
 
@@ -217,7 +217,7 @@ async def _execute_workflow(
 **Objective**: System prompts tailored to roles.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/agents/role_prompts.py`
+- [x] `rice_factor/adapters/agents/role_prompts.py`
 
 **Prompts**:
 ```python
@@ -259,9 +259,9 @@ Focus on behavior, not implementation.""",
 ```
 
 **Acceptance Criteria**:
-- [ ] Each role has prompt
-- [ ] Clear responsibilities
-- [ ] Boundaries defined
+- [x] Each role has prompt
+- [x] Clear responsibilities
+- [x] Boundaries defined
 
 ---
 
@@ -270,20 +270,20 @@ Focus on behavior, not implementation.""",
 **Objective**: Test role-locked mode.
 
 **Files to Create**:
-- [ ] `tests/unit/adapters/agents/test_role_locked_mode.py`
+- [x] `tests/unit/adapters/agents/test_role_locked_mode.py`
 
 **Test Cases**:
-- [ ] Workflow determination
-- [ ] Role handoff
-- [ ] Critic approval path
-- [ ] Critic rejection + revision
-- [ ] Missing role handling
-- [ ] Critic disabled
-- [ ] Role-specific prompts
+- [x] Workflow determination
+- [x] Role handoff
+- [x] Critic approval path
+- [x] Critic rejection + revision
+- [x] Missing role handling
+- [x] Critic disabled
+- [x] Role-specific prompts
 
 **Acceptance Criteria**:
-- [ ] All workflows tested
-- [ ] Critic paths verified
+- [x] All workflows tested
+- [x] Critic paths verified
 
 ---
 
@@ -322,3 +322,4 @@ T13-04-01 (Coordinator) ──→ T13-04-02 (Workflow) ──→ T13-04-03 (Hand
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

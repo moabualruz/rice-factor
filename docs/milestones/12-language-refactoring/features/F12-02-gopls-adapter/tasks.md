@@ -1,8 +1,8 @@
 # Feature F12-02: gopls Adapter - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T12-02-01 | Implement gopls detection | Pending | P0 |
-| T12-02-02 | Create LSP client wrapper | Pending | P0 |
-| T12-02-03 | Implement rename refactoring | Pending | P0 |
-| T12-02-04 | Implement extract refactoring | Pending | P1 |
-| T12-02-05 | Parse LSP responses | Pending | P0 |
-| T12-02-06 | Write unit tests | Pending | P0 |
+| T12-02-01 | Implement gopls detection | Complete | P0 |
+| T12-02-02 | Create LSP client wrapper | Complete | P0 |
+| T12-02-03 | Implement rename refactoring | Complete | P0 |
+| T12-02-04 | Implement extract refactoring | Complete | P1 |
+| T12-02-05 | Parse LSP responses | Complete | P0 |
+| T12-02-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -27,12 +27,12 @@
 **Objective**: Detect if gopls is installed and usable.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/gopls_adapter.py`
+- [x] `rice_factor/adapters/refactoring/gopls_adapter.py`
 
 **Detection Logic**:
-- [ ] Check `gopls version` command
-- [ ] Verify Go module in project (`go.mod`)
-- [ ] Check gorename availability (simpler CLI)
+- [x] Check `gopls version` command
+- [x] Verify Go module in project (`go.mod`)
+- [x] Check gorename availability (simpler CLI)
 
 **Implementation**:
 ```python
@@ -51,9 +51,9 @@ def is_available(self) -> bool:
 ```
 
 **Acceptance Criteria**:
-- [ ] gopls detected correctly
-- [ ] Missing gopls returns False
-- [ ] Non-Go project returns False
+- [x] gopls detected correctly
+- [x] Missing gopls returns False
+- [x] Non-Go project returns False
 
 ---
 
@@ -62,13 +62,13 @@ def is_available(self) -> bool:
 **Objective**: Wrapper for LSP communication with gopls.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/lsp_client.py`
+- [x] `rice_factor/adapters/refactoring/lsp_client.py`
 
 **LSP Operations**:
-- [ ] Initialize connection
-- [ ] Send textDocument/rename request
-- [ ] Send textDocument/codeAction request
-- [ ] Apply workspace/applyEdit
+- [x] Initialize connection
+- [x] Send textDocument/rename request
+- [x] Send textDocument/codeAction request
+- [x] Apply workspace/applyEdit
 
 **Implementation**:
 ```python
@@ -116,9 +116,9 @@ class LSPClient:
 ```
 
 **Acceptance Criteria**:
-- [ ] LSP protocol correct
-- [ ] Handles responses
-- [ ] Graceful shutdown
+- [x] LSP protocol correct
+- [x] Handles responses
+- [x] Graceful shutdown
 
 ---
 
@@ -127,7 +127,7 @@ class LSPClient:
 **Objective**: Perform Go rename via gopls.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/gopls_adapter.py`
+- [x] `rice_factor/adapters/refactoring/gopls_adapter.py`
 
 **Alternative: Use gorename**:
 ```bash
@@ -177,9 +177,9 @@ def _rename(
 ```
 
 **Acceptance Criteria**:
-- [ ] Renames symbols across files
-- [ ] Dry-run shows changes
-- [ ] Errors reported
+- [x] Renames symbols across files
+- [x] Dry-run shows changes
+- [x] Errors reported
 
 ---
 
@@ -188,7 +188,7 @@ def _rename(
 **Objective**: Extract method/variable via gopls.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/gopls_adapter.py`
+- [x] `rice_factor/adapters/refactoring/gopls_adapter.py`
 
 **LSP Code Action**:
 ```python
@@ -237,9 +237,9 @@ def _extract(
 ```
 
 **Acceptance Criteria**:
-- [ ] Finds extract actions
-- [ ] Applies code action
-- [ ] Dry-run previews
+- [x] Finds extract actions
+- [x] Applies code action
+- [x] Dry-run previews
 
 ---
 
@@ -248,7 +248,7 @@ def _extract(
 **Objective**: Convert LSP edits to RefactorChange.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/gopls_adapter.py`
+- [x] `rice_factor/adapters/refactoring/gopls_adapter.py`
 
 **LSP WorkspaceEdit Format**:
 ```json
@@ -290,9 +290,9 @@ def _parse_workspace_edit(
 ```
 
 **Acceptance Criteria**:
-- [ ] URIs converted to paths
-- [ ] Text edits applied
-- [ ] Changes list complete
+- [x] URIs converted to paths
+- [x] Text edits applied
+- [x] Changes list complete
 
 ---
 
@@ -301,19 +301,19 @@ def _parse_workspace_edit(
 **Objective**: Test gopls adapter.
 
 **Files to Create**:
-- [ ] `tests/unit/adapters/refactoring/test_gopls_adapter.py`
+- [x] `tests/unit/adapters/refactoring/test_gopls_adapter.py`
 
 **Test Cases**:
-- [ ] gopls detection
-- [ ] gorename command building
-- [ ] Dry-run output parsing
-- [ ] LSP response parsing
-- [ ] Rename execution
-- [ ] Error handling
+- [x] gopls detection
+- [x] gorename command building
+- [x] Dry-run output parsing
+- [x] LSP response parsing
+- [x] Rename execution
+- [x] Error handling
 
 **Acceptance Criteria**:
-- [ ] All methods tested
-- [ ] Mocked subprocess calls
+- [x] All methods tested
+- [x] Mocked subprocess calls
 
 ---
 
@@ -352,3 +352,4 @@ T12-02-01 (Detection) ──→ T12-02-02 (LSP Client) ──→ T12-02-03 (Rena
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

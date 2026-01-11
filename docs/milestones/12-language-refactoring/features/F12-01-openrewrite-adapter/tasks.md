@@ -1,8 +1,8 @@
 # Feature F12-01: OpenRewrite Adapter - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,13 +11,13 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T12-01-01 | Create RefactorToolPort interface | Pending | P0 |
-| T12-01-02 | Implement OpenRewrite detection | Pending | P0 |
-| T12-01-03 | Map operations to recipes | Pending | P0 |
-| T12-01-04 | Implement recipe execution | Pending | P0 |
-| T12-01-05 | Parse OpenRewrite output | Pending | P0 |
-| T12-01-06 | Add rollback support | Pending | P1 |
-| T12-01-07 | Write unit tests | Pending | P0 |
+| T12-01-01 | Create RefactorToolPort interface | Complete | P0 |
+| T12-01-02 | Implement OpenRewrite detection | Complete | P0 |
+| T12-01-03 | Map operations to recipes | Complete | P0 |
+| T12-01-04 | Implement recipe execution | Complete | P0 |
+| T12-01-05 | Parse OpenRewrite output | Complete | P0 |
+| T12-01-06 | Add rollback support | Complete | P1 |
+| T12-01-07 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -28,7 +28,7 @@
 **Objective**: Define common interface for refactoring tools.
 
 **Files to Create**:
-- [ ] `rice_factor/domain/ports/refactor.py`
+- [x] `rice_factor/domain/ports/refactor.py`
 
 **Implementation**:
 ```python
@@ -54,9 +54,9 @@ class RefactorToolPort(ABC):
 ```
 
 **Acceptance Criteria**:
-- [ ] Port follows hexagonal pattern
-- [ ] All methods are abstract
-- [ ] Types are well-defined
+- [x] Port follows hexagonal pattern
+- [x] All methods are abstract
+- [x] Types are well-defined
 
 ---
 
@@ -65,12 +65,12 @@ class RefactorToolPort(ABC):
 **Objective**: Detect if OpenRewrite is available in project.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+- [x] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
 
 **Detection Logic**:
-- [ ] Check for `pom.xml` with OpenRewrite plugin
-- [ ] Check for `build.gradle` with OpenRewrite plugin
-- [ ] Verify Maven/Gradle is installed
+- [x] Check for `pom.xml` with OpenRewrite plugin
+- [x] Check for `build.gradle` with OpenRewrite plugin
+- [x] Verify Maven/Gradle is installed
 
 **Implementation**:
 ```python
@@ -89,9 +89,9 @@ def is_available(self) -> bool:
 ```
 
 **Acceptance Criteria**:
-- [ ] Detects Maven projects
-- [ ] Detects Gradle projects
-- [ ] Returns False if tool missing
+- [x] Detects Maven projects
+- [x] Detects Gradle projects
+- [x] Returns False if tool missing
 
 ---
 
@@ -100,7 +100,7 @@ def is_available(self) -> bool:
 **Objective**: Map RefactorOperation to OpenRewrite recipes.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+- [x] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
 
 **Recipe Mapping**:
 
@@ -126,9 +126,9 @@ def _get_recipe(self, operation: RefactorOperation) -> str:
 ```
 
 **Acceptance Criteria**:
-- [ ] All supported operations mapped
-- [ ] Unsupported operations raise error
-- [ ] Recipe names are correct
+- [x] All supported operations mapped
+- [x] Unsupported operations raise error
+- [x] Recipe names are correct
 
 ---
 
@@ -137,7 +137,7 @@ def _get_recipe(self, operation: RefactorOperation) -> str:
 **Objective**: Execute OpenRewrite recipes via Maven/Gradle.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+- [x] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
 
 **Maven Command**:
 ```bash
@@ -156,10 +156,10 @@ mvn rewrite:run \
 ```
 
 **Acceptance Criteria**:
-- [ ] Maven execution works
-- [ ] Gradle execution works
-- [ ] Dry-run mode supported
-- [ ] Errors captured properly
+- [x] Maven execution works
+- [x] Gradle execution works
+- [x] Dry-run mode supported
+- [x] Errors captured properly
 
 ---
 
@@ -168,7 +168,7 @@ mvn rewrite:run \
 **Objective**: Parse recipe execution output to RefactorResult.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+- [x] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
 
 **Output Format**:
 ```
@@ -196,9 +196,9 @@ def _parse_output(self, stdout: str) -> list[RefactorChange]:
 ```
 
 **Acceptance Criteria**:
-- [ ] Changed files extracted
-- [ ] Error messages captured
-- [ ] Dry-run output parsed
+- [x] Changed files extracted
+- [x] Error messages captured
+- [x] Dry-run output parsed
 
 ---
 
@@ -207,7 +207,7 @@ def _parse_output(self, stdout: str) -> list[RefactorChange]:
 **Objective**: Rollback failed or unwanted refactoring.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+- [x] `rice_factor/adapters/refactoring/openrewrite_adapter.py`
 
 **Rollback Strategy**:
 1. Use git to restore original files
@@ -230,9 +230,9 @@ def rollback(self, result: RefactorResult) -> bool:
 ```
 
 **Acceptance Criteria**:
-- [ ] Files restored to original
-- [ ] Dry-run needs no rollback
-- [ ] Rollback success verified
+- [x] Files restored to original
+- [x] Dry-run needs no rollback
+- [x] Rollback success verified
 
 ---
 
@@ -241,20 +241,20 @@ def rollback(self, result: RefactorResult) -> bool:
 **Objective**: Test OpenRewrite adapter.
 
 **Files to Create**:
-- [ ] `tests/unit/adapters/refactoring/test_openrewrite_adapter.py`
+- [x] `tests/unit/adapters/refactoring/test_openrewrite_adapter.py`
 
 **Test Cases**:
-- [ ] Detection with Maven project
-- [ ] Detection with Gradle project
-- [ ] Detection without OpenRewrite
-- [ ] Recipe mapping correct
-- [ ] Execution command correct
-- [ ] Output parsing works
-- [ ] Rollback works
+- [x] Detection with Maven project
+- [x] Detection with Gradle project
+- [x] Detection without OpenRewrite
+- [x] Recipe mapping correct
+- [x] Execution command correct
+- [x] Output parsing works
+- [x] Rollback works
 
 **Acceptance Criteria**:
-- [ ] All adapter methods tested
-- [ ] Edge cases covered
+- [x] All adapter methods tested
+- [x] Edge cases covered
 
 ---
 
@@ -297,3 +297,4 @@ T12-01-01 (Port) ──→ T12-01-02 (Detection) ──→ T12-01-03 (Mapping)
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

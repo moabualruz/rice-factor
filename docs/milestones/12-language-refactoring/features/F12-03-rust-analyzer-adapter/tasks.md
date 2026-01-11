@@ -1,8 +1,8 @@
 # Feature F12-03: rust-analyzer Adapter - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T12-03-01 | Implement rust-analyzer detection | Pending | P0 |
-| T12-03-02 | Create Rust LSP client | Pending | P0 |
-| T12-03-03 | Implement rename refactoring | Pending | P0 |
-| T12-03-04 | Implement extract refactoring | Pending | P1 |
-| T12-03-05 | Handle Cargo workspace | Pending | P1 |
-| T12-03-06 | Write unit tests | Pending | P0 |
+| T12-03-01 | Implement rust-analyzer detection | Complete | P0 |
+| T12-03-02 | Create Rust LSP client | Complete | P0 |
+| T12-03-03 | Implement rename refactoring | Complete | P0 |
+| T12-03-04 | Implement extract refactoring | Complete | P1 |
+| T12-03-05 | Handle Cargo workspace | Complete | P1 |
+| T12-03-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -27,12 +27,12 @@
 **Objective**: Detect if rust-analyzer is installed.
 
 **Files to Create**:
-- [ ] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
+- [x] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
 
 **Detection Logic**:
-- [ ] Check `rust-analyzer --version`
-- [ ] Verify Cargo project (`Cargo.toml`)
-- [ ] Check cargo installation
+- [x] Check `rust-analyzer --version`
+- [x] Verify Cargo project (`Cargo.toml`)
+- [x] Check cargo installation
 
 **Implementation**:
 ```python
@@ -51,9 +51,9 @@ def is_available(self) -> bool:
 ```
 
 **Acceptance Criteria**:
-- [ ] Detects rust-analyzer
-- [ ] Verifies Rust project
-- [ ] Handles missing tools
+- [x] Detects rust-analyzer
+- [x] Verifies Rust project
+- [x] Handles missing tools
 
 ---
 
@@ -62,12 +62,12 @@ def is_available(self) -> bool:
 **Objective**: LSP client specialized for rust-analyzer.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/lsp_client.py`
+- [x] `rice_factor/adapters/refactoring/lsp_client.py`
 
 **rust-analyzer Specifics**:
-- [ ] Initialization with cargo workspace
-- [ ] Extended capabilities
-- [ ] Proc macro support
+- [x] Initialization with cargo workspace
+- [x] Extended capabilities
+- [x] Proc macro support
 
 **Implementation**:
 ```python
@@ -100,9 +100,9 @@ class RustAnalyzerClient(LSPClient):
 ```
 
 **Acceptance Criteria**:
-- [ ] Connects to rust-analyzer
-- [ ] Handles workspace
-- [ ] Proper capabilities
+- [x] Connects to rust-analyzer
+- [x] Handles workspace
+- [x] Proper capabilities
 
 ---
 
@@ -111,7 +111,7 @@ class RustAnalyzerClient(LSPClient):
 **Objective**: Rename Rust symbols via LSP.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
+- [x] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
 
 **Rename Flow**:
 1. Prepare rename (get valid range)
@@ -161,9 +161,9 @@ def _rename(
 ```
 
 **Acceptance Criteria**:
-- [ ] Renames across crate
-- [ ] Updates imports
-- [ ] Handles trait impls
+- [x] Renames across crate
+- [x] Updates imports
+- [x] Handles trait impls
 
 ---
 
@@ -172,7 +172,7 @@ def _rename(
 **Objective**: Extract function/variable via rust-analyzer.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
+- [x] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
 
 **Code Actions**:
 - `rust-analyzer.extractFunction`
@@ -216,9 +216,9 @@ def _extract(
 ```
 
 **Acceptance Criteria**:
-- [ ] Extracts functions
-- [ ] Extracts variables
-- [ ] Handles lifetimes
+- [x] Extracts functions
+- [x] Extracts variables
+- [x] Handles lifetimes
 
 ---
 
@@ -227,12 +227,12 @@ def _extract(
 **Objective**: Support multi-crate workspaces.
 
 **Files to Modify**:
-- [ ] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
+- [x] `rice_factor/adapters/refactoring/rust_analyzer_adapter.py`
 
 **Workspace Considerations**:
-- [ ] Detect workspace root
-- [ ] Refactor across crates
-- [ ] Update Cargo.toml deps
+- [x] Detect workspace root
+- [x] Refactor across crates
+- [x] Update Cargo.toml deps
 
 **Implementation**:
 ```python
@@ -260,9 +260,9 @@ def _get_workspace_members(self) -> list[Path]:
 ```
 
 **Acceptance Criteria**:
-- [ ] Finds workspace root
-- [ ] Refactors all members
-- [ ] Single-crate works too
+- [x] Finds workspace root
+- [x] Refactors all members
+- [x] Single-crate works too
 
 ---
 
@@ -271,19 +271,19 @@ def _get_workspace_members(self) -> list[Path]:
 **Objective**: Test rust-analyzer adapter.
 
 **Files to Create**:
-- [ ] `tests/unit/adapters/refactoring/test_rust_analyzer_adapter.py`
+- [x] `tests/unit/adapters/refactoring/test_rust_analyzer_adapter.py`
 
 **Test Cases**:
-- [ ] rust-analyzer detection
-- [ ] LSP initialization
-- [ ] Rename execution
-- [ ] Extract execution
-- [ ] Workspace detection
-- [ ] Error handling
+- [x] rust-analyzer detection
+- [x] LSP initialization
+- [x] Rename execution
+- [x] Extract execution
+- [x] Workspace detection
+- [x] Error handling
 
 **Acceptance Criteria**:
-- [ ] All methods tested
-- [ ] LSP mocked properly
+- [x] All methods tested
+- [x] LSP mocked properly
 
 ---
 
@@ -321,3 +321,4 @@ T12-03-01 (Detection) ──→ T12-03-02 (LSP) ──→ T12-03-03 (Rename)
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |
