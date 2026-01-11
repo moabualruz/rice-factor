@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-import jsonschema  # type: ignore[import-untyped]
+import jsonschema
 from pydantic import BaseModel, ValidationError
 
 from rice_factor.domain.artifacts.enums import ArtifactType

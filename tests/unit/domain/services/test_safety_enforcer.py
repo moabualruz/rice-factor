@@ -5,8 +5,6 @@ from pathlib import Path
 
 import pytest
 
-from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
-from rice_factor.domain.failures.cli_errors import MissingPrerequisiteError
 from rice_factor.domain.failures.executor_errors import (
     TestsLockedError,
     UnauthorizedFileModificationError,

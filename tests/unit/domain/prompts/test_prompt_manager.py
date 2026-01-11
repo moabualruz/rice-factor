@@ -11,10 +11,10 @@ from rice_factor.domain.prompts import (
     PASS_PROMPTS,
     PASS_TO_ARTIFACT,
     PROJECT_PLANNER_PROMPT,
-    PromptManager,
     REFACTOR_PLANNER_PROMPT,
     SCAFFOLD_PLANNER_PROMPT,
     TEST_DESIGNER_PROMPT,
+    PromptManager,
 )
 
 

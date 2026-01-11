@@ -1,15 +1,12 @@
 """Unit tests for LockManager adapter."""
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-
-import pytest
 
 from rice_factor.adapters.storage.lock_manager import (
     LockFile,
     LockManager,
-    LockVerificationResult,
 )
 
 
@@ -20,7 +17,7 @@ class TestLockFile:
         """Test serialization to dictionary."""
         lock = LockFile(
             test_plan_id="test-123",
-            locked_at=datetime(2026, 1, 10, 12, 0, 0, tzinfo=timezone.utc),
+            locked_at=datetime(2026, 1, 10, 12, 0, 0, tzinfo=UTC),
             test_files={"tests/test_user.py": "sha256:abc123"},
         )
         result = lock.to_dict()

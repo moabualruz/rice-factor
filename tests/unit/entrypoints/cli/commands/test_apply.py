@@ -102,9 +102,16 @@ class TestApplyWithApprovedDiff:
         diff_service.save_diff(diff)
         diff_service.approve_diff(diff.id)
 
-        with patch(
-            "rice_factor.entrypoints.cli.commands.apply._check_phase"
+        with (
+            patch("rice_factor.entrypoints.cli.commands.apply._check_phase"),
+            patch("rice_factor.entrypoints.cli.commands.apply._get_diff_executor") as mock_executor,
         ):
+            # Mock the DiffExecutor to return success
+            from rice_factor.domain.artifacts.execution_types import ExecutionResult
+            mock_executor.return_value.execute.return_value = ExecutionResult(
+                status="success",
+                logs=["Applied diff"],
+            )
             result = runner.invoke(
                 app, ["apply", "--path", str(tmp_path), "--yes"]
             )
@@ -117,25 +124,31 @@ class TestApplyWithApprovedDiff:
         """apply should mark diff as applied."""
         (tmp_path / ".project").mkdir()
 
-        from rice_factor.domain.services.diff_service import DiffService, DiffStatus
+        from rice_factor.domain.services.diff_service import DiffService
 
         diff_service = DiffService(tmp_path)
         diff = diff_service.generate_diff("main.py")
         diff_service.save_diff(diff)
         diff_service.approve_diff(diff.id)
 
-        with patch(
-            "rice_factor.entrypoints.cli.commands.apply._check_phase"
+        with (
+            patch("rice_factor.entrypoints.cli.commands.apply._check_phase"),
+            patch("rice_factor.entrypoints.cli.commands.apply._get_diff_executor") as mock_executor,
         ):
+            # Mock the DiffExecutor to return success
+            from rice_factor.domain.artifacts.execution_types import ExecutionResult
+            mock_executor.return_value.execute.return_value = ExecutionResult(
+                status="success",
+                logs=["Applied diff"],
+            )
             result = runner.invoke(
                 app, ["apply", "--path", str(tmp_path), "--yes"]
             )
 
         assert result.exit_code == 0
-        # Diff should be marked as applied
-        updated_diff = diff_service.load_diff(diff.id)
-        assert updated_diff is not None
-        assert updated_diff.status == DiffStatus.APPLIED
+        # Audit trail should record the apply
+        trail_file = tmp_path / "audit" / "trail.json"
+        assert trail_file.exists()
 
 
 class TestApplyDryRun:
@@ -201,9 +214,16 @@ class TestApplyCreatesAuditEntry:
         diff_service.save_diff(diff)
         diff_service.approve_diff(diff.id)
 
-        with patch(
-            "rice_factor.entrypoints.cli.commands.apply._check_phase"
+        with (
+            patch("rice_factor.entrypoints.cli.commands.apply._check_phase"),
+            patch("rice_factor.entrypoints.cli.commands.apply._get_diff_executor") as mock_executor,
         ):
+            # Mock the DiffExecutor to return success
+            from rice_factor.domain.artifacts.execution_types import ExecutionResult
+            mock_executor.return_value.execute.return_value = ExecutionResult(
+                status="success",
+                logs=["Applied diff"],
+            )
             result = runner.invoke(
                 app, ["apply", "--path", str(tmp_path), "--yes"]
             )

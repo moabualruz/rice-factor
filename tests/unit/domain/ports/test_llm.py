@@ -1,14 +1,15 @@
 """Unit tests for LLM port protocol."""
 
-import pytest
 from typing import Protocol, get_type_hints
 
-from rice_factor.domain.ports.llm import LLMPort
+import pytest
+
 from rice_factor.domain.artifacts.compiler_types import (
     CompilerContext,
     CompilerPassType,
     CompilerResult,
 )
+from rice_factor.domain.ports.llm import LLMPort
 
 
 class TestLLMPort:

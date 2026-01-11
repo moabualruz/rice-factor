@@ -1,5 +1,6 @@
 """Unit tests for FailureService."""
 
+from datetime import UTC
 from unittest.mock import MagicMock
 
 import pytest
@@ -248,7 +249,7 @@ class TestResolveFailure:
 
     def test_updates_status_to_approved(self) -> None:
         """Should update status to APPROVED on resolution."""
-        from datetime import datetime, timezone
+        from datetime import datetime
         from uuid import uuid4
 
         from rice_factor.domain.artifacts.payloads.failure_report import (
@@ -270,7 +271,7 @@ class TestResolveFailure:
         mock_envelope.artifact_type = ArtifactType.FAILURE_REPORT
         mock_envelope.status = ArtifactStatus.DRAFT
         mock_envelope.created_by = "system"
-        mock_envelope.created_at = datetime.now(timezone.utc)
+        mock_envelope.created_at = datetime.now(UTC)
         mock_envelope.payload = mock_payload
 
         # Create mock callbacks

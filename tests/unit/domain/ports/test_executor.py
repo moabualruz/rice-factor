@@ -1,9 +1,6 @@
 """Tests for ExecutorPort protocol."""
 
 from pathlib import Path
-from typing import runtime_checkable
-
-import pytest
 
 from rice_factor.domain.artifacts.execution_types import (
     ExecutionMode,

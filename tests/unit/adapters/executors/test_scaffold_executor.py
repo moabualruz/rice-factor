@@ -1,13 +1,8 @@
 """Tests for ScaffoldExecutor."""
 
-import json
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
-from uuid import uuid4
-
-import pytest
-from pydantic import BaseModel
 
 from rice_factor.adapters.executors.audit_logger import AuditLogger
 from rice_factor.adapters.executors.scaffold_executor import ScaffoldExecutor
@@ -16,7 +11,6 @@ from rice_factor.domain.artifacts.envelope import ArtifactEnvelope
 from rice_factor.domain.artifacts.execution_types import ExecutionMode
 from rice_factor.domain.artifacts.payloads.scaffold_plan import (
     FileEntry,
-    FileKind,
     ScaffoldPlanPayload,
 )
 from rice_factor.domain.ports.executor import ExecutorPort

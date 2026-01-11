@@ -1,6 +1,5 @@
 """Unit tests for LLM output error types."""
 
-import pytest
 
 from rice_factor.domain.failures.llm_errors import (
     CodeInOutputError,

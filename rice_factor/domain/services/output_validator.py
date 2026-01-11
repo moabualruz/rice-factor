@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import jsonschema  # type: ignore[import-untyped]
+import jsonschema
 
 from rice_factor.domain.artifacts.enums import ArtifactType
 from rice_factor.domain.failures.llm_errors import (

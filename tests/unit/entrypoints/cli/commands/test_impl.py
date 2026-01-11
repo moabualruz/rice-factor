@@ -31,6 +31,12 @@ class TestImplCommandHelp:
         assert result.exit_code == 0
         assert "--dry-run" in result.stdout
 
+    def test_help_shows_stub_option(self) -> None:
+        """--help should show --stub option."""
+        result = runner.invoke(app, ["impl", "--help"])
+        assert result.exit_code == 0
+        assert "--stub" in result.stdout
+
 
 class TestImplRequiresInit:
     """Tests for impl phase requirements."""
@@ -66,7 +72,7 @@ class TestImplExecution:
             "rice_factor.entrypoints.cli.commands.impl._check_phase"
         ):
             result = runner.invoke(
-                app, ["impl", "main.py", "--path", str(tmp_path)]
+                app, ["impl", "main.py", "--path", str(tmp_path), "--stub"]
             )
 
         assert result.exit_code == 0
@@ -80,7 +86,7 @@ class TestImplExecution:
             "rice_factor.entrypoints.cli.commands.impl._check_phase"
         ):
             result = runner.invoke(
-                app, ["impl", "main.py", "--path", str(tmp_path)]
+                app, ["impl", "main.py", "--path", str(tmp_path), "--stub"]
             )
 
         assert result.exit_code == 0
@@ -97,12 +103,30 @@ class TestImplExecution:
             "rice_factor.entrypoints.cli.commands.impl._check_phase"
         ):
             result = runner.invoke(
-                app, ["impl", "main.py", "--path", str(tmp_path)]
+                app, ["impl", "main.py", "--path", str(tmp_path), "--stub"]
             )
 
         assert result.exit_code == 0
         trail_file = tmp_path / "audit" / "trail.json"
         assert trail_file.exists()
+
+    def test_impl_creates_artifact(self, tmp_path: Path) -> None:
+        """impl should create ImplementationPlan artifact."""
+        (tmp_path / ".project").mkdir()
+
+        with patch(
+            "rice_factor.entrypoints.cli.commands.impl._check_phase"
+        ):
+            result = runner.invoke(
+                app, ["impl", "main.py", "--path", str(tmp_path), "--stub"]
+            )
+
+        assert result.exit_code == 0
+        artifacts_dir = tmp_path / "artifacts"
+        assert artifacts_dir.exists()
+        # Artifacts are stored in subdirectories
+        artifact_files = list(artifacts_dir.glob("**/*.json"))
+        assert len(artifact_files) >= 1
 
 
 class TestImplDryRun:
@@ -116,7 +140,7 @@ class TestImplDryRun:
             "rice_factor.entrypoints.cli.commands.impl._check_phase"
         ):
             result = runner.invoke(
-                app, ["impl", "main.py", "--path", str(tmp_path), "--dry-run"]
+                app, ["impl", "main.py", "--path", str(tmp_path), "--dry-run", "--stub"]
             )
 
         assert result.exit_code == 0
@@ -134,7 +158,7 @@ class TestImplDryRun:
             "rice_factor.entrypoints.cli.commands.impl._check_phase"
         ):
             result = runner.invoke(
-                app, ["impl", "main.py", "--path", str(tmp_path), "--dry-run"]
+                app, ["impl", "main.py", "--path", str(tmp_path), "--dry-run", "--stub"]
             )
 
         assert result.exit_code == 0

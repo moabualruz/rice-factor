@@ -349,11 +349,10 @@ class TestExecutionTimer:
         """Should record duration even if exception occurs."""
         timer_result: dict[str, int] = {}
 
-        with pytest.raises(ValueError):
-            with execution_timer() as timer:
-                timer_result = timer
-                time.sleep(0.01)
-                raise ValueError("test error")
+        with pytest.raises(ValueError), execution_timer() as timer:
+            timer_result = timer
+            time.sleep(0.01)
+            raise ValueError("test error")
 
         assert timer_result["duration_ms"] >= 10
 

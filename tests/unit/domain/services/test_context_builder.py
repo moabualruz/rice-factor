@@ -1,8 +1,9 @@
 """Unit tests for context builder service."""
 
-import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+import pytest
 
 from rice_factor.domain.artifacts.compiler_types import (
     CompilerContext,
@@ -10,11 +11,11 @@ from rice_factor.domain.artifacts.compiler_types import (
 )
 from rice_factor.domain.artifacts.enums import ArtifactType
 from rice_factor.domain.services.context_builder import (
+    PASS_REQUIREMENTS,
     ContextBuilder,
     ContextBuilderError,
     ForbiddenInputError,
     MissingRequiredInputError,
-    PASS_REQUIREMENTS,
 )
 
 

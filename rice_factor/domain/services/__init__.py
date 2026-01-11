@@ -62,6 +62,8 @@ from rice_factor.domain.services.refactor_executor import (
 )
 from rice_factor.domain.services.safety_enforcer import (
     LockVerificationResult as SafetyLockVerificationResult,
+)
+from rice_factor.domain.services.safety_enforcer import (
     SafetyEnforcer,
 )
 from rice_factor.domain.services.scaffold_service import (

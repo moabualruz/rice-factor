@@ -2,6 +2,7 @@
 
 import pytest
 
+from rice_factor.domain.failures.errors import RiceFactorError
 from rice_factor.domain.failures.llm_errors import (
     LLMAPIError,
     LLMError,
@@ -10,7 +11,6 @@ from rice_factor.domain.failures.llm_errors import (
     LLMRateLimitError,
     LLMTimeoutError,
 )
-from rice_factor.domain.failures.errors import RiceFactorError
 
 
 class TestLLMError:

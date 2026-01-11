@@ -1,6 +1,5 @@
 """Tests for executor error types."""
 
-import pytest
 
 from rice_factor.domain.failures.errors import RiceFactorError
 from rice_factor.domain.failures.executor_errors import (
