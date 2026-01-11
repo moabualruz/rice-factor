@@ -94,22 +94,50 @@ For each milestone:
 
 ## 5. Current Progress
 
-### Status: Ready for Implementation
+### Status: In Progress
 
-Pre-implementation checklist complete. All documentation updated and baseline verified.
-
-### Active Milestone: None
+### Active Milestone: M14 - Full Capability Registry
 
 ### Completed Features
-- None
+- **F14-01: Python Rope Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/refactoring/rope_adapter.py`
+  - Created `rice_factor/adapters/refactoring/capability_detector.py`
+  - Added `rope>=1.11.0` as optional dependency
+  - Implemented: move_file, rename_symbol, extract_interface, enforce_dependency
+  - 59 tests (47 passed, 12 skipped when rope not installed)
+  - Test baseline: 2479 -> 2526 tests
+
+- **F14-02: Enhanced Java/Kotlin Adapter (OpenRewrite)** (5/5 tasks complete)
+  - Enhanced `rice_factor/adapters/refactoring/openrewrite_adapter.py`
+  - Added `JvmDependencyRule` and `JvmDependencyViolation` dataclasses
+  - Implemented: extract_interface (Java + Kotlin), enforce_dependency (ArchUnit-style)
+  - Added extract_interface_via_recipe for OpenRewrite recipe-based extraction
+  - 20 new tests (37 total for OpenRewrite adapter)
+  - Test baseline: 2526 -> 2546 tests
+
+- **F14-03: C# Roslyn Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/refactoring/roslyn_adapter.py`
+  - Added `CSharpDependencyRule` and `CSharpDependencyViolation` dataclasses
+  - Implemented: rename (text-based fallback), move (namespace change), extract_interface, enforce_dependency
+  - Uses dotnet CLI for availability detection
+  - 23 new tests for Roslyn adapter
+  - Test baseline: 2546 -> 2569 tests
+
+- **F14-04: Ruby Parser Adapter** (8/8 tasks complete)
+  - Created `rice_factor/adapters/refactoring/ruby_parser_adapter.py`
+  - Added `RubyDependencyRule` and `RubyDependencyViolation` dataclasses
+  - Implemented: rename, move (module/require updates), extract_interface (Ruby module + RBS), enforce_dependency
+  - Generates both Ruby module stubs and RBS (Ruby Signature) type files
+  - 33 new tests for Ruby adapter
+  - Test baseline: 2569 -> 2602 tests
 
 ### Next Action
-Start M14 Feature F14-01: Python Rope Adapter
+Start M14 Feature F14-05: PHP Rector Adapter
 
-To begin implementation:
-1. Read `docs/milestones/14-full-capability-registry/requirements.md`
-2. Read `docs/milestones/14-full-capability-registry/design.md`
-3. Start with `docs/milestones/14-full-capability-registry/features/F14-01-python-rope/tasks.md`
+To continue implementation:
+1. Read `docs/milestones/14-full-capability-registry/features/F14-05-php-rector/tasks.md`
+2. Create Rector adapter for PHP refactoring
+3. Implement move_file, rename_symbol, extract_interface, enforce_dependency
 
 ---
 

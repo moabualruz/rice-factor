@@ -60,15 +60,25 @@ class RefactoringToolRegistry:
         from rice_factor.adapters.refactoring.openrewrite_adapter import (
             OpenRewriteAdapter,
         )
+        from rice_factor.adapters.refactoring.rope_adapter import RopeAdapter
+        from rice_factor.adapters.refactoring.roslyn_adapter import RoslynAdapter
+        from rice_factor.adapters.refactoring.rector_adapter import RectorAdapter
+        from rice_factor.adapters.refactoring.ruby_parser_adapter import (
+            RubyParserAdapter,
+        )
         from rice_factor.adapters.refactoring.rust_analyzer_adapter import (
             RustAnalyzerAdapter,
         )
 
         # Register in priority order (most specific first)
-        self.register(OpenRewriteAdapter(self.project_root))
-        self.register(GoplsAdapter(self.project_root))
-        self.register(RustAnalyzerAdapter(self.project_root))
-        self.register(JscodeshiftAdapter(self.project_root))
+        self.register(RopeAdapter(self.project_root))  # Python
+        self.register(OpenRewriteAdapter(self.project_root))  # Java/Kotlin
+        self.register(RoslynAdapter(self.project_root))  # C#
+        self.register(RubyParserAdapter(self.project_root))  # Ruby
+        self.register(RectorAdapter(self.project_root))  # PHP
+        self.register(GoplsAdapter(self.project_root))  # Go
+        self.register(RustAnalyzerAdapter(self.project_root))  # Rust
+        self.register(JscodeshiftAdapter(self.project_root))  # JS/TS
         # Fallback last
         self.register(DiffPatchAdapter(self.project_root))
 

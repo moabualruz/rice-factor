@@ -15,11 +15,13 @@ class RefactorOperation(str, Enum):
     RENAME = "rename"
     EXTRACT_METHOD = "extract_method"
     EXTRACT_VARIABLE = "extract_variable"
+    EXTRACT_INTERFACE = "extract_interface"
     INLINE = "inline"
     MOVE = "move"
     CHANGE_SIGNATURE = "change_signature"
     ADD_PARAMETER = "add_parameter"
     REMOVE_PARAMETER = "remove_parameter"
+    ENFORCE_DEPENDENCY = "enforce_dependency"
 
 
 @dataclass
