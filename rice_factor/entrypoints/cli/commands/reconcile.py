@@ -186,7 +186,7 @@ def reconcile(
         except Exception as e:
             if not output_json:
                 error(f"Failed to save plan: {e}")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
 
 
 def _display_plan(plan: Any, dry_run: bool = False) -> None:

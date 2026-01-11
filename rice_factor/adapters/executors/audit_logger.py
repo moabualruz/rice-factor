@@ -323,8 +323,9 @@ class AuditLogger:
         artifact = command or "unknown"
         details_dict = details or {}
 
-        files = details_dict.get("files", [])
-        files_affected = [str(v) for v in files] if files else []
+        files_raw = details_dict.get("files", [])
+        files = list(files_raw) if isinstance(files_raw, (list, tuple)) else []
+        files_affected = [str(v) for v in files]
 
         if passed:
             entry = AuditLogEntry.success(

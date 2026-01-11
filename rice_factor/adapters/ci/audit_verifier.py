@@ -9,7 +9,6 @@ import json
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
 
 from rice_factor.domain.ci.failure_codes import CIFailureCode
 from rice_factor.domain.ci.models import CIFailure, CIStage, CIStageResult
@@ -123,15 +122,13 @@ class AuditVerificationAdapter:
             lines = content.strip().split("\n") if content.strip() else []
 
             malformed_count = 0
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if not line.strip():
                     continue
                 try:
                     entry = json.loads(line)
                     # Basic validation
-                    if not isinstance(entry, dict):
-                        malformed_count += 1
-                    elif "timestamp" not in entry or "executor" not in entry:
+                    if not isinstance(entry, dict) or "timestamp" not in entry or "executor" not in entry:
                         malformed_count += 1
                 except json.JSONDecodeError:
                     malformed_count += 1

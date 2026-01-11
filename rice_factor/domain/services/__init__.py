@@ -29,6 +29,12 @@ from rice_factor.domain.services.failure_parser import FailureParser
 from rice_factor.domain.services.failure_service import FailureService
 from rice_factor.domain.services.init_service import InitService
 from rice_factor.domain.services.json_extractor import JSONExtractor, extract_json
+from rice_factor.domain.services.lifecycle_service import (
+    AgeReport,
+    LifecycleBlockingError,
+    LifecycleService,
+    ReviewPrompt,
+)
 from rice_factor.domain.services.llm_error_handler import (
     LLMErrorHandler,
     handle_llm_errors,
@@ -54,12 +60,6 @@ from rice_factor.domain.services.questionnaire import (
     Question,
     QuestionnaireResponse,
     QuestionnaireRunner,
-)
-from rice_factor.domain.services.lifecycle_service import (
-    AgeReport,
-    LifecycleBlockingError,
-    LifecycleService,
-    ReviewPrompt,
 )
 from rice_factor.domain.services.reconciliation_service import (
     ReconciliationService,
@@ -111,9 +111,9 @@ __all__ = [
     "ForbiddenInputError",
     "InitService",
     "JSONExtractor",
+    "LLMErrorHandler",
     "LifecycleBlockingError",
     "LifecycleService",
-    "LLMErrorHandler",
     "MissingRequiredInputError",
     "OutputValidator",
     "Override",
@@ -138,10 +138,10 @@ __all__ = [
     "ValidationOrchestrator",
     "ValidationResult",
     "ValidationStep",
+    "check_work_freeze",
     "detect_code",
     "extract_json",
     "get_pass",
     "handle_llm_errors",
     "validate_llm_output",
-    "check_work_freeze",
 ]

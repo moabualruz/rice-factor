@@ -31,7 +31,8 @@
       "Bash(grep:*)",
       "Bash(wc:*)",
       "Bash(find:*)",
-      "Bash(python -m pytest:*)"
+      "Bash(python -m pytest:*)",
+      "Bash(uv add:*)"
     ]
   }
 }

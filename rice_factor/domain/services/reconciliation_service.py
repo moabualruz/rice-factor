@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 from uuid import uuid4
 
 from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType, CreatedBy
@@ -101,12 +101,11 @@ class ReconciliationService:
         envelope: ArtifactEnvelope[ReconciliationPlanPayload] = ArtifactEnvelope(
             id=artifact_id,
             artifact_type=ArtifactType.RECONCILIATION_PLAN,
-            version="1.0.0",
+            artifact_version="1.0.0",
             created_at=now,
             created_by=created_by,
             status=ArtifactStatus.DRAFT,
             payload=payload,
-            hash=self._compute_hash(payload),
         )
 
         return envelope
@@ -125,7 +124,8 @@ class ReconciliationService:
         """
         if self._storage is None:
             raise RuntimeError("No storage adapter configured")
-        self._storage.save(plan)
+        # Cast to satisfy mypy - storage expects ArtifactEnvelope[Any]
+        self._storage.save(cast("ArtifactEnvelope[Any]", plan))
 
     def _signals_to_steps(
         self,

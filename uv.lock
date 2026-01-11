@@ -883,6 +883,11 @@ openai = [
     { name = "openai" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "types-jsonschema" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "anthropic", marker = "extra == 'all-llm'", specifier = ">=0.18.0" },
@@ -904,6 +909,9 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
 ]
 provides-extras = ["anthropic", "openai", "all-llm", "dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-jsonschema", specifier = ">=4.26.0.20260109" }]
 
 [[package]]
 name = "rich"
@@ -1144,6 +1152,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/36/bf/8825b5929afd84d0dabd606c67cd57b8388cb3ec385f7ef19c5cc2202069/typer-0.21.1.tar.gz", hash = "sha256:ea835607cd752343b6b2b7ce676893e5a0324082268b48f27aa058bdb7d2145d", size = 110371, upload-time = "2026-01-06T11:21:10.989Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/1d/d9257dd49ff2ca23ea5f132edf1281a0c4f9de8a762b9ae399b670a59235/typer-0.21.1-py3-none-any.whl", hash = "sha256:7985e89081c636b88d172c2ee0cfe33c253160994d47bdfdc302defd7d1f1d01", size = 47381, upload-time = "2026-01-06T11:21:09.824Z" },
+]
+
+[[package]]
+name = "types-jsonschema"
+version = "4.26.0.20260109"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "referencing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/04/03/a1509b0c13fc7a1fca1494c84bde8cce8a5c0582b6255b9640ebd3034017/types_jsonschema-4.26.0.20260109.tar.gz", hash = "sha256:340fe91e6ea517900d6ababb6262a86c176473b5bf8455b96e85a89e3cfb5daa", size = 15886, upload-time = "2026-01-09T03:21:45.464Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/d6/3db3134f35f1e4bf9a13517d759c1ae64086eddb8ad0047caee140021e64/types_jsonschema-4.26.0.20260109-py3-none-any.whl", hash = "sha256:e0276640d228732fb75d883905d607359b24a4ff745ba7f9a5f50e6fda891926", size = 15923, upload-time = "2026-01-09T03:21:43.828Z" },
 ]
 
 [[package]]

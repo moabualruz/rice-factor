@@ -1,11 +1,11 @@
 """Domain models for rice-factor."""
 
 from rice_factor.domain.models.agent import (
+    ROLE_CAPABILITIES,
     Agent,
     AgentCapability,
     AgentConfig,
     AgentRole,
-    ROLE_CAPABILITIES,
 )
 from rice_factor.domain.models.lifecycle import (
     LifecyclePolicy,
@@ -24,23 +24,20 @@ from rice_factor.domain.models.messages import (
 )
 
 __all__ = [
-    # Agent models
+    "ROLE_CAPABILITIES",
     "Agent",
     "AgentCapability",
     "AgentConfig",
+    "AgentMessage",
+    "AgentResponse",
     "AgentRole",
-    "ROLE_CAPABILITIES",
-    # Lifecycle models
+    "CoordinationResult",
     "LifecyclePolicy",
+    "MessagePriority",
+    "MessageType",
     "PolicyResult",
     "ReviewTrigger",
     "ReviewUrgency",
-    # Message models
-    "AgentMessage",
-    "AgentResponse",
-    "CoordinationResult",
-    "MessagePriority",
-    "MessageType",
     "Vote",
     "VoteResult",
 ]

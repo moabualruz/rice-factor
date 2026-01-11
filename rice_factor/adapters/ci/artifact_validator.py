@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from rice_factor.adapters.validators.schema import ArtifactValidator, SCHEMA_FILE_MAP
+from rice_factor.adapters.validators.schema import SCHEMA_FILE_MAP, ArtifactValidator
 from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
 from rice_factor.domain.ci.failure_codes import CIFailureCode
 from rice_factor.domain.ci.models import CIFailure, CIStage, CIStageResult
@@ -155,7 +155,7 @@ class ArtifactValidationAdapter:
         return failures
 
     def _check_schema(
-        self, data: dict[str, Any], artifact_file: Path, relative_path: Path
+        self, data: dict[str, Any], _artifact_file: Path, relative_path: Path
     ) -> CIFailure | None:
         """Validate artifact against its JSON Schema.
 

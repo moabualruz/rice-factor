@@ -13,8 +13,8 @@ from rice_factor.adapters.ci.audit_verifier import AuditVerificationAdapter
 from rice_factor.adapters.ci.invariant_enforcer import InvariantEnforcementAdapter
 
 __all__ = [
-    "ArtifactValidationAdapter",
     "ApprovalVerificationAdapter",
-    "InvariantEnforcementAdapter",
+    "ArtifactValidationAdapter",
     "AuditVerificationAdapter",
+    "InvariantEnforcementAdapter",
 ]

@@ -6,7 +6,6 @@ dependency violations in Python code based on ArchitecturePlan artifacts.
 
 import ast
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -269,9 +268,8 @@ class ArchitectureChecker:
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     imports.append({"module": alias.name, "line": node.lineno})
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    imports.append({"module": node.module, "line": node.lineno})
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imports.append({"module": node.module, "line": node.lineno})
 
         return imports
 

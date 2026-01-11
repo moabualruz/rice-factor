@@ -8,7 +8,6 @@ This module provides CLI commands for CI pipeline validation:
 - rice-factor ci validate-audit: Run audit verification only
 """
 
-import json
 from pathlib import Path
 
 import typer
@@ -413,7 +412,7 @@ def init_ci(
         )
     except Exception as e:
         error(f"Failed to load template: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if dry_run:
         info(f"Would create: {target_file}")

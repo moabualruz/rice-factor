@@ -7,7 +7,6 @@ It verifies that all non-draft artifacts have valid approval records.
 import json
 import time
 from pathlib import Path
-from uuid import UUID
 
 from rice_factor.domain.artifacts.enums import ArtifactStatus
 from rice_factor.domain.ci.failure_codes import CIFailureCode

@@ -9,10 +9,8 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from rice_factor.domain.artifacts.enums import ArtifactType
 from rice_factor.domain.drift.models import (
     DriftConfig,
     DriftReport,
@@ -22,6 +20,8 @@ from rice_factor.domain.drift.models import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from rice_factor.adapters.storage.filesystem import FilesystemStorageAdapter
 
 
@@ -105,7 +105,7 @@ class DriftDetectorAdapter:
         # Load ImplementationPlan artifacts
         impl_plans = self._load_artifacts_of_type(repo_root, "ImplementationPlan")
 
-        for artifact_path, artifact_data in impl_plans:
+        for _artifact_path, artifact_data in impl_plans:
             payload = artifact_data.get("payload", {})
             target_file = payload.get("target")
 
@@ -128,7 +128,7 @@ class DriftDetectorAdapter:
         # Also check RefactorPlan targets
         refactor_plans = self._load_artifacts_of_type(repo_root, "RefactorPlan")
 
-        for artifact_path, artifact_data in refactor_plans:
+        for _artifact_path, artifact_data in refactor_plans:
             payload = artifact_data.get("payload", {})
             from_path = payload.get("from_path")
             to_path = payload.get("to_path")
@@ -352,11 +352,11 @@ class DriftDetectorAdapter:
                 docstring = ast.get_docstring(node) or ""
 
                 # Get all words in test name (e.g., test_user_login -> user, login)
-                test_words = set(
+                test_words = {
                     w.lower()
                     for w in test_name.replace("test_", "").split("_")
                     if len(w) >= 3
-                )
+                }
 
                 # Also check for feature ID patterns in test name (e.g., fr_001 -> fr-001)
                 import re
@@ -368,11 +368,11 @@ class DriftDetectorAdapter:
 
                 # Get words from docstring
                 if docstring:
-                    doc_words = set(
+                    doc_words = {
                         w.lower()
                         for w in docstring.split()
                         if len(w) >= 3 and w.isalpha()
-                    )
+                    }
                     test_words.update(doc_words)
                     # Also extract feature IDs from docstring
                     doc_feature_ids = re.findall(r"\b([A-Z]{2,}-\d+)\b", docstring)
@@ -581,7 +581,7 @@ class DriftDetectorAdapter:
 
     def _load_artifacts_of_type(
         self, repo_root: Path, artifact_type: str
-    ) -> list[tuple[Path, dict]]:
+    ) -> list[tuple[Path, dict[str, Any]]]:
         """Load artifacts of a specific type from the filesystem.
 
         Args:
@@ -591,7 +591,7 @@ class DriftDetectorAdapter:
         Returns:
             List of (path, data) tuples for matching artifacts.
         """
-        artifacts: list[tuple[Path, dict]] = []
+        artifacts: list[tuple[Path, dict[str, Any]]] = []
         artifacts_dir = repo_root / "artifacts"
 
         if not artifacts_dir.exists():

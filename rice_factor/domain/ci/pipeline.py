@@ -8,6 +8,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import ClassVar
 
 from rice_factor.domain.ci.models import CIPipelineResult, CIStage, CIStageResult
 from rice_factor.domain.ports.ci_validator import CIValidatorPort
@@ -49,7 +50,7 @@ class CIPipeline:
     """
 
     # Default stage execution order
-    STAGE_ORDER = [
+    STAGE_ORDER: ClassVar[list[CIStage]] = [
         CIStage.ARTIFACT_VALIDATION,
         CIStage.APPROVAL_VERIFICATION,
         CIStage.INVARIANT_ENFORCEMENT,

@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass, field
 from difflib import get_close_matches
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 
 @dataclass
@@ -100,9 +100,12 @@ class GlossaryParser:
         for match in re.finditer(table_pattern, content, re.MULTILINE):
             term = match.group(1).strip()
             # Skip table headers and separators
-            if term.lower() not in ("term", "acronym", "---", "definition"):
-                if term and not term.startswith("-"):
-                    terms.add(term.lower())
+            if (
+                term.lower() not in ("term", "acronym", "---", "definition")
+                and term
+                and not term.startswith("-")
+            ):
+                terms.add(term.lower())
 
         # Extract from headers (## TermName)
         header_pattern = r"^##\s+(\w+)"
@@ -223,7 +226,7 @@ class GlossaryValidator:
         )
 
     def validate_artifact(
-        self, artifact_dict: dict, artifact_type: str = "artifact"
+        self, artifact_dict: dict[str, Any], artifact_type: str = "artifact"
     ) -> GlossaryValidationResult:
         """Validate artifact content for undefined terms.
 
@@ -246,7 +249,7 @@ class GlossaryValidator:
 
     def _validate_dict(
         self,
-        data: dict | list | str,
+        data: dict[str, Any] | list[Any] | str,
         path: str,
         undefined: list[UndefinedTerm],
     ) -> None:

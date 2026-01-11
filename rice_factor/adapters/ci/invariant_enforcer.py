@@ -9,12 +9,11 @@ import json
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
 
+from rice_factor.adapters.ci.architecture_checker import ArchitectureChecker
 from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
 from rice_factor.domain.ci.failure_codes import CIFailureCode
 from rice_factor.domain.ci.models import CIFailure, CIStage, CIStageResult
-from rice_factor.adapters.ci.architecture_checker import ArchitectureChecker
 
 
 class InvariantEnforcementAdapter:
@@ -156,14 +155,14 @@ class InvariantEnforcementAdapter:
     def _check_test_immutability(
         self,
         artifacts_dir: Path,
-        repo_root: Path,
+        _repo_root: Path,
         changed_files: set[str],
     ) -> list[CIFailure]:
         """Check that tests are not modified when TestPlan is locked.
 
         Args:
             artifacts_dir: Path to the artifacts directory.
-            repo_root: Path to the repository root.
+            _repo_root: Path to the repository root (unused but kept for API).
             changed_files: Set of changed file paths.
 
         Returns:
@@ -231,14 +230,14 @@ class InvariantEnforcementAdapter:
     def _check_artifact_to_code_mapping(
         self,
         artifacts_dir: Path,
-        repo_root: Path,
+        _repo_root: Path,
         changed_files: set[str],
     ) -> list[CIFailure]:
         """Check that code changes are covered by approved plans.
 
         Args:
             artifacts_dir: Path to the artifacts directory.
-            repo_root: Path to the repository root.
+            _repo_root: Path to the repository root (unused but kept for API).
             changed_files: Set of changed file paths.
 
         Returns:
@@ -327,7 +326,8 @@ class InvariantEnforcementAdapter:
                 return None
 
             payload = data.get("payload", {})
-            return payload.get("target")
+            target = payload.get("target")
+            return str(target) if target is not None else None
 
         except (json.JSONDecodeError, OSError):
             return None
@@ -420,8 +420,7 @@ class InvariantEnforcementAdapter:
             return True
 
         # Check if any allowed file is a prefix (directory)
-        for allowed in allowed_files:
-            if file_path.startswith(allowed.rstrip("/") + "/"):
-                return True
-
-        return False
+        return any(
+            file_path.startswith(allowed.rstrip("/") + "/")
+            for allowed in allowed_files
+        )

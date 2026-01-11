@@ -269,9 +269,13 @@ class ArtifactValidator:
             ArtifactValidationError with field-level details.
         """
         field_path = ".".join(str(p) for p in error.absolute_path)
+        # error.schema can be a dict, bool, or Unset - only dicts have .get()
+        expected = None
+        if isinstance(error.schema, dict):
+            expected = error.schema.get("type")
         return ArtifactValidationError(
             error.message,
             field_path=field_path or "$",
-            expected=error.schema.get("type") if error.schema else None,
+            expected=expected,
             actual=error.instance if error.instance is not None else None,
         )
