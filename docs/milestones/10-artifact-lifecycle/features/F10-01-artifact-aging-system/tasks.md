@@ -14,7 +14,7 @@
 | T10-01-01 | Extend ArtifactEnvelope with timestamps | **Complete** | P0 |
 | T10-01-02 | Add age calculation methods | **Complete** | P0 |
 | T10-01-03 | Update storage adapter | **Complete** | P0 |
-| T10-01-04 | Migrate existing artifacts | Deferred | P1 |
+| T10-01-04 | Migrate existing artifacts | **Complete** | P1 |
 | T10-01-05 | Add artifact age CLI command | **Complete** | P0 |
 | T10-01-06 | Write unit tests | **Complete** | P0 |
 
@@ -81,29 +81,29 @@
 
 **Objective**: Add timestamps to existing artifacts.
 
-**Files to Create**:
-- [ ] `rice_factor/migrations/add_timestamps.py`
+**Files Created**:
+- [x] `rice_factor/migrations/__init__.py`
+- [x] `rice_factor/migrations/add_timestamps.py`
+- [x] `tests/unit/migrations/__init__.py`
+- [x] `tests/unit/migrations/test_add_timestamps.py` (16 tests)
 
-**Migration Logic**:
-```python
-def migrate_artifact(artifact_path: Path) -> None:
-    data = json.loads(artifact_path.read_text())
+**CLI Command Added**:
+- [x] `rice-factor artifact migrate` - Run the timestamp migration
 
-    if "created_at" not in data:
-        # Use file modification time as fallback
-        stat = artifact_path.stat()
-        data["created_at"] = datetime.fromtimestamp(
-            stat.st_mtime, tz=timezone.utc
-        ).isoformat()
-        data["updated_at"] = data["created_at"]
-
-    artifact_path.write_text(json.dumps(data, indent=2))
-```
+**Features**:
+- [x] Adds `created_at` and `updated_at` to artifacts missing them
+- [x] Uses file modification time as fallback
+- [x] Idempotent - safe to run multiple times
+- [x] Preserves all existing artifact data
+- [x] Skips `_meta` directories
+- [x] Dry-run mode for previewing changes
+- [x] JSON output format
 
 **Acceptance Criteria**:
-- [ ] Migration is idempotent
-- [ ] Existing data preserved
-- [ ] Uses file mtime as fallback
+- [x] Migration is idempotent
+- [x] Existing data preserved
+- [x] Uses file mtime as fallback
+- [x] 16 tests passing
 
 ---
 

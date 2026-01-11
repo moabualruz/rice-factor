@@ -147,14 +147,14 @@ rice-factor refactor dry-run        # Preview refactor
 | 06 | Validation Engine | Complete | Test runner, lint, arch rules |
 | 07 | MVP Integration | Complete | End-to-end workflow |
 
-### Post-MVP (08-13)
+### Post-MVP Complete (08-13)
 
 | # | Milestone | Status | Priority | Description |
 |---|-----------|--------|----------|-------------|
-| 08 | CI/CD Integration | Planned | P0 | CI pipeline, artifact validation, invariant enforcement |
-| 09 | Drift Detection | Planned | P1 | Drift detection, reconciliation, ReconciliationPlan |
-| 10 | Artifact Lifecycle | Planned | P1 | Aging system, expiration policies, review prompts |
-| 11 | Enhanced Intake | Planned | P1 | decisions.md, blocking questionnaire, glossary validation |
+| 08 | CI/CD Integration | Complete | P0 | CI pipeline, artifact validation, invariant enforcement |
+| 09 | Drift Detection | Complete | P1 | Drift detection, reconciliation, ReconciliationPlan |
+| 10 | Artifact Lifecycle | Complete | P1 | Aging system, expiration policies, review prompts |
+| 11 | Enhanced Intake | Complete | P1 | decisions.md, blocking questionnaire, glossary validation |
 | 12 | Language Refactoring | Complete | P2 | OpenRewrite, gopls, rust-analyzer, jscodeshift adapters |
 | 13 | Multi-Agent | Complete | P2 | Run modes B-E, agent roles, orchestration |
 

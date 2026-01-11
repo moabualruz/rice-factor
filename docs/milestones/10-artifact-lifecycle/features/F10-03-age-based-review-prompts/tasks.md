@@ -110,8 +110,11 @@ class LifecycleService:
 - [x] `rice-factor artifact age` - Shows age report with prompts
 - [x] Exit codes: 0=healthy, 1=needs review, 2=overdue
 
-Note: Full CLI integration with plan/impl commands deferred to avoid scope creep.
-The LifecycleService provides `check_can_proceed()` for future integration.
+CLI integration with plan/impl commands complete:
+- [x] `_check_lifecycle()` helper added to plan.py
+- [x] `rice-factor plan impl` shows lifecycle warnings
+- [x] `rice-factor plan refactor` shows lifecycle warnings
+- [x] Optional blocking via `block_on_mandatory` parameter
 
 **Acceptance Criteria**:
 - [x] Warnings shown in age report

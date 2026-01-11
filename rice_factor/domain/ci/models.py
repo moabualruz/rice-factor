@@ -31,6 +31,7 @@ class CIFailure:
         code: The failure code from CIFailureCode enum.
         message: Human-readable failure description.
         file_path: Path to the file that caused the failure (if applicable).
+        line_number: Line number in the file where the failure occurred.
         remediation: Guidance on how to fix the failure.
         details: Additional context about the failure.
     """
@@ -38,6 +39,7 @@ class CIFailure:
     code: CIFailureCode
     message: str
     file_path: Path | None = None
+    line_number: int | None = None
     remediation: str | None = None
     details: dict[str, Any] | None = None
 
@@ -47,6 +49,7 @@ class CIFailure:
             "code": self.code.value,
             "message": self.message,
             "file_path": str(self.file_path) if self.file_path else None,
+            "line_number": self.line_number,
             "remediation": self.remediation or self.code.remediation,
             "details": self.details,
         }

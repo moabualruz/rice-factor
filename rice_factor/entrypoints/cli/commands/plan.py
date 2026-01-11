@@ -19,6 +19,7 @@ from rice_factor.config.settings import settings
 from rice_factor.domain.artifacts.compiler_types import CompilerPassType
 from rice_factor.domain.artifacts.enums import ArtifactType
 from rice_factor.domain.artifacts.envelope import ArtifactEnvelope
+from rice_factor.domain.models.lifecycle import ReviewUrgency
 from rice_factor.domain.services.artifact_builder import ArtifactBuilder
 from rice_factor.domain.services.artifact_service import ArtifactService
 from rice_factor.domain.services.context_builder import ContextBuilder, ContextBuilderError
@@ -116,6 +117,81 @@ def _validate_intake(project_root: Path) -> None:
         console.print()
         console.print(result.format_errors())
         raise typer.Exit(1)
+
+
+def _check_lifecycle(
+    project_root: Path,
+    block_on_mandatory: bool = False,
+) -> None:
+    """Check artifact lifecycle status and display warnings.
+
+    Shows warnings for artifacts that are overdue for review.
+    Optionally blocks if there are mandatory reviews pending.
+
+    Args:
+        project_root: Root directory of the project.
+        block_on_mandatory: If True, exit with error on mandatory reviews.
+    """
+    try:
+        from rice_factor.domain.services.lifecycle_service import LifecycleService
+
+        # Create a simple storage adapter for listing artifacts
+        artifacts_dir = project_root / "artifacts"
+        if not artifacts_dir.exists():
+            return
+
+        storage = FilesystemStorageAdapter(artifacts_dir=artifacts_dir)
+
+        # Create lifecycle service
+        from rice_factor.domain.models.lifecycle import LifecycleConfig
+        config = LifecycleConfig.default()
+        service = LifecycleService(
+            artifact_store=storage,  # type: ignore[arg-type]
+            config=config,
+        )
+
+        # Generate prompts for artifacts needing attention
+        prompts = service.generate_prompts()
+
+        # Display warnings for non-blocking issues
+        displayed_warning = False
+        for prompt in prompts:
+            if prompt.urgency == ReviewUrgency.MANDATORY:
+                if not displayed_warning:
+                    console.print()
+                    displayed_warning = True
+                error(f"[BLOCKING] {prompt.message}")
+                for action in prompt.actions:
+                    console.print(f"  [dim]{action}[/dim]")
+            elif prompt.urgency == ReviewUrgency.REQUIRED:
+                if not displayed_warning:
+                    console.print()
+                    displayed_warning = True
+                warning(prompt.message)
+            elif prompt.urgency == ReviewUrgency.RECOMMENDED:
+                if not displayed_warning:
+                    console.print()
+                    displayed_warning = True
+                info(f"[dim]{prompt.message}[/dim]")
+
+        if displayed_warning:
+            console.print()
+
+        # Check for blocking issues if requested
+        if block_on_mandatory:
+            can_proceed, _blocking = service.check_can_proceed()
+            if not can_proceed:
+                error("Artifact lifecycle issues block this operation")
+                console.print("Run 'rice-factor artifact age' for details")
+                console.print()
+                raise typer.Exit(1)
+
+    except ImportError:
+        # Lifecycle models not available - skip check
+        pass
+    except Exception:
+        # Don't block on lifecycle check errors - just skip
+        pass
 
 
 def _display_artifact_created(
@@ -461,6 +537,9 @@ def implementation(
     # Validate intake files
     _validate_intake(project_root)
 
+    # Check artifact lifecycle status (warns but doesn't block by default)
+    _check_lifecycle(project_root)
+
     # Verify TestPlan lock integrity (GAP-M07-002)
     audit_logger = AuditLogger(project_root=project_root)
     try:
@@ -564,6 +643,9 @@ def refactor(
 
     # Validate intake files
     _validate_intake(project_root)
+
+    # Check artifact lifecycle status (warns but doesn't block by default)
+    _check_lifecycle(project_root)
 
     # Verify TestPlan lock integrity (GAP-M07-002)
     audit_logger = AuditLogger(project_root=project_root)

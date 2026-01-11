@@ -1,7 +1,8 @@
 """Invariant enforcement CI stage adapter.
 
 This module implements Stage 3 of the CI pipeline: Invariant Enforcement.
-It enforces test immutability after lock and artifact-to-code mapping.
+It enforces test immutability after lock, artifact-to-code mapping,
+and architecture rule compliance.
 """
 
 import json
@@ -13,6 +14,7 @@ from typing import Any
 from rice_factor.domain.artifacts.enums import ArtifactStatus, ArtifactType
 from rice_factor.domain.ci.failure_codes import CIFailureCode
 from rice_factor.domain.ci.models import CIFailure, CIStage, CIStageResult
+from rice_factor.adapters.ci.architecture_checker import ArchitectureChecker
 
 
 class InvariantEnforcementAdapter:
@@ -31,6 +33,7 @@ class InvariantEnforcementAdapter:
         base_branch: str = "main",
         tests_dir: str = "tests",
         source_dirs: list[str] | None = None,
+        check_architecture: bool = True,
     ) -> None:
         """Initialize the invariant enforcer.
 
@@ -38,10 +41,13 @@ class InvariantEnforcementAdapter:
             base_branch: Branch to compare against for detecting changes.
             tests_dir: Directory containing tests.
             source_dirs: Directories containing source code (for artifact-to-code mapping).
+            check_architecture: Whether to check architecture rules (default True).
         """
         self._base_branch = base_branch
         self._tests_dir = tests_dir
         self._source_dirs = source_dirs or ["src", "lib", "rice_factor"]
+        self._check_architecture = check_architecture
+        self._architecture_checker = ArchitectureChecker()
 
     @property
     def stage_name(self) -> str:
@@ -84,6 +90,13 @@ class InvariantEnforcementAdapter:
             artifacts_dir, repo_root, changed_files
         )
         failures.extend(mapping_failures)
+
+        # Check 3: Architecture rule compliance
+        if self._check_architecture:
+            arch_failures = self._architecture_checker.check_violations(
+                repo_root, changed_files
+            )
+            failures.extend(arch_failures)
 
         duration_ms = (time.perf_counter() - start_time) * 1000
         return CIStageResult(

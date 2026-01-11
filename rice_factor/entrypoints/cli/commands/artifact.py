@@ -466,3 +466,77 @@ def artifact_extend(
     success(f"Artifact '{artifact_id[:8]}...' extended for {months} months")
     info(f"New review date: {new_review_date.strftime('%Y-%m-%d')}")
     info("Reason recorded in audit log")
+
+
+@app.command("migrate")
+def artifact_migrate(
+    path: Path = typer.Option(
+        None,
+        "--path",
+        "-p",
+        help="Project root path. Defaults to current directory.",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview changes without writing to disk.",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Enable verbose output.",
+    ),
+    output_json: bool = typer.Option(
+        False,
+        "--json",
+        help="Output as JSON.",
+    ),
+) -> None:
+    """Migrate artifacts to add lifecycle timestamp fields.
+
+    This command adds `updated_at` and `created_at` fields to artifacts
+    that are missing them. The migration is idempotent - running it multiple
+    times has no effect after the first run.
+
+    For artifacts missing timestamps, the file modification time is used
+    as a fallback.
+    """
+    from rice_factor.migrations.add_timestamps import run_migration
+
+    project_root = _find_project_root(path)
+
+    if not output_json:
+        if dry_run:
+            info("DRY RUN - no changes will be made")
+        info(f"Migrating artifacts in {project_root}")
+
+    result = run_migration(
+        repo_root=project_root,
+        dry_run=dry_run,
+        verbose=verbose,
+    )
+
+    if output_json:
+        output = {
+            "migrated": result.migrated,
+            "skipped": result.skipped,
+            "failed": result.failed,
+            "total": result.total,
+            "errors": result.errors,
+        }
+        print(json.dumps(output, indent=2))
+    else:
+        console.print()
+        if result.migrated > 0:
+            success(f"Migrated {result.migrated} artifact(s)")
+        if result.skipped > 0:
+            info(f"Skipped {result.skipped} artifact(s) (already up-to-date)")
+        if result.failed > 0:
+            error(f"Failed to migrate {result.failed} artifact(s)")
+            for err in result.errors:
+                console.print(f"  [dim]{err}[/dim]")
+        console.print()
+
+    if result.failed > 0:
+        raise typer.Exit(1)

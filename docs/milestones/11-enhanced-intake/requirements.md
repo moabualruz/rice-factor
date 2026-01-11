@@ -1,9 +1,10 @@
 # Milestone 11: Enhanced Intake System - Requirements
 
 > **Document Type**: Milestone Requirements Specification
-> **Version**: 1.0.0
-> **Status**: Planned
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Priority**: P1 (Quality improvement)
+> **Tests**: 41 passing (intake + glossary validators)
 > **Parent**: [Project Requirements](../../project/requirements.md)
 > **Source Spec**: [06-tools-to-integrte-with-or-learn-from.md](../../raw/06-tools-to-integrte-with-or-learn-from.md)
 

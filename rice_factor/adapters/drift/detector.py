@@ -157,9 +157,10 @@ class DriftDetectorAdapter:
     def detect_undocumented_behavior(self, repo_root: Path) -> list[DriftSignal]:
         """Find tests covering behavior not in requirements.
 
-        This is a simplified implementation that checks if test files exist
-        without corresponding implementation plans. Full behavior analysis
-        would require more sophisticated static analysis.
+        This implementation:
+        1. Parses test files to extract test function names and docstrings
+        2. Loads requirements.md and extracts requirement keywords
+        3. Identifies tests that don't match any documented requirement
 
         Args:
             repo_root: Root directory of the repository.
@@ -167,14 +168,233 @@ class DriftDetectorAdapter:
         Returns:
             List of drift signals for undocumented behavior.
         """
-        # This is a placeholder implementation
-        # Full implementation would require:
-        # 1. Parse test files to extract what's being tested
-        # 2. Compare against requirements.md
-        # 3. Identify gaps
-        #
-        # For now, return empty list - this feature is deferred
-        return []
+        signals: list[DriftSignal] = []
+
+        # Load requirements
+        requirements_text = self._load_requirements(repo_root)
+        if not requirements_text:
+            # No requirements.md, can't determine undocumented behavior
+            return signals
+
+        # Extract keywords from requirements
+        requirement_keywords = self._extract_requirement_keywords(requirements_text)
+        if not requirement_keywords:
+            return signals
+
+        # Find all test files
+        test_files = self._scan_test_files(repo_root)
+
+        # Analyze each test file
+        for test_file in test_files:
+            file_signals = self._analyze_test_file(
+                test_file, repo_root, requirement_keywords
+            )
+            signals.extend(file_signals)
+
+        return signals
+
+    def _load_requirements(self, repo_root: Path) -> str:
+        """Load requirements.md content.
+
+        Args:
+            repo_root: Root directory of the repository.
+
+        Returns:
+            Requirements file content, or empty string if not found.
+        """
+        requirements_path = repo_root / ".project" / "requirements.md"
+        if not requirements_path.exists():
+            return ""
+
+        try:
+            return requirements_path.read_text(encoding="utf-8")
+        except OSError:
+            return ""
+
+    def _extract_requirement_keywords(self, requirements_text: str) -> set[str]:
+        """Extract searchable keywords from requirements.
+
+        Extracts:
+        - Words from bullet points (- item)
+        - Words from numbered lists (1. item)
+        - Feature names (FR-xxx: description)
+        - Section headers (## Section)
+
+        Args:
+            requirements_text: Content of requirements.md.
+
+        Returns:
+            Set of lowercase keywords (2+ characters).
+        """
+        import re
+
+        keywords: set[str] = set()
+
+        # Common stop words to exclude
+        stop_words = {
+            "the", "and", "for", "are", "but", "not", "you", "all",
+            "can", "has", "was", "one", "our", "out", "use", "with",
+            "this", "that", "have", "from", "they", "will", "would",
+            "could", "should", "must", "may", "when", "what", "which",
+            "each", "any", "more", "some", "such", "only", "other",
+            "than", "then", "into", "also", "most", "very", "just",
+        }
+
+        # Extract words from markdown content
+        # Remove code blocks first
+        text = re.sub(r"```[\s\S]*?```", "", requirements_text)
+        text = re.sub(r"`[^`]+`", "", text)
+
+        # Extract feature IDs (e.g., FR-001, REQ-123)
+        feature_ids = re.findall(r"\b([A-Z]{2,}-\d+)\b", text)
+        keywords.update(f.lower() for f in feature_ids)
+
+        # Extract bullet point items
+        bullets = re.findall(r"^[\s]*[-*]\s+(.+)$", text, re.MULTILINE)
+        for bullet in bullets:
+            words = re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\b", bullet)
+            for word in words:
+                lower = word.lower()
+                if len(lower) >= 3 and lower not in stop_words:
+                    keywords.add(lower)
+
+        # Extract numbered list items
+        numbered = re.findall(r"^\d+\.\s+(.+)$", text, re.MULTILINE)
+        for item in numbered:
+            words = re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\b", item)
+            for word in words:
+                lower = word.lower()
+                if len(lower) >= 3 and lower not in stop_words:
+                    keywords.add(lower)
+
+        # Extract section headers
+        headers = re.findall(r"^#{1,6}\s+(.+)$", text, re.MULTILINE)
+        for header in headers:
+            words = re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\b", header)
+            for word in words:
+                lower = word.lower()
+                if len(lower) >= 3 and lower not in stop_words:
+                    keywords.add(lower)
+
+        return keywords
+
+    def _scan_test_files(self, repo_root: Path) -> list[Path]:
+        """Find all test files in the repository.
+
+        Args:
+            repo_root: Root directory of the repository.
+
+        Returns:
+            List of test file paths.
+        """
+        test_files: list[Path] = []
+
+        # Check tests/ directory
+        tests_dir = repo_root / "tests"
+        if tests_dir.exists():
+            for path in tests_dir.rglob("test_*.py"):
+                if path.is_file():
+                    test_files.append(path)
+            for path in tests_dir.rglob("*_test.py"):
+                if path.is_file():
+                    test_files.append(path)
+
+        # Check for test files in source directories
+        for source_dir in self._config.source_dirs:
+            src_path = repo_root / source_dir
+            if src_path.exists():
+                for path in src_path.rglob("test_*.py"):
+                    if path.is_file():
+                        test_files.append(path)
+                for path in src_path.rglob("*_test.py"):
+                    if path.is_file():
+                        test_files.append(path)
+
+        return list(set(test_files))
+
+    def _analyze_test_file(
+        self,
+        test_file: Path,
+        repo_root: Path,
+        requirement_keywords: set[str],
+    ) -> list[DriftSignal]:
+        """Analyze a test file for undocumented behavior.
+
+        Args:
+            test_file: Path to the test file.
+            repo_root: Repository root.
+            requirement_keywords: Set of keywords from requirements.
+
+        Returns:
+            List of drift signals for undocumented tests.
+        """
+        import ast
+
+        signals: list[DriftSignal] = []
+
+        try:
+            content = test_file.read_text(encoding="utf-8")
+            tree = ast.parse(content)
+        except (OSError, SyntaxError):
+            return signals
+
+        try:
+            rel_path = str(test_file.relative_to(repo_root))
+        except ValueError:
+            rel_path = str(test_file)
+        rel_path = rel_path.replace("\\", "/")
+
+        # Find all test functions and methods
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                # Extract test name and docstring
+                test_name = node.name
+                docstring = ast.get_docstring(node) or ""
+
+                # Get all words in test name (e.g., test_user_login -> user, login)
+                test_words = set(
+                    w.lower()
+                    for w in test_name.replace("test_", "").split("_")
+                    if len(w) >= 3
+                )
+
+                # Also check for feature ID patterns in test name (e.g., fr_001 -> fr-001)
+                import re
+                test_suffix = test_name.replace("test_", "")
+                # Match patterns like fr_001, req_123, etc.
+                feature_pattern = re.findall(r"([a-z]+)_(\d+)", test_suffix, re.IGNORECASE)
+                for prefix, num in feature_pattern:
+                    test_words.add(f"{prefix.lower()}-{num}")
+
+                # Get words from docstring
+                if docstring:
+                    doc_words = set(
+                        w.lower()
+                        for w in docstring.split()
+                        if len(w) >= 3 and w.isalpha()
+                    )
+                    test_words.update(doc_words)
+                    # Also extract feature IDs from docstring
+                    doc_feature_ids = re.findall(r"\b([A-Z]{2,}-\d+)\b", docstring)
+                    test_words.update(f.lower() for f in doc_feature_ids)
+
+                # Check if any test word matches requirements
+                matches_requirement = bool(test_words & requirement_keywords)
+
+                if not matches_requirement:
+                    # This test might be testing undocumented behavior
+                    signals.append(
+                        DriftSignal(
+                            signal_type=DriftSignalType.UNDOCUMENTED_BEHAVIOR,
+                            severity=DriftSeverity.LOW,
+                            path=rel_path,
+                            description=f"Test '{test_name}' may cover undocumented behavior",
+                            detected_at=datetime.now(),
+                            suggested_action="Update requirements.md or remove test if behavior is unintended",
+                        )
+                    )
+
+        return signals
 
     def detect_refactor_hotspots(
         self,

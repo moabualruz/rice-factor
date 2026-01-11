@@ -213,7 +213,11 @@ T09-01-01 (Models) ──→ T09-01-02 (Port) ──→ T09-01-03 (Orphan Code)
 
 ## 5. Notes
 
-- **Undocumented Behavior Detection**: Deferred. This requires static analysis of test files to compare against requirements.md. The `detect_undocumented_behavior` method returns empty list for now.
+- **Undocumented Behavior Detection**: Complete. Implemented static analysis of test files:
+  - Parses test function names and docstrings using Python AST
+  - Extracts keywords from requirements.md (bullets, numbered lists, headers, feature IDs)
+  - Flags tests that don't match any documented requirement
+  - 8 additional tests added (total 35 tests)
 
 ---
 

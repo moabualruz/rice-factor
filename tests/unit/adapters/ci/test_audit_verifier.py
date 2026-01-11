@@ -288,3 +288,160 @@ class TestDurationTracking:
         result = adapter.validate(tmp_path)
 
         assert result.duration_ms >= 0
+
+
+class TestOrphanedCodeDetection:
+    """Tests for orphaned code change detection."""
+
+    def test_no_orphans_without_audit_dir(self, tmp_path: Path) -> None:
+        """Should pass when no audit directory exists."""
+        adapter = AuditVerificationAdapter(detect_orphans=True)
+        result = adapter.validate(tmp_path)
+        assert result.passed is True
+
+    def test_no_orphans_with_empty_audit(self, tmp_path: Path) -> None:
+        """Should pass when audit directory is empty."""
+        (tmp_path / "audit").mkdir()
+        adapter = AuditVerificationAdapter(detect_orphans=True)
+        result = adapter.validate(tmp_path)
+        assert result.passed is True
+
+    def test_orphan_detection_disabled(self, tmp_path: Path) -> None:
+        """Should skip orphan detection when disabled."""
+        (tmp_path / "audit").mkdir()
+        adapter = AuditVerificationAdapter(detect_orphans=False)
+        result = adapter.validate(tmp_path)
+
+        orphan_failures = [
+            f for f in result.failures
+            if f.code == CIFailureCode.ORPHANED_CODE_CHANGE
+        ]
+        assert len(orphan_failures) == 0
+
+    def test_extracts_files_from_audit_target(self, tmp_path: Path) -> None:
+        """Should extract target files from audit entries."""
+        audit_dir = tmp_path / "audit"
+        entries = [
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "executor": "scaffold",
+                "target": "src/main.py",
+                "status": "success",
+            }
+        ]
+        _write_audit_log(audit_dir, entries)
+
+        adapter = AuditVerificationAdapter()
+        audited = adapter._get_audited_files(audit_dir, tmp_path)
+
+        assert "src/main.py" in audited
+
+    def test_extracts_files_from_diff_content(self, tmp_path: Path) -> None:
+        """Should extract file paths from diff content."""
+        audit_dir = tmp_path / "audit"
+        diff_content = """--- a/src/old.py
++++ b/src/new.py
+@@ -1,3 +1,3 @@
+-old line
++new line
+"""
+        diff_path = _create_diff_file(audit_dir, "change.diff", diff_content)
+
+        entries = [
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "executor": "refactor",
+                "diff": diff_path,
+                "status": "success",
+            }
+        ]
+        _write_audit_log(audit_dir, entries)
+
+        adapter = AuditVerificationAdapter()
+        audited = adapter._get_audited_files(audit_dir, tmp_path)
+
+        assert "src/old.py" in audited
+        assert "src/new.py" in audited
+
+    def test_extracts_files_from_artifact_payload(self, tmp_path: Path) -> None:
+        """Should extract files from artifact payload."""
+        audit_dir = tmp_path / "audit"
+        entries = [
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "executor": "impl",
+                "artifact": {
+                    "artifact_type": "ImplementationPlan",
+                    "payload": {"target": "src/service.py"},
+                },
+                "status": "success",
+            }
+        ]
+        _write_audit_log(audit_dir, entries)
+
+        adapter = AuditVerificationAdapter()
+        audited = adapter._get_audited_files(audit_dir, tmp_path)
+
+        assert "src/service.py" in audited
+
+    def test_extracts_refactor_operations(self, tmp_path: Path) -> None:
+        """Should extract files from refactor operations."""
+        audit_dir = tmp_path / "audit"
+        entries = [
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "executor": "refactor",
+                "artifact": {
+                    "artifact_type": "RefactorPlan",
+                    "payload": {
+                        "operations": [
+                            {"from": "src/old.py", "to": "src/new.py"},
+                            {"from_path": "src/a.py", "to_path": "src/b.py"},
+                        ]
+                    },
+                },
+                "status": "success",
+            }
+        ]
+        _write_audit_log(audit_dir, entries)
+
+        adapter = AuditVerificationAdapter()
+        audited = adapter._get_audited_files(audit_dir, tmp_path)
+
+        assert "src/old.py" in audited
+        assert "src/new.py" in audited
+        assert "src/a.py" in audited
+        assert "src/b.py" in audited
+
+    def test_extract_files_from_diff_header(self, tmp_path: Path) -> None:
+        """Should parse unified diff headers."""
+        audit_dir = tmp_path / "audit"
+        diff_content = """--- a/rice_factor/service.py
++++ b/rice_factor/service.py
+@@ -10,5 +10,6 @@
+ line
++new line
+"""
+        diff_path = _create_diff_file(audit_dir, "mod.diff", diff_content)
+
+        adapter = AuditVerificationAdapter()
+        files = adapter._extract_files_from_diff(tmp_path / diff_path)
+
+        assert "rice_factor/service.py" in files
+
+    def test_handles_deleted_files_in_diff(self, tmp_path: Path) -> None:
+        """Should handle /dev/null in deleted file diffs."""
+        audit_dir = tmp_path / "audit"
+        diff_content = """--- a/src/deleted.py
++++ /dev/null
+@@ -1,3 +0,0 @@
+-deleted content
+"""
+        diff_path = _create_diff_file(audit_dir, "delete.diff", diff_content)
+
+        adapter = AuditVerificationAdapter()
+        files = adapter._extract_files_from_diff(tmp_path / diff_path)
+
+        assert "src/deleted.py" in files
+        assert "/dev/null" not in files
+        assert "dev/null" not in files
