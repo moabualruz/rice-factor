@@ -3,7 +3,7 @@
 > **Document Type**: Gap Analysis Report (Future Milestones)
 > **Date**: 2026-01-11
 > **Status**: Active
-> **Revision**: v3.1 - Added Capability Registry & Local LLM gaps
+> **Revision**: v3.2 - Added CLI Agent Orchestration (Claude Code, Codex, Gemini, Qwen, Aider)
 > **Supersedes**: `gap-analysis-v2.md` (Post-MVP completion report)
 > **Prior Test Count**: 2,408 tests passing (Milestones 01-13)
 
@@ -39,7 +39,7 @@ This analysis proposes **9 new milestones (14-22)** with **2 NEW high-priority m
 | Milestone | Name | Priority | Features | Gaps Addressed |
 |-----------|------|----------|----------|----------------|
 | **14** | **Full Capability Registry** | **P0** | 7 | GAP-CAP-001 to GAP-CAP-005 |
-| **15** | **Local LLM Orchestration** | **P0** | 6 | GAP-CAP-006 to GAP-CAP-008 |
+| **15** | **LLM Orchestration (API + CLI)** | **P0** | 12 | GAP-CAP-006 to GAP-CAP-012 |
 | 16 | Production Hardening | P0 | 6 | GAP-PROD-001 to GAP-PROD-006 |
 | 17 | Advanced Resilience | P1 | 5 | GAP-DEF-002/004/005, GAP-SPEC-001/006 |
 | 18 | Performance & Parallelism | P1 | 4 | GAP-SPEC-002/003 |
@@ -87,6 +87,57 @@ This analysis proposes **9 new milestones (14-22)** with **2 NEW high-priority m
 | **StarCoder2** | 3B-15B | Open weights, multi-lang | BigCode |
 | **CodeLlama** | 7B-70B | Meta's code model | Meta |
 
+### 2.4 CLI Coding Agents (2025 Production-Ready)
+
+Agentic coding tools that run as terminal applications, enabling complex multi-step coding tasks.
+
+| Agent | Command | Free Tier | Key Features | Reference |
+|-------|---------|-----------|--------------|-----------|
+| **[Claude Code](https://github.com/anthropics/claude-code)** | `claude` | No (Pro/Max) | Agentic coding, git integration, IDE plugins | [Docs](https://code.claude.com/docs) |
+| **[OpenAI Codex](https://github.com/openai/codex)** | `codex` | Yes | Non-interactive mode, approval modes, session resume | [Docs](https://developers.openai.com/codex/cli/) |
+| **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** | `gemini` | Yes (1000/day) | ReAct loop, sandbox mode, MCP integration | [Docs](https://developers.google.com/gemini-code-assist/docs/gemini-cli) |
+| **[Qwen Code](https://github.com/QwenLM/qwen-code)** | `qwen-code` | Yes (2000/day) | Plan mode, subagents, local model support | [Blog](https://qwenlm.github.io/blog/qwen3-coder/) |
+| **[Aider](https://github.com/Aider-AI/aider)** | `aider` | OSS | 100+ models, git integration, voice input | [Docs](https://aider.chat/docs/) |
+
+### 2.5 CLI Agent Capabilities Comparison
+
+| Agent | Code Gen | Refactoring | Testing | Git | Multi-File | Local Models |
+|-------|----------|-------------|---------|-----|------------|--------------|
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Codex | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Gemini CLI | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Qwen Code | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ (Ollama) |
+| Aider | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (Ollama) |
+
+### 2.6 Orchestration Architecture
+
+Rice-Factor will support **dual-mode orchestration**:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     Unified Orchestrator                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  Mode Selection: API vs CLI (based on task complexity)              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌─────────────────────────┐    ┌─────────────────────────────────┐ │
+│  │   API Mode (LLMPort)    │    │   CLI Mode (CLIAgentPort)       │ │
+│  │   ├── Claude API        │    │   ├── Claude Code CLI           │ │
+│  │   ├── OpenAI API        │    │   ├── OpenAI Codex CLI          │ │
+│  │   ├── Ollama API        │    │   ├── Gemini CLI                │ │
+│  │   ├── vLLM API          │    │   ├── Qwen Code CLI             │ │
+│  │   └── LocalAI API       │    │   └── Aider CLI                 │ │
+│  └─────────────────────────┘    └─────────────────────────────────┘ │
+│                                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│  Task Routing:                                                       │
+│    • Simple code gen → API mode (faster)                            │
+│    • Complex refactoring → CLI mode (agentic)                       │
+│    • Multi-file changes → CLI mode (better context)                 │
+│    • Testing → CLI mode (can run tests)                             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## 3. Gap Categories
@@ -105,6 +156,10 @@ This analysis proposes **9 new milestones (14-22)** with **2 NEW high-priority m
 | GAP-CAP-006 | No local LLM provider support | Only Claude/OpenAI | Requires internet, no privacy |
 | GAP-CAP-007 | No provider fallback/routing | Single provider per session | Single point of failure |
 | GAP-CAP-008 | No model capability registry | Hardcoded model selection | Cannot optimize model selection |
+| GAP-CAP-009 | No CLI agent orchestration | No subprocess execution | Cannot use Claude Code, Codex, etc. |
+| GAP-CAP-010 | No multi-mode orchestration | API-only mode | Cannot delegate to agentic tools |
+| GAP-CAP-011 | No CLI agent auto-detection | Manual configuration only | Poor DX for CLI agents |
+| GAP-CAP-012 | No unified task routing | Manual provider selection | Cannot auto-select best tool for task |
 
 **Current Capability Registry State** (`rice_factor/config/capability_registry.yaml`):
 

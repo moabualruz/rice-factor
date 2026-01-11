@@ -25,6 +25,8 @@ Enable support for polyglot repositories with multiple languages.
 ### REQ-20-03: Unified Test Aggregation
 - [ ] Run all language-specific test runners
 - [ ] Aggregate results
+- [ ] Per-language test runner configuration (GAP-SPEC-004)
+- [ ] Language-specific test command overrides
 
 ### REQ-20-04: Language-Specific Artifact Sections
 - [ ] Extended ProjectPlan schema

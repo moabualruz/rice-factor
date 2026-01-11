@@ -1,4 +1,4 @@
-# Milestone 15: Local LLM Orchestration - Design
+# Milestone 15: LLM Orchestration - Design
 
 > **Status**: Planned
 > **Priority**: P0
@@ -7,30 +7,47 @@
 
 ## 1. Architecture
 
+The orchestration layer supports two modes of AI integration:
+
+1. **API Mode** - Direct HTTP/REST calls to LLM providers
+2. **CLI Mode** - Subprocess execution of agentic coding tools
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      LLM Orchestration Layer                     │
-├─────────────────────────────────────────────────────────────────┤
-│  LLMPort (Protocol)                                              │
-│    ├── CloudProviders                                            │
-│    │   ├── ClaudeAdapter (existing)                              │
-│    │   └── OpenAIAdapter (existing)                              │
-│    └── LocalProviders (NEW)                                      │
-│        ├── OllamaAdapter      # REST API localhost:11434         │
-│        ├── VLLMAdapter        # OpenAI-compat API                │
-│        ├── LMStudioAdapter    # OpenAI-compat API                │
-│        └── LocalAIAdapter     # OpenAI-compat API                │
-├─────────────────────────────────────────────────────────────────┤
-│  ProviderSelector                                                │
-│    ├── Fallback Chain: Claude → OpenAI → Ollama → vLLM          │
-│    ├── Cost-based routing                                        │
-│    └── Capability-based routing (code vs chat)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  UsageTracker                                                    │
-│    ├── Token counting                                            │
-│    ├── Cost calculation                                          │
-│    └── Latency metrics                                           │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        LLM Orchestration Layer                           │
+├─────────────────────────────────────────────────────────────────────────┤
+│  UnifiedOrchestrator                                                     │
+│    ├── Mode Selection: API vs CLI (based on task type)                  │
+│    ├── Fallback Chain: API providers → CLI agents                       │
+│    └── Task Router: code_gen → API, complex_refactor → CLI              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌────────────────────────────┐  ┌────────────────────────────────────┐ │
+│  │     LLMPort (API Mode)     │  │     CLIAgentPort (CLI Mode)        │ │
+│  ├────────────────────────────┤  ├────────────────────────────────────┤ │
+│  │  CloudProviders            │  │  Agentic CLI Tools                 │ │
+│  │    ├── ClaudeAdapter       │  │    ├── ClaudeCodeAdapter           │ │
+│  │    └── OpenAIAdapter       │  │    ├── CodexAdapter                │ │
+│  │  LocalProviders            │  │    ├── GeminiCLIAdapter            │ │
+│  │    ├── OllamaAdapter       │  │    ├── QwenCodeAdapter             │ │
+│  │    ├── VLLMAdapter         │  │    └── AiderAdapter                │ │
+│  │    ├── LMStudioAdapter     │  │                                    │ │
+│  │    └── LocalAIAdapter      │  │                                    │ │
+│  └────────────────────────────┘  └────────────────────────────────────┘ │
+│                                                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ProviderSelector                                                        │
+│    ├── Priority-based selection (API priority 1-9, CLI priority 10-19)  │
+│    ├── Cost-based routing (free CLI tiers first)                        │
+│    ├── Capability-based routing (task → best provider/agent)            │
+│    └── Fallback Chain: Claude API → OpenAI → Ollama → Claude Code CLI   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  UsageTracker                                                            │
+│    ├── Token counting (API mode)                                         │
+│    ├── Task duration (CLI mode)                                          │
+│    ├── Cost calculation (API) / Free tier tracking (CLI)                │
+│    └── Latency metrics                                                   │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -44,19 +61,36 @@ rice_factor/adapters/llm/
 ├── claude_adapter.py            # EXISTING
 ├── openai_adapter.py            # EXISTING
 ├── stub_adapter.py              # EXISTING
+│
+│  # API Adapters (NEW)
 ├── ollama_adapter.py            # NEW: Ollama integration
 ├── vllm_adapter.py              # NEW: vLLM integration
 ├── openai_compat_adapter.py     # NEW: Generic OpenAI-compat
 ├── local_ai_adapter.py          # NEW: LocalAI integration
+│
+│  # CLI Agent Adapters (NEW)
+├── cli/
+│   ├── __init__.py
+│   ├── base.py                  # NEW: CLIAgentPort protocol
+│   ├── claude_code_adapter.py   # NEW: Claude Code CLI
+│   ├── codex_adapter.py         # NEW: OpenAI Codex CLI
+│   ├── gemini_cli_adapter.py    # NEW: Google Gemini CLI
+│   ├── qwen_code_adapter.py     # NEW: Qwen Code CLI
+│   ├── aider_adapter.py         # NEW: Aider CLI
+│   └── detector.py              # NEW: CLI tool auto-detection
+│
+│  # Orchestration (NEW)
+├── orchestrator.py              # NEW: Unified orchestrator
 ├── provider_selector.py         # NEW: Fallback/routing logic
 └── usage_tracker.py             # NEW: Cost/latency tracking
 
 rice_factor/config/
-├── llm_providers.yaml           # NEW: Provider configuration
+├── llm_providers.yaml           # NEW: Provider + CLI agent config
 └── model_registry.yaml          # NEW: Model capabilities
 
 rice_factor/domain/ports/
-└── llm.py                       # UPDATE: Add provider metadata
+├── llm.py                       # UPDATE: Add provider metadata
+└── cli_agent.py                 # NEW: CLIAgentPort protocol
 ```
 
 ---
@@ -412,9 +446,485 @@ rice-factor usage
 
 ---
 
-## 9. Testing Strategy
+## 9. CLI Agent Protocol
 
+```python
+# rice_factor/domain/ports/cli_agent.py
+from typing import Protocol
+from dataclasses import dataclass
+from pathlib import Path
+
+@dataclass
+class CLITaskResult:
+    """Result from CLI agent execution."""
+    success: bool
+    output: str
+    error: str | None
+    files_modified: list[str]
+    duration_seconds: float
+    agent_name: str
+
+class CLIAgentPort(Protocol):
+    """Protocol for CLI-based coding agents."""
+
+    @property
+    def name(self) -> str:
+        """Agent identifier (e.g., 'claude_code', 'codex')."""
+        ...
+
+    async def is_available(self) -> bool:
+        """Check if CLI tool is installed and accessible."""
+        ...
+
+    async def execute_task(
+        self,
+        prompt: str,
+        working_dir: Path,
+        timeout_seconds: float = 300.0,
+    ) -> CLITaskResult:
+        """Execute a coding task and return results."""
+        ...
+
+    def get_capabilities(self) -> list[str]:
+        """Return list of capabilities (e.g., ['code_generation', 'refactoring'])."""
+        ...
+```
+
+---
+
+## 10. Claude Code CLI Adapter
+
+```python
+# rice_factor/adapters/llm/cli/claude_code_adapter.py
+import asyncio
+import shutil
+from pathlib import Path
+
+class ClaudeCodeAdapter:
+    """Adapter for Claude Code CLI (anthropics/claude-code)."""
+
+    def __init__(
+        self,
+        command: str = "claude",
+        args: list[str] | None = None,
+        timeout_seconds: float = 300.0,
+    ):
+        self.command = command
+        self.args = args or ["--print", "--output-format", "json"]
+        self.timeout_seconds = timeout_seconds
+
+    @property
+    def name(self) -> str:
+        return "claude_code"
+
+    async def is_available(self) -> bool:
+        """Check if Claude Code CLI is installed."""
+        return shutil.which(self.command) is not None
+
+    async def execute_task(
+        self,
+        prompt: str,
+        working_dir: Path,
+        timeout_seconds: float | None = None,
+    ) -> CLITaskResult:
+        """Execute task via Claude Code CLI."""
+        timeout = timeout_seconds or self.timeout_seconds
+        start_time = asyncio.get_event_loop().time()
+
+        try:
+            # Build command: claude --print -p "prompt"
+            cmd = [self.command] + self.args + ["-p", prompt]
+
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=working_dir,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=timeout,
+            )
+
+            duration = asyncio.get_event_loop().time() - start_time
+
+            return CLITaskResult(
+                success=process.returncode == 0,
+                output=stdout.decode("utf-8"),
+                error=stderr.decode("utf-8") if stderr else None,
+                files_modified=self._parse_modified_files(stdout.decode()),
+                duration_seconds=duration,
+                agent_name=self.name,
+            )
+
+        except asyncio.TimeoutError:
+            return CLITaskResult(
+                success=False,
+                output="",
+                error=f"Timeout after {timeout}s",
+                files_modified=[],
+                duration_seconds=timeout,
+                agent_name=self.name,
+            )
+
+    def _parse_modified_files(self, output: str) -> list[str]:
+        """Parse modified files from JSON output."""
+        try:
+            import json
+            data = json.loads(output)
+            return data.get("files_modified", [])
+        except json.JSONDecodeError:
+            return []
+
+    def get_capabilities(self) -> list[str]:
+        return ["code_generation", "refactoring", "testing", "git_integration"]
+```
+
+---
+
+## 11. Codex CLI Adapter
+
+```python
+# rice_factor/adapters/llm/cli/codex_adapter.py
+
+class CodexAdapter:
+    """Adapter for OpenAI Codex CLI (openai/codex)."""
+
+    def __init__(
+        self,
+        command: str = "codex",
+        approval_mode: str = "suggest",  # suggest | auto-edit | full-auto
+        timeout_seconds: float = 300.0,
+    ):
+        self.command = command
+        self.approval_mode = approval_mode
+        self.timeout_seconds = timeout_seconds
+
+    @property
+    def name(self) -> str:
+        return "codex"
+
+    async def is_available(self) -> bool:
+        return shutil.which(self.command) is not None
+
+    async def execute_task(
+        self,
+        prompt: str,
+        working_dir: Path,
+        timeout_seconds: float | None = None,
+    ) -> CLITaskResult:
+        """Execute task via Codex CLI in non-interactive mode."""
+        timeout = timeout_seconds or self.timeout_seconds
+        start_time = asyncio.get_event_loop().time()
+
+        # Build command: codex exec --approval-mode suggest "prompt"
+        cmd = [
+            self.command, "exec",
+            "--approval-mode", self.approval_mode,
+            "--output-format", "json",
+            prompt,
+        ]
+
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            cwd=working_dir,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(),
+            timeout=timeout,
+        )
+
+        duration = asyncio.get_event_loop().time() - start_time
+
+        return CLITaskResult(
+            success=process.returncode == 0,
+            output=stdout.decode("utf-8"),
+            error=stderr.decode("utf-8") if stderr else None,
+            files_modified=self._parse_modified_files(stdout.decode()),
+            duration_seconds=duration,
+            agent_name=self.name,
+        )
+
+    def get_capabilities(self) -> list[str]:
+        return ["code_generation", "refactoring", "code_review"]
+```
+
+---
+
+## 12. Aider CLI Adapter
+
+```python
+# rice_factor/adapters/llm/cli/aider_adapter.py
+
+class AiderAdapter:
+    """Adapter for Aider CLI (Aider-AI/aider)."""
+
+    def __init__(
+        self,
+        command: str = "aider",
+        model: str = "claude-3-5-sonnet",  # or "ollama/codestral"
+        auto_commits: bool = False,
+        timeout_seconds: float = 600.0,
+    ):
+        self.command = command
+        self.model = model
+        self.auto_commits = auto_commits
+        self.timeout_seconds = timeout_seconds
+
+    @property
+    def name(self) -> str:
+        return "aider"
+
+    async def is_available(self) -> bool:
+        return shutil.which(self.command) is not None
+
+    async def execute_task(
+        self,
+        prompt: str,
+        working_dir: Path,
+        timeout_seconds: float | None = None,
+    ) -> CLITaskResult:
+        """Execute task via Aider in non-interactive mode."""
+        timeout = timeout_seconds or self.timeout_seconds
+        start_time = asyncio.get_event_loop().time()
+
+        # Build command: aider --yes --message "prompt" --model model
+        cmd = [
+            self.command,
+            "--yes",  # Auto-accept changes
+            "--message", prompt,
+            "--model", self.model,
+        ]
+
+        if not self.auto_commits:
+            cmd.append("--no-auto-commits")
+
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            cwd=working_dir,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(),
+            timeout=timeout,
+        )
+
+        duration = asyncio.get_event_loop().time() - start_time
+
+        return CLITaskResult(
+            success=process.returncode == 0,
+            output=stdout.decode("utf-8"),
+            error=stderr.decode("utf-8") if stderr else None,
+            files_modified=self._parse_modified_files(stdout.decode()),
+            duration_seconds=duration,
+            agent_name=self.name,
+        )
+
+    def _parse_modified_files(self, output: str) -> list[str]:
+        """Parse modified files from Aider output."""
+        # Aider outputs lines like "Added file.py to the chat"
+        # and "Wrote file.py"
+        files = []
+        for line in output.split("\n"):
+            if line.startswith("Wrote "):
+                files.append(line.replace("Wrote ", "").strip())
+        return files
+
+    def get_capabilities(self) -> list[str]:
+        return ["code_generation", "refactoring", "git_integration", "multi_file"]
+```
+
+---
+
+## 13. CLI Agent Detector
+
+```python
+# rice_factor/adapters/llm/cli/detector.py
+import shutil
+from dataclasses import dataclass
+
+@dataclass
+class DetectedAgent:
+    name: str
+    command: str
+    version: str | None
+    available: bool
+
+class CLIAgentDetector:
+    """Auto-detect available CLI coding agents."""
+
+    AGENTS = {
+        "claude_code": {"command": "claude", "version_flag": "--version"},
+        "codex": {"command": "codex", "version_flag": "--version"},
+        "gemini": {"command": "gemini", "version_flag": "--version"},
+        "qwen_code": {"command": "qwen-code", "version_flag": "--version"},
+        "aider": {"command": "aider", "version_flag": "--version"},
+    }
+
+    def detect_all(self) -> list[DetectedAgent]:
+        """Detect all available CLI agents."""
+        results = []
+        for name, config in self.AGENTS.items():
+            available = shutil.which(config["command"]) is not None
+            version = self._get_version(config) if available else None
+            results.append(DetectedAgent(
+                name=name,
+                command=config["command"],
+                version=version,
+                available=available,
+            ))
+        return results
+
+    def _get_version(self, config: dict) -> str | None:
+        """Get version string from CLI tool."""
+        import subprocess
+        try:
+            result = subprocess.run(
+                [config["command"], config["version_flag"]],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            return result.stdout.strip().split("\n")[0]
+        except Exception:
+            return None
+```
+
+---
+
+## 14. Unified Orchestrator
+
+```python
+# rice_factor/adapters/llm/orchestrator.py
+from enum import Enum
+
+class OrchestrationMode(Enum):
+    API = "api"          # Use LLM API providers
+    CLI = "cli"          # Use CLI agents
+    AUTO = "auto"        # Select based on task type
+
+class UnifiedOrchestrator:
+    """Orchestrates between API providers and CLI agents."""
+
+    def __init__(
+        self,
+        api_selector: ProviderSelector,
+        cli_agents: list[CLIAgentPort],
+        default_mode: OrchestrationMode = OrchestrationMode.AUTO,
+    ):
+        self.api_selector = api_selector
+        self.cli_agents = {a.name: a for a in cli_agents}
+        self.default_mode = default_mode
+
+    async def execute(
+        self,
+        prompt: str,
+        task_type: str = "code_generation",
+        mode: OrchestrationMode | None = None,
+        working_dir: Path | None = None,
+    ) -> str | CLITaskResult:
+        """Execute task using appropriate mode."""
+        mode = mode or self.default_mode
+
+        if mode == OrchestrationMode.AUTO:
+            mode = self._select_mode(task_type)
+
+        if mode == OrchestrationMode.API:
+            response, provider = await self.api_selector.generate(prompt)
+            return response
+        else:
+            return await self._execute_cli(prompt, working_dir, task_type)
+
+    def _select_mode(self, task_type: str) -> OrchestrationMode:
+        """Select mode based on task type."""
+        # Complex tasks benefit from agentic CLI tools
+        cli_tasks = {"complex_refactor", "multi_file_change", "testing", "debugging"}
+        if task_type in cli_tasks:
+            return OrchestrationMode.CLI
+        return OrchestrationMode.API
+
+    async def _execute_cli(
+        self,
+        prompt: str,
+        working_dir: Path | None,
+        task_type: str,
+    ) -> CLITaskResult:
+        """Execute via CLI agent with fallback."""
+        working_dir = working_dir or Path.cwd()
+
+        # Try agents in priority order
+        for agent in sorted(self.cli_agents.values(), key=lambda a: a.priority):
+            if await agent.is_available():
+                if task_type in agent.get_capabilities():
+                    return await agent.execute_task(prompt, working_dir)
+
+        raise NoAgentAvailableError(f"No CLI agent available for {task_type}")
+```
+
+---
+
+## 15. Updated CLI Commands
+
+```bash
+# List available providers and agents
+rice-factor providers
+# Output:
+# === API Providers ===
+# Provider     | Status | Priority | Models
+# -------------|--------|----------|------------------
+# claude       | ✓      | 1        | claude-sonnet-4, claude-opus-4
+# openai       | ✓      | 2        | gpt-4o, gpt-4-turbo
+# ollama       | ✓      | 3        | codestral, qwen3-coder
+# vllm         | ✗      | 4        | (not running)
+#
+# === CLI Agents ===
+# Agent        | Status | Priority | Capabilities
+# -------------|--------|----------|---------------------------
+# claude_code  | ✓      | 10       | code_generation, refactoring
+# codex        | ✓      | 11       | code_generation, refactoring
+# gemini       | ✓      | 12       | code_generation, file_ops
+# qwen_code    | ✗      | 13       | (not installed)
+# aider        | ✓      | 14       | code_generation, git
+
+# Detect installed CLI agents
+rice-factor agents detect
+# Output:
+# Detecting CLI coding agents...
+# ✓ claude v1.2.3 (claude_code)
+# ✓ codex v0.9.0 (codex)
+# ✓ gemini v2.1.0 (gemini_cli)
+# ✗ qwen-code (not found)
+# ✓ aider v0.82.0 (aider)
+
+# Execute task with specific mode
+rice-factor exec --mode cli "Add unit tests for auth module"
+rice-factor exec --mode api "Generate docstring for function"
+rice-factor exec --mode auto "Refactor database layer"  # Auto-selects
+```
+
+---
+
+## 16. Testing Strategy
+
+### API Adapters
 1. **Unit Tests**: Mock HTTP responses, test adapter logic
 2. **Integration Tests**: Real Ollama/vLLM servers (optional, skipped in CI)
 3. **Fallback Tests**: Simulate provider failures
 4. **Usage Tests**: Verify cost and token calculations
+
+### CLI Adapters
+1. **Unit Tests**: Mock subprocess execution, test output parsing
+2. **Detection Tests**: Verify agent detection with mocked `shutil.which`
+3. **Timeout Tests**: Ensure proper timeout handling
+4. **Integration Tests**: Real CLI tools (optional, marked as slow)
+
+### Orchestrator
+1. **Mode Selection Tests**: Verify auto-mode task routing
+2. **Fallback Tests**: API → CLI fallback on failure
+3. **E2E Tests**: Full orchestration with mocked adapters

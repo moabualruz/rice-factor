@@ -1,29 +1,41 @@
-# Milestone 15: Local LLM Orchestration - Requirements
+# Milestone 15: LLM Orchestration - Requirements
 
 > **Status**: Planned
-> **Priority**: P0 (Cost reduction, privacy, offline mode)
+> **Priority**: P0 (Cost reduction, privacy, offline mode, CLI integration)
 > **Dependencies**: None
 
 ---
 
 ## 1. Overview
 
-Support locally installed AI agents (Ollama, vLLM, LM Studio, LocalAI) alongside cloud providers (Claude, OpenAI) with automatic fallback and intelligent routing.
+Support multiple orchestration modes for AI-assisted code generation:
+
+1. **API Providers** - Cloud and local REST API services (Claude, OpenAI, Ollama, vLLM)
+2. **CLI Agents** - Agentic coding tools that run as terminal applications (Claude Code, Codex CLI, Gemini CLI, Qwen Code, Aider)
+
+This dual-mode architecture enables:
+- **Cost optimization** via local models and CLI tools with free tiers
+- **Privacy** via fully local execution
+- **Flexibility** via pluggable adapters for any provider type
+- **Redundancy** via fallback chains across both modes
 
 ### Current State
 
-- Only Claude and OpenAI adapters exist
+- Only Claude and OpenAI API adapters exist
 - No local LLM provider support
+- No CLI agent orchestration
 - No provider fallback mechanism
 - No model capability registry
 
 ### Target State
 
-- 4+ local LLM providers supported (Ollama, vLLM, LM Studio, LocalAI)
-- Automatic provider fallback on failure
+- 4+ API providers supported (Ollama, vLLM, LM Studio, LocalAI)
+- 5+ CLI agent adapters (Claude Code, Codex, Gemini CLI, Qwen Code, Aider)
+- Automatic provider/agent fallback on failure
 - Model registry with capability metadata
 - Cost and latency tracking per provider
 - Full offline mode support
+- CLI agent task delegation
 
 ---
 
@@ -111,51 +123,194 @@ Support locally installed AI agents (Ollama, vLLM, LM Studio, LocalAI) alongside
 
 ---
 
+### REQ-15-07: Claude Code CLI Adapter
+
+**Description**: Integrate Claude Code CLI for agentic coding tasks.
+
+**Acceptance Criteria**:
+- [ ] `claude_code_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `claude` process with task prompt
+- [ ] Captures stdout/stderr for response parsing
+- [ ] Supports `--print` mode for non-interactive output
+- [ ] Auto-detects Claude Code availability (`which claude`)
+- [ ] Configurable timeout and working directory
+
+**Tool**: [Claude Code CLI](https://github.com/anthropics/claude-code)
+
+---
+
+### REQ-15-08: OpenAI Codex CLI Adapter
+
+**Description**: Integrate OpenAI Codex CLI for agentic coding tasks.
+
+**Acceptance Criteria**:
+- [ ] `codex_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `codex exec` for non-interactive execution
+- [ ] Parses JSON output with `--output-format json`
+- [ ] Supports model selection (`--model`)
+- [ ] Auto-detects Codex availability
+- [ ] Configurable approval mode (suggest, auto-edit, full-auto)
+
+**Tool**: [OpenAI Codex CLI](https://github.com/openai/codex)
+
+---
+
+### REQ-15-09: Gemini CLI Adapter
+
+**Description**: Integrate Google Gemini CLI for agentic coding tasks.
+
+**Acceptance Criteria**:
+- [ ] `gemini_cli_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `gemini` process with task prompt
+- [ ] Supports sandbox mode configuration
+- [ ] Leverages ReAct loop capabilities
+- [ ] Auto-detects Gemini CLI availability
+- [ ] Configurable tool permissions
+
+**Tool**: [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+
+---
+
+### REQ-15-10: Qwen Code CLI Adapter
+
+**Description**: Integrate Qwen Code CLI for agentic coding tasks.
+
+**Acceptance Criteria**:
+- [ ] `qwen_code_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `qwen-code` process with task prompt
+- [ ] Supports OAuth authentication or API key
+- [ ] Leverages plan mode capabilities
+- [ ] Auto-detects Qwen Code availability
+- [ ] Supports local model routing via Ollama
+
+**Tool**: [Qwen Code CLI](https://github.com/QwenLM/qwen-code)
+
+---
+
+### REQ-15-11: Aider CLI Adapter
+
+**Description**: Integrate Aider for AI pair programming tasks.
+
+**Acceptance Criteria**:
+- [ ] `aider_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `aider` with `--message` for non-interactive mode
+- [ ] Supports `--yes` for auto-accepting changes
+- [ ] Configurable model selection (`--model`)
+- [ ] Auto-detects Aider availability
+- [ ] Supports local models via `--model ollama/codestral`
+
+**Tool**: [Aider](https://github.com/Aider-AI/aider)
+
+---
+
+### REQ-15-12: CLI Agent Protocol
+
+**Description**: Define protocol for CLI agent adapters.
+
+**Acceptance Criteria**:
+- [ ] `CLIAgentPort` protocol with `execute_task()` method
+- [ ] Task input as structured prompt or file path
+- [ ] Response includes: success, output, files_modified, duration
+- [ ] Standardized error handling across adapters
+- [ ] Timeout and cancellation support
+- [ ] Working directory configuration
+
+---
+
 ## 3. Configuration Schema
 
 ```yaml
 # rice_factor/config/llm_providers.yaml
 providers:
-  cloud:
-    claude:
-      enabled: true
-      api_key_env: ANTHROPIC_API_KEY
-      models: [claude-sonnet-4-20250514, claude-opus-4-20250514]
-      priority: 1
-      cost_per_1k_input: 0.003
-      cost_per_1k_output: 0.015
-    openai:
-      enabled: true
-      api_key_env: OPENAI_API_KEY
-      models: [gpt-4o, gpt-4-turbo]
-      priority: 2
-      cost_per_1k_input: 0.005
-      cost_per_1k_output: 0.015
+  # API-based providers (REST/HTTP)
+  api:
+    cloud:
+      claude:
+        enabled: true
+        api_key_env: ANTHROPIC_API_KEY
+        models: [claude-sonnet-4-20250514, claude-opus-4-20250514]
+        priority: 1
+        cost_per_1k_input: 0.003
+        cost_per_1k_output: 0.015
+      openai:
+        enabled: true
+        api_key_env: OPENAI_API_KEY
+        models: [gpt-4o, gpt-4-turbo]
+        priority: 2
+        cost_per_1k_input: 0.005
+        cost_per_1k_output: 0.015
 
-  local:
-    ollama:
+    local:
+      ollama:
+        enabled: true
+        base_url: http://localhost:11434
+        models: [codestral, qwen3-coder, deepseek-coder-v3]
+        priority: 3
+        cost_per_1k_input: 0  # Local = free
+        cost_per_1k_output: 0
+      vllm:
+        enabled: false
+        base_url: http://localhost:8000
+        models: [codestral-22b]
+        priority: 4
+      lmstudio:
+        enabled: false
+        base_url: http://localhost:1234
+        models: []  # Auto-discover
+        priority: 5
+
+  # CLI-based agents (subprocess execution)
+  cli:
+    claude_code:
       enabled: true
-      base_url: http://localhost:11434
-      models: [codestral, qwen3-coder, deepseek-coder-v3]
-      priority: 3
-      cost_per_1k_input: 0  # Local = free
-      cost_per_1k_output: 0
-    vllm:
-      enabled: false
-      base_url: http://localhost:8000
-      models: [codestral-22b]
-      priority: 4
-    lmstudio:
-      enabled: false
-      base_url: http://localhost:1234
-      models: []  # Auto-discover
-      priority: 5
+      command: claude
+      args: ["--print", "--output-format", "json"]
+      priority: 10
+      timeout_seconds: 300
+      capabilities: [code_generation, refactoring, testing]
+      free_tier: false  # Requires Claude Pro/Max
+    codex:
+      enabled: true
+      command: codex
+      args: ["exec", "--output-format", "json"]
+      priority: 11
+      timeout_seconds: 300
+      approval_mode: suggest  # suggest | auto-edit | full-auto
+      capabilities: [code_generation, refactoring]
+      free_tier: true  # Free tier available
+    gemini_cli:
+      enabled: true
+      command: gemini
+      args: []
+      priority: 12
+      timeout_seconds: 300
+      sandbox_mode: true
+      capabilities: [code_generation, file_manipulation, command_execution]
+      free_tier: true  # 1000 requests/day free
+    qwen_code:
+      enabled: true
+      command: qwen-code
+      args: []
+      priority: 13
+      timeout_seconds: 300
+      capabilities: [code_generation, refactoring, planning]
+      free_tier: true  # 2000 requests/day with OAuth
+    aider:
+      enabled: true
+      command: aider
+      args: ["--yes", "--no-auto-commits"]
+      priority: 14
+      timeout_seconds: 600
+      model: claude-3-5-sonnet  # or ollama/codestral for local
+      capabilities: [code_generation, refactoring, git_integration]
+      free_tier: true  # Open source, pay per LLM usage
 
 fallback:
-  strategy: priority  # priority | round_robin | cost_based
+  strategy: priority  # priority | round_robin | cost_based | api_first | cli_first
   max_retries: 3
   timeout_seconds: 30
   retry_delay_seconds: 1
+  prefer_mode: api  # api | cli | auto (auto selects based on task)
 ```
 
 ---
@@ -181,12 +336,25 @@ fallback:
 
 ## 5. Exit Criteria
 
+### API Providers
 - [ ] Ollama models work for artifact generation
 - [ ] vLLM production deployment supported
+- [ ] OpenAI-compatible adapter works with LM Studio, LocalAI
 - [ ] Automatic fallback when provider unavailable
 - [ ] Cost tracking per provider
-- [ ] Model capability registry guides model selection
-- [ ] Offline mode with local models only
+
+### CLI Agents
+- [ ] Claude Code CLI executes tasks and returns structured output
+- [ ] Codex CLI executes tasks in non-interactive mode
+- [ ] Gemini CLI executes tasks with sandbox support
+- [ ] Qwen Code CLI executes tasks with OAuth or API key
+- [ ] Aider executes tasks in non-interactive mode
+- [ ] CLI agent auto-detection works correctly
+
+### General
+- [ ] Model/agent capability registry guides selection
+- [ ] Offline mode with local models and CLI agents
+- [ ] Fallback works across both API and CLI modes
 - [ ] All tests passing
 - [ ] Documentation updated
 
@@ -194,4 +362,7 @@ fallback:
 
 ## 6. Estimated Test Count
 
-~45 tests (unit + integration per adapter)
+~75 tests (unit + integration per adapter)
+- API adapters: ~30 tests
+- CLI adapters: ~35 tests
+- Provider selector & fallback: ~10 tests

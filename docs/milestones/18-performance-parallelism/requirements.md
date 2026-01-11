@@ -29,6 +29,8 @@ Improve execution speed and scale with parallel execution, caching, and batch op
 ### REQ-18-04: Batch Operations
 - [ ] Batch approval/rejection of artifacts
 - [ ] Multi-artifact processing
+- [ ] Orchestrator component for lifecycle phases (GAP-SPEC-005)
+- [ ] Phase-driven batch execution
 
 ---
 
