@@ -327,6 +327,9 @@ class RectorAdapter(RefactorToolPort):
         old_namespace = request.target
         new_namespace = request.new_value
 
+        # Escape backslashes for replacement strings
+        new_ns_escaped = new_namespace.replace("\\", "\\\\")
+
         changes: list[RefactorChange] = []
         php_files = list(self.project_root.rglob("*.php"))
 
@@ -338,7 +341,7 @@ class RectorAdapter(RefactorToolPort):
                 # PHP: namespace App\OldNamespace;
                 new_content = re.sub(
                     rf"namespace\s+{re.escape(old_namespace)}(\s*[;\{{])",
-                    rf"namespace {new_namespace}\1",
+                    rf"namespace {new_ns_escaped}\1",
                     content,
                 )
 
@@ -346,19 +349,19 @@ class RectorAdapter(RefactorToolPort):
                 # PHP: use App\OldNamespace\ClassName;
                 new_content = re.sub(
                     rf"use\s+{re.escape(old_namespace)}(\s*;)",
-                    rf"use {new_namespace}\1",
+                    rf"use {new_ns_escaped}\1",
                     new_content,
                 )
                 new_content = re.sub(
                     rf"use\s+{re.escape(old_namespace)}\\(\w+)",
-                    rf"use {new_namespace}\\\1",
+                    rf"use {new_ns_escaped}\\\1",
                     new_content,
                 )
 
                 # Change fully qualified class names
                 new_content = re.sub(
                     rf"\\{re.escape(old_namespace)}\\",
-                    rf"\\{new_namespace}\\",
+                    rf"\\{new_ns_escaped}\\",
                     new_content,
                 )
 
