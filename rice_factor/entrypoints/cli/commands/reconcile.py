@@ -6,6 +6,7 @@ from drift analysis.
 
 import json
 from pathlib import Path
+from typing import Any
 
 import typer
 from rich.panel import Panel
@@ -188,7 +189,7 @@ def reconcile(
             raise typer.Exit(1)
 
 
-def _display_plan(plan, dry_run: bool = False) -> None:
+def _display_plan(plan: Any, dry_run: bool = False) -> None:
     """Display the reconciliation plan.
 
     Args:

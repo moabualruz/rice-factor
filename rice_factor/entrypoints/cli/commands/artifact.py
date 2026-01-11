@@ -307,6 +307,76 @@ def _display_age_report(artifacts: list[dict[str, Any]]) -> None:
     console.print()
 
 
+@app.command("review")
+def artifact_review(
+    artifact_id: str = typer.Argument(..., help="Artifact ID to mark as reviewed"),
+    notes: str = typer.Option(
+        None,
+        "--notes",
+        "-n",
+        help="Optional review notes.",
+    ),
+    path: Path = typer.Option(
+        None,
+        "--path",
+        "-p",
+        help="Project root path.",
+    ),
+) -> None:
+    """Mark an artifact as reviewed.
+
+    This command updates the artifact's last_reviewed_at timestamp,
+    which resets the age-based review timer.
+    """
+    project_root = _find_project_root(path)
+
+    # Find the artifact
+    artifacts_dir = project_root / "artifacts"
+    if not artifacts_dir.exists():
+        error("No artifacts directory found")
+        raise typer.Exit(1)
+
+    found_path: Path | None = None
+    found_data: dict[str, Any] | None = None
+
+    for artifact_path in artifacts_dir.rglob("*.json"):
+        if "_meta" in str(artifact_path):
+            continue
+
+        try:
+            data = json.loads(artifact_path.read_text(encoding="utf-8"))
+            if str(data.get("id", "")).startswith(artifact_id):
+                found_path = artifact_path
+                found_data = data
+                break
+        except (json.JSONDecodeError, OSError):
+            continue
+
+    if found_path is None or found_data is None:
+        error(f"Artifact not found: {artifact_id}")
+        raise typer.Exit(1)
+
+    # Check if LOCKED
+    if found_data.get("status") == "locked":
+        error("Cannot review LOCKED artifacts - they are immutable")
+        raise typer.Exit(1)
+
+    # Update the artifact
+    now = datetime.utcnow().isoformat() + "Z"
+    found_data["last_reviewed_at"] = now
+    if notes:
+        found_data["review_notes"] = notes
+    found_data["updated_at"] = now
+
+    # Save
+    found_path.write_text(json.dumps(found_data, indent=2), encoding="utf-8")
+
+    success(f"Artifact '{artifact_id[:8]}...' marked as reviewed")
+    if notes:
+        info(f"Review notes: {notes}")
+    info("Review timestamp updated - artifact age timer reset")
+
+
 @app.command("extend")
 def artifact_extend(
     artifact_id: str = typer.Argument(..., help="Artifact ID to extend"),

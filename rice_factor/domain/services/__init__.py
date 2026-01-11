@@ -55,6 +55,12 @@ from rice_factor.domain.services.questionnaire import (
     QuestionnaireResponse,
     QuestionnaireRunner,
 )
+from rice_factor.domain.services.lifecycle_service import (
+    AgeReport,
+    LifecycleBlockingError,
+    LifecycleService,
+    ReviewPrompt,
+)
 from rice_factor.domain.services.reconciliation_service import (
     ReconciliationService,
     check_work_freeze,
@@ -86,6 +92,7 @@ __all__ = [
     "INIT_QUESTIONS",
     "PASS_REQUIREMENTS",
     "PHASE_DESCRIPTIONS",
+    "AgeReport",
     "ArtifactBuilder",
     "ArtifactBuilderError",
     "ArtifactResolver",
@@ -104,6 +111,8 @@ __all__ = [
     "ForbiddenInputError",
     "InitService",
     "JSONExtractor",
+    "LifecycleBlockingError",
+    "LifecycleService",
     "LLMErrorHandler",
     "MissingRequiredInputError",
     "OutputValidator",
@@ -120,6 +129,7 @@ __all__ = [
     "RefactorDiff",
     "RefactorExecutor",
     "RefactorResult",
+    "ReviewPrompt",
     "SafetyEnforcer",
     "SafetyLockVerificationResult",
     "ScaffoldResult",

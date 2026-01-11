@@ -1,8 +1,8 @@
 # Feature F10-02: Expiration Policies - Tasks
 
 > **Document Type**: Feature Task Breakdown
-> **Version**: 1.0.0
-> **Status**: Pending
+> **Version**: 1.1.0
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T10-02-01 | Create LifecyclePolicy model | Pending | P0 |
-| T10-02-02 | Create PolicyResult model | Pending | P0 |
-| T10-02-03 | Implement policy evaluation | Pending | P0 |
-| T10-02-04 | Add YAML configuration loader | Pending | P1 |
-| T10-02-05 | Define default policies | Pending | P0 |
-| T10-02-06 | Write unit tests | Pending | P0 |
+| T10-02-01 | Create LifecyclePolicy model | Complete | P0 |
+| T10-02-02 | Create PolicyResult model | Complete | P0 |
+| T10-02-03 | Implement policy evaluation | Complete | P0 |
+| T10-02-04 | Add YAML configuration loader | Complete | P1 |
+| T10-02-05 | Define default policies | Complete | P0 |
+| T10-02-06 | Write unit tests | Complete | P0 |
 
 ---
 
@@ -26,8 +26,9 @@
 
 **Objective**: Define policy structure for artifact types.
 
-**Files to Create**:
-- [ ] `rice_factor/domain/models/lifecycle.py`
+**Files Created**:
+- [x] `rice_factor/domain/models/lifecycle.py`
+- [x] `rice_factor/domain/models/__init__.py`
 
 **Implementation**:
 ```python
@@ -41,9 +42,9 @@ class LifecyclePolicy:
 ```
 
 **Acceptance Criteria**:
-- [ ] All policy fields defined
-- [ ] Sensible defaults provided
-- [ ] Dataclass is immutable-friendly
+- [x] All policy fields defined
+- [x] Sensible defaults provided
+- [x] Dataclass is immutable-friendly
 
 ---
 
@@ -51,8 +52,8 @@ class LifecyclePolicy:
 
 **Objective**: Define evaluation result structure.
 
-**Files to Modify**:
-- [ ] `rice_factor/domain/models/lifecycle.py`
+**Files Modified**:
+- [x] `rice_factor/domain/models/lifecycle.py`
 
 **Implementation**:
 ```python
@@ -86,9 +87,9 @@ class PolicyResult:
 ```
 
 **Acceptance Criteria**:
-- [ ] All enums defined
-- [ ] Result has helper properties
-- [ ] Serializable to dict
+- [x] All enums defined
+- [x] Result has helper properties
+- [x] Serializable to dict via to_dict()
 
 ---
 
@@ -96,48 +97,14 @@ class PolicyResult:
 
 **Objective**: Add evaluate method to policy.
 
-**Files to Modify**:
-- [ ] `rice_factor/domain/models/lifecycle.py`
-
-**Implementation**:
-```python
-def evaluate(
-    self,
-    artifact: ArtifactEnvelope,
-    violations: list | None = None,
-    coverage_drift: float | None = None,
-) -> PolicyResult:
-    triggers = []
-    urgency = ReviewUrgency.INFORMATIONAL
-
-    # Check age
-    if artifact.age_months >= self.review_after_months:
-        triggers.append(ReviewTrigger.AGE)
-        urgency = ReviewUrgency.REQUIRED
-    elif self._in_warning_period(artifact):
-        triggers.append(ReviewTrigger.AGE)
-        urgency = ReviewUrgency.RECOMMENDED
-
-    # Check violations
-    if violations and self.mandatory_on_violation:
-        triggers.append(ReviewTrigger.VIOLATION)
-        urgency = ReviewUrgency.MANDATORY
-
-    # Check coverage drift
-    if coverage_drift and self.coverage_drift_threshold:
-        if coverage_drift >= self.coverage_drift_threshold:
-            triggers.append(ReviewTrigger.DRIFT)
-            if urgency != ReviewUrgency.MANDATORY:
-                urgency = ReviewUrgency.REQUIRED
-
-    return PolicyResult(...)
-```
+**Files Modified**:
+- [x] `rice_factor/domain/models/lifecycle.py`
 
 **Acceptance Criteria**:
-- [ ] Age triggers work correctly
-- [ ] Violation triggers work
-- [ ] Drift triggers work
-- [ ] Urgency escalation correct
+- [x] Age triggers work correctly
+- [x] Violation triggers work
+- [x] Drift triggers work
+- [x] Urgency escalation correct
 
 ---
 
@@ -145,8 +112,10 @@ def evaluate(
 
 **Objective**: Load policies from config file.
 
-**Files to Create**:
-- [ ] `rice_factor/config/lifecycle_config.py`
+**Files Modified**:
+- [x] `rice_factor/domain/models/lifecycle.py` (LifecycleConfig.from_file)
+
+Note: Placed in domain/models rather than config/ to keep all lifecycle logic together.
 
 **Configuration Format**:
 ```yaml
@@ -160,34 +129,10 @@ lifecycle:
       mandatory_on_violation: true
 ```
 
-**Implementation**:
-```python
-@classmethod
-def from_file(cls, path: Path) -> "LifecycleConfig":
-    if not path.exists():
-        return cls.default()
-
-    import yaml
-    with open(path) as f:
-        data = yaml.safe_load(f)
-
-    lifecycle_data = data.get("lifecycle", {})
-    policies_data = lifecycle_data.get("policies", {})
-
-    policies = {}
-    for artifact_type, policy_data in policies_data.items():
-        policies[artifact_type] = LifecyclePolicy(
-            artifact_type=artifact_type,
-            **policy_data,
-        )
-
-    return cls(policies=policies)
-```
-
 **Acceptance Criteria**:
-- [ ] YAML parsed correctly
-- [ ] Missing file uses defaults
-- [ ] Partial config merged
+- [x] YAML parsed correctly
+- [x] Missing file uses defaults
+- [x] Partial config merged with defaults
 
 ---
 
@@ -195,8 +140,8 @@ def from_file(cls, path: Path) -> "LifecycleConfig":
 
 **Objective**: Set reasonable defaults per spec.
 
-**Files to Modify**:
-- [ ] `rice_factor/config/lifecycle_config.py`
+**Files Modified**:
+- [x] `rice_factor/domain/models/lifecycle.py` (DEFAULT_POLICIES)
 
 **Default Policies** (from spec 5.5.3):
 
@@ -206,11 +151,14 @@ def from_file(cls, path: Path) -> "LifecycleConfig":
 | ArchitecturePlan | 6 months | Yes | - |
 | TestPlan | 3 months | No | 10% |
 | ImplementationPlan | 6 months | No | - |
+| ScaffoldPlan | 6 months | No | - |
+| RefactorPlan | 3 months | No | - |
+| ValidationResult | 1 month | No | - |
 
 **Acceptance Criteria**:
-- [ ] All artifact types have defaults
-- [ ] Defaults match specification
-- [ ] Config overrides work
+- [x] All artifact types have defaults
+- [x] Defaults match specification
+- [x] Config overrides work
 
 ---
 
@@ -218,24 +166,25 @@ def from_file(cls, path: Path) -> "LifecycleConfig":
 
 **Objective**: Test policy system.
 
-**Files to Create**:
-- [ ] `tests/unit/domain/models/test_lifecycle.py`
-- [ ] `tests/unit/config/test_lifecycle_config.py`
+**Files Created**:
+- [x] `tests/unit/domain/models/__init__.py`
+- [x] `tests/unit/domain/models/test_lifecycle.py`
 
-**Test Cases**:
-- [ ] Policy creation with defaults
-- [ ] Policy evaluation - age trigger
-- [ ] Policy evaluation - warning period
-- [ ] Policy evaluation - violation trigger
-- [ ] Policy evaluation - drift trigger
-- [ ] Urgency escalation
-- [ ] Config loading from YAML
-- [ ] Config default fallback
+**Test Cases** (41 tests):
+- [x] Policy creation with defaults
+- [x] Policy evaluation - age trigger
+- [x] Policy evaluation - warning period
+- [x] Policy evaluation - violation trigger
+- [x] Policy evaluation - drift trigger
+- [x] Urgency escalation
+- [x] Config loading from YAML
+- [x] Config default fallback
+- [x] Edge cases (empty file, invalid YAML, partial config)
 
 **Acceptance Criteria**:
-- [ ] All evaluation paths tested
-- [ ] Config loading tested
-- [ ] Edge cases covered
+- [x] All evaluation paths tested
+- [x] Config loading tested
+- [x] Edge cases covered
 
 ---
 
@@ -273,3 +222,4 @@ T10-02-01 (Policy) ──→ T10-02-02 (Result) ──→ T10-02-03 (Evaluate)
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-11 | Gap Analysis | Initial task breakdown |
+| 1.1.0 | 2026-01-11 | Implementation | All tasks completed |

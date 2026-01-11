@@ -33,6 +33,12 @@ class TestArtifactCommandHelp:
         assert result.exit_code == 0
         assert "extend" in result.stdout
 
+    def test_help_shows_review_command(self) -> None:
+        """--help should list review command."""
+        result = runner.invoke(app, ["artifact", "--help"])
+        assert result.exit_code == 0
+        assert "review" in result.stdout
+
 
 class TestArtifactAgeCommand:
     """Tests for artifact age command."""
@@ -313,3 +319,160 @@ class TestArtifactExtendCommand:
 
         assert result.exit_code == 0
         assert "6 months" in result.stdout
+
+
+class TestArtifactReviewCommand:
+    """Tests for artifact review command."""
+
+    def test_review_help_shows_options(self) -> None:
+        """review --help should show options."""
+        result = runner.invoke(app, ["artifact", "review", "--help"])
+        assert result.exit_code == 0
+        assert "--notes" in result.stdout
+        assert "ARTIFACT_ID" in result.stdout
+
+    def test_review_artifact_not_found(self, tmp_path: Path) -> None:
+        """review should error when artifact not found."""
+        (tmp_path / "artifacts").mkdir()
+
+        result = runner.invoke(
+            app,
+            [
+                "artifact",
+                "review",
+                "nonexistent",
+                "--path",
+                str(tmp_path),
+            ],
+        )
+
+        assert result.exit_code == 1
+        assert "not found" in result.stdout.lower()
+
+    def test_review_cannot_review_locked(self, tmp_path: Path) -> None:
+        """review should reject LOCKED artifacts."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        artifact = {
+            "id": "locked-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "payload": {},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(artifact))
+
+        result = runner.invoke(
+            app,
+            [
+                "artifact",
+                "review",
+                "locked-001",
+                "--path",
+                str(tmp_path),
+            ],
+        )
+
+        assert result.exit_code == 1
+        assert "LOCKED" in result.stdout or "immutable" in result.stdout.lower()
+
+    def test_review_updates_timestamp(self, tmp_path: Path) -> None:
+        """review should update last_reviewed_at timestamp."""
+        artifacts_dir = tmp_path / "artifacts" / "project_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        artifact_path = artifacts_dir / "test.json"
+        artifact = {
+            "id": "review-test-001",
+            "artifact_type": "ProjectPlan",
+            "status": "approved",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "payload": {},
+        }
+        artifact_path.write_text(json.dumps(artifact))
+
+        result = runner.invoke(
+            app,
+            [
+                "artifact",
+                "review",
+                "review-test-001",
+                "--path",
+                str(tmp_path),
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "reviewed" in result.stdout.lower()
+
+        # Verify the file was updated
+        updated = json.loads(artifact_path.read_text())
+        assert updated.get("last_reviewed_at") is not None
+        assert updated.get("updated_at") is not None
+
+    def test_review_with_notes(self, tmp_path: Path) -> None:
+        """review --notes should save review notes."""
+        artifacts_dir = tmp_path / "artifacts" / "project_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        artifact_path = artifacts_dir / "test.json"
+        artifact = {
+            "id": "notes-test-001",
+            "artifact_type": "ProjectPlan",
+            "status": "draft",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "payload": {},
+        }
+        artifact_path.write_text(json.dumps(artifact))
+
+        result = runner.invoke(
+            app,
+            [
+                "artifact",
+                "review",
+                "notes-test-001",
+                "--notes",
+                "Looks good, no changes needed",
+                "--path",
+                str(tmp_path),
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "Looks good" in result.stdout
+
+        # Verify the notes were saved
+        updated = json.loads(artifact_path.read_text())
+        assert "Looks good" in updated.get("review_notes", "")
+
+    def test_review_resets_age_timer(self, tmp_path: Path) -> None:
+        """review should reset the age timer by updating last_reviewed_at."""
+        artifacts_dir = tmp_path / "artifacts" / "project_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        # Create an old artifact
+        old_date = (datetime.now(timezone.utc) - timedelta(days=100)).isoformat()
+        artifact_path = artifacts_dir / "test.json"
+        artifact = {
+            "id": "timer-test-001",
+            "artifact_type": "ProjectPlan",
+            "status": "approved",
+            "created_at": old_date,
+            "payload": {},
+        }
+        artifact_path.write_text(json.dumps(artifact))
+
+        result = runner.invoke(
+            app,
+            [
+                "artifact",
+                "review",
+                "timer-test-001",
+                "--path",
+                str(tmp_path),
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert "timer reset" in result.stdout.lower() or "reviewed" in result.stdout.lower()

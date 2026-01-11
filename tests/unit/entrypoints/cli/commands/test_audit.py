@@ -286,6 +286,174 @@ class TestAuditDriftCommand:
         assert "10" in result.stdout  # artifacts checked
 
 
+class TestAuditCoverageCommand:
+    """Tests for audit coverage command."""
+
+    def test_coverage_help_shows_options(self) -> None:
+        """coverage --help should show options."""
+        result = runner.invoke(app, ["audit", "coverage", "--help"])
+        assert result.exit_code == 0
+        assert "--path" in result.stdout
+        assert "--threshold" in result.stdout
+        assert "--json" in result.stdout
+        assert "--no-run" in result.stdout
+
+    def test_coverage_help_shows_exit_codes(self) -> None:
+        """coverage --help should document exit codes."""
+        result = runner.invoke(app, ["audit", "coverage", "--help"])
+        assert result.exit_code == 0
+        assert "Exit codes" in result.stdout
+
+    def test_coverage_no_artifacts_dir(self, tmp_path: Path) -> None:
+        """coverage should handle missing artifacts directory."""
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--no-run"]
+        )
+        assert result.exit_code == 0
+        assert "No artifacts" in result.stdout
+
+    def test_coverage_no_locked_test_plans(self, tmp_path: Path) -> None:
+        """coverage should handle no locked TestPlans."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        # Create a draft TestPlan (not locked)
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "draft",
+            "payload": {},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--no-run"]
+        )
+        assert result.exit_code == 0
+        assert "No locked TestPlans" in result.stdout
+
+    def test_coverage_json_output(self, tmp_path: Path) -> None:
+        """coverage --json should output valid JSON."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        # Create locked TestPlan with baseline
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "payload": {"baseline_coverage": 90.0},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        # Create coverage report
+        coverage_data = {"totals": {"percent_covered": 85.0}}
+        (tmp_path / "coverage.json").write_text(json.dumps(coverage_data))
+
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--json", "--no-run"]
+        )
+
+        assert result.exit_code == 0 or result.exit_code == 1
+        data = json.loads(result.stdout)
+        assert "test_plans" in data
+        assert "summary" in data
+
+    def test_coverage_exit_code_0_within_threshold(self, tmp_path: Path) -> None:
+        """coverage should exit 0 when drift within threshold."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "payload": {"baseline_coverage": 90.0},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        # Coverage only dropped 5% (below 10% threshold)
+        coverage_data = {"totals": {"percent_covered": 85.0}}
+        (tmp_path / "coverage.json").write_text(json.dumps(coverage_data))
+
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--no-run"]
+        )
+
+        assert result.exit_code == 0
+
+    def test_coverage_exit_code_1_exceeds_threshold(self, tmp_path: Path) -> None:
+        """coverage should exit 1 when drift exceeds threshold."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "payload": {"baseline_coverage": 95.0},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        # Coverage dropped 12% (exceeds 10% threshold)
+        coverage_data = {"totals": {"percent_covered": 83.0}}
+        (tmp_path / "coverage.json").write_text(json.dumps(coverage_data))
+
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--no-run"]
+        )
+
+        assert result.exit_code == 1
+
+    def test_coverage_exit_code_2_critical_drift(self, tmp_path: Path) -> None:
+        """coverage should exit 2 when drift is critical (> 2x threshold)."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "payload": {"baseline_coverage": 95.0},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        # Coverage dropped 25% (critical - > 20% which is 2x the 10% threshold)
+        coverage_data = {"totals": {"percent_covered": 70.0}}
+        (tmp_path / "coverage.json").write_text(json.dumps(coverage_data))
+
+        result = runner.invoke(
+            app, ["audit", "coverage", "--path", str(tmp_path), "--no-run"]
+        )
+
+        assert result.exit_code == 2
+
+    def test_coverage_threshold_option(self, tmp_path: Path) -> None:
+        """coverage --threshold should override default threshold."""
+        artifacts_dir = tmp_path / "artifacts" / "test_plans"
+        artifacts_dir.mkdir(parents=True)
+
+        test_plan = {
+            "id": "test-001",
+            "artifact_type": "TestPlan",
+            "status": "locked",
+            "payload": {"baseline_coverage": 90.0},
+        }
+        (artifacts_dir / "test.json").write_text(json.dumps(test_plan))
+
+        # 8% drop - below 10% default but above 5% custom threshold
+        coverage_data = {"totals": {"percent_covered": 82.0}}
+        (tmp_path / "coverage.json").write_text(json.dumps(coverage_data))
+
+        # With threshold=5%, 8% drop should exceed
+        result = runner.invoke(
+            app,
+            ["audit", "coverage", "--path", str(tmp_path), "--threshold", "5", "--no-run"],
+        )
+
+        assert result.exit_code == 1
+
+
 class TestAuditFindProjectRoot:
     """Tests for project root detection in audit commands."""
 
