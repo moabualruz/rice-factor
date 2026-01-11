@@ -32,7 +32,9 @@
       "Bash(wc:*)",
       "Bash(find:*)",
       "Bash(python -m pytest:*)",
-      "Bash(uv add:*)"
+      "Bash(uv add:*)",
+      "Bash(xargs:*)",
+      "Bash(python3:*)"
     ]
   }
 }

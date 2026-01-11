@@ -158,7 +158,21 @@ rice-factor refactor dry-run        # Preview refactor
 | 12 | Language Refactoring | Complete | P2 | OpenRewrite, gopls, rust-analyzer, jscodeshift adapters |
 | 13 | Multi-Agent | Complete | P2 | Run modes B-E, agent roles, orchestration |
 
-> See `docs/gap-analysis-v2.md` for detailed gap analysis and feature breakdown.
+### Future Milestones (14-22)
+
+| # | Milestone | Status | Priority | Description |
+|---|-----------|--------|----------|-------------|
+| 14 | Full Capability Registry | Planned | P0 | Python/Ruby/PHP adapters, full extract_interface & enforce_dependency |
+| 15 | Local LLM Orchestration | Planned | P0 | Ollama, vLLM, LocalAI adapters, provider fallback, model registry |
+| 16 | Production Hardening | Planned | P0 | Rate limiting, cost tracking, remote storage, webhooks, metrics |
+| 17 | Advanced Resilience | Planned | P1 | State reconstruction, override tracking, orphan detection, migration |
+| 18 | Performance & Parallelism | Planned | P1 | Parallel execution, artifact caching, incremental validation |
+| 19 | Advanced Refactoring | Planned | P2 | extract_interface, enforce_dependency, cross-file refactoring |
+| 20 | Multi-Language Support | Planned | P2 | Polyglot repos, cross-language deps, unified test aggregation |
+| 21 | Developer Experience | Planned | P2 | VS Code extension, TUI mode, project templates, visualization |
+| 22 | Web Interface | Planned | P3 | Web dashboard, diff review UI, team approvals, history browser |
+
+> See `docs/gap-analysis-v3.md` for detailed gap analysis and feature breakdown.
 
 ---
 
@@ -221,3 +235,4 @@ Rice-Factor follows **12-Factor App** methodology for configuration:
 |----------|---------|
 | `docs/gap-analysis-v1-mvp.md` | MVP completion report (Milestones 01-07) |
 | `docs/gap-analysis-v2.md` | Post-MVP gap analysis (Milestones 08-13) |
+| `docs/gap-analysis-v3.md` | Future milestones assessment (Milestones 14-22) - includes capability registry & local LLM research |

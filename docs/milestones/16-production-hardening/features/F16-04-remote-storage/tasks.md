@@ -1,0 +1,21 @@
+# F16-04: Remote Storage Adapters - Tasks
+
+---
+
+## Tasks
+
+### T16-04-01: Create S3 Storage Adapter
+- Files: `rice_factor/adapters/storage/s3_adapter.py`
+
+### T16-04-02: Create GCS Storage Adapter
+- Files: `rice_factor/adapters/storage/gcs_adapter.py`
+
+### T16-04-03: Add Storage Backend Configuration
+- Files: `rice_factor/config/storage.yaml`
+
+### T16-04-04: Unit Tests for Remote Storage
+- Files: `tests/unit/adapters/storage/test_s3_adapter.py`, `tests/unit/adapters/storage/test_gcs_adapter.py`
+
+---
+
+## Estimated Test Count: ~8
