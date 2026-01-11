@@ -297,6 +297,27 @@ class ApprovalVerifier:
 
 ### 5.3 Stage 3: Invariant Enforcement
 
+**Core Algorithm** (from spec 3.7.2 - Artifact-to-Code Mapping):
+
+```
+# Pseudocode for unplanned code change detection
+changed_files = git_diff_files()
+allowed_files = union(
+    ImplementationPlan.targets,
+    RefactorPlan.affected_files,
+    ScaffoldPlan.created_files
+)
+
+for file in changed_files:
+    if is_source_file(file) and file not in allowed_files:
+        fail("unplanned_code_change", file)
+```
+
+This single rule eliminates:
+- Rogue edits by humans
+- Accidental refactors
+- LLM hallucinations writing to wrong files
+
 ```python
 class InvariantEnforcer:
     """Stage 3: Enforce system invariants."""

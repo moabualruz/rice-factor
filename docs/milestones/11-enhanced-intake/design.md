@@ -329,9 +329,66 @@ class GlossaryValidator:
 
 ---
 
-## 6. Integration with Artifact Builder
+## 6. Validation Timing
 
-### 6.1 Pre-Build Validation
+### 6.1 When Validation Occurs
+
+From spec 2.4.1, validation runs at two distinct phases:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Validation Timing                             │
+│                                                                  │
+│  PLANNING PHASE (Pre-LLM)              EXECUTION PHASE           │
+│  ┌─────────────────────────┐           ┌──────────────────────┐  │
+│  │ 1. File existence       │           │ 1. Glossary terms    │  │
+│  │ 2. Empty file check     │           │    in LLM output     │  │
+│  │ 3. Vague pattern scan   │           │ 2. Term consistency  │  │
+│  │ 4. Template marker check│           │    across artifacts  │  │
+│  └──────────┬──────────────┘           └──────────┬───────────┘  │
+│             │                                      │              │
+│             │ BLOCKS                               │ WARNS        │
+│             │ LLM invocation                       │ or BLOCKS    │
+│             ↓                                      ↓              │
+│       ┌─────────────────────────────────────────────────────────┐│
+│       │              ArtifactBuilder.build()                     ││
+│       └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Planning Phase Validation** (BLOCKS LLM call):
+- Runs BEFORE any LLM invocation
+- Validates intake files are complete and non-vague
+- If validation fails, LLM is never called (saves cost + time)
+- Errors are actionable: "Add definition to glossary.md"
+
+**Execution Phase Validation** (BLOCKS artifact creation):
+- Runs AFTER LLM generates artifact
+- Validates terms used in artifact exist in glossary
+- Ensures LLM didn't hallucinate undefined domain terms
+- Can be configured to warn or block
+
+### 6.2 Configuration
+
+```yaml
+# .project/config.yaml
+intake:
+  validation:
+    # Planning phase
+    require_all_files: true
+    reject_vague_patterns: true
+    reject_template_markers: true
+
+    # Execution phase
+    glossary_validation: strict  # strict | warn | off
+    undefined_term_action: block  # block | warn
+```
+
+---
+
+## 7. Integration with Artifact Builder
+
+### 7.1 Pre-Build Validation
 
 ```python
 class ArtifactBuilder:
@@ -351,17 +408,17 @@ class ArtifactBuilder:
     def build(self, pass_type: CompilerPassType, context: dict) -> ArtifactEnvelope:
         """Build artifact with intake validation."""
 
-        # Step 1: Validate intake files BEFORE invoking LLM
+        # Step 1: Validate intake files BEFORE invoking LLM (Planning Phase)
         project_dir = context.get("project_dir")
         if project_dir:
             intake_result = self.intake_validator.validate(project_dir)
             if not intake_result.valid:
                 raise IntakeValidationError(intake_result)
 
-        # Step 2: Invoke LLM
+        # Step 2: Invoke LLM (only if planning validation passed)
         result = self.llm.generate(pass_type, context, schema)
 
-        # Step 3: Validate glossary terms in output
+        # Step 3: Validate glossary terms in output (Execution Phase)
         if result.success:
             term_errors = self.glossary_validator.validate_artifact(result.payload)
             if term_errors:
@@ -370,7 +427,7 @@ class ArtifactBuilder:
         return self._create_envelope(result)
 ```
 
-### 6.2 Error Types
+### 7.2 Error Types
 
 ```python
 class IntakeValidationError(RiceFactorError):
@@ -392,9 +449,9 @@ class GlossaryValidationError(RiceFactorError):
 
 ---
 
-## 7. CLI Integration
+## 8. CLI Integration
 
-### 7.1 Enhanced Init Command
+### 8.1 Enhanced Init Command
 
 ```python
 @init_app.command()
@@ -414,7 +471,7 @@ def init(
     console.print("\n[yellow]Please complete all intake files before planning.[/]")
 ```
 
-### 7.2 Enhanced Plan Commands
+### 8.2 Enhanced Plan Commands
 
 ```python
 @plan_app.command("project")
@@ -436,23 +493,23 @@ def plan_project():
 
 ---
 
-## 8. Testing Strategy
+## 9. Testing Strategy
 
-### 8.1 Unit Tests
+### 9.1 Unit Tests
 
 - Test IntakeValidator with various file states
 - Test vague pattern detection
 - Test GlossaryParser with different formats
 - Test term extraction from artifacts
 
-### 8.2 Integration Tests
+### 9.2 Integration Tests
 
 - Test `rice-factor init` creates 6 files
 - Test `rice-factor plan project` fails with empty files
 - Test `rice-factor plan project` fails with vague content
 - Test planning succeeds with complete intake
 
-### 8.3 Test Fixtures
+### 9.3 Test Fixtures
 
 ```python
 @pytest.fixture

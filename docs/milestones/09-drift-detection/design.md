@@ -455,6 +455,98 @@ class ReconciliationService:
 
 ---
 
+## 4.2 Work Freeze Semantics
+
+When `requires_reconciliation` is true, the following commands are **blocked**:
+
+| Command | Blocked | Reason |
+|---------|---------|--------|
+| `rice-factor plan project` | Yes | Cannot start new project planning |
+| `rice-factor plan impl` | Yes | Cannot create new implementation plans |
+| `rice-factor plan tests` | Yes | Cannot create new test plans |
+| `rice-factor plan refactor` | Yes | Cannot plan new refactors |
+| `rice-factor scaffold` | Yes | Cannot create new files |
+| `rice-factor impl` | Yes | Cannot generate implementation diffs |
+| `rice-factor refactor` | Yes | Cannot execute refactors |
+| `rice-factor apply` | No | Can apply approved diffs |
+| `rice-factor approve` | No | Can approve artifacts (including ReconciliationPlan) |
+| `rice-factor test` | No | Can run tests |
+| `rice-factor validate` | No | Can validate artifacts |
+| `rice-factor audit drift` | No | Can check drift status |
+| `rice-factor reconcile` | No | Can generate reconciliation plan |
+
+**Implementation**:
+```python
+BLOCKED_DURING_RECONCILIATION = [
+    "plan", "scaffold", "impl", "refactor"
+]
+
+def check_reconciliation_freeze() -> bool:
+    """Check if work is frozen due to pending reconciliation."""
+    pending = storage.list_by_type("ReconciliationPlan")
+    for plan in pending:
+        if plan.status == ArtifactStatus.APPROVED:
+            continue  # Already approved, not blocking
+        if plan.payload.get("freeze_new_work", True):
+            return True
+    return False
+```
+
+---
+
+## 4.3 Refactor Hotspot Detection Algorithm
+
+**Algorithm** (from spec 5.5.1):
+
+```python
+def detect_refactor_hotspots(
+    audit_log: Path,
+    threshold: int = 3,
+    window_days: int = 30,
+) -> list[DriftSignal]:
+    """
+    Detect files that have been refactored too frequently.
+
+    A "refactor hotspot" indicates potential architectural issues:
+    - File is changed repeatedly
+    - Suggests unclear responsibilities
+    - May need redesign rather than more refactoring
+    """
+    cutoff = datetime.now() - timedelta(days=window_days)
+    refactor_counts: dict[str, int] = {}
+
+    # Parse audit log for refactor operations
+    for entry in parse_audit_log(audit_log):
+        if entry.operation != "refactor":
+            continue
+        if entry.timestamp < cutoff:
+            continue
+
+        for affected_file in entry.affected_files:
+            refactor_counts[affected_file] = refactor_counts.get(affected_file, 0) + 1
+
+    # Generate signals for hotspots
+    signals = []
+    for path, count in refactor_counts.items():
+        if count >= threshold:
+            signals.append(DriftSignal(
+                signal_type=DriftSignalType.REFACTOR_HOTSPOT,
+                severity=DriftSeverity.MEDIUM,
+                path=path,
+                description=f"Refactored {count} times in {window_days} days",
+                detected_at=datetime.now(),
+                suggested_action="Review for architectural issues",
+            ))
+
+    return signals
+```
+
+**Configurable Parameters**:
+- `threshold`: Number of refactors to trigger signal (default: 3)
+- `window_days`: Lookback period in days (default: 30)
+
+---
+
 ## 5. CLI Commands
 
 ### 5.1 Audit Drift Command

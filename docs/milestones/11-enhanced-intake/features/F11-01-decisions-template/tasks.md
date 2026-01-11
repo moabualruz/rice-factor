@@ -2,7 +2,7 @@
 
 > **Document Type**: Feature Task Breakdown
 > **Version**: 1.0.0
-> **Status**: Pending
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,10 +11,10 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T11-01-01 | Create decisions.md template function | Pending | P0 |
-| T11-01-02 | Add decisions.md to TEMPLATE_FILES | Pending | P0 |
-| T11-01-03 | Update InitService for 6 files | Pending | P0 |
-| T11-01-04 | Update tests | Pending | P0 |
+| T11-01-01 | Create decisions.md template function | **Complete** | P0 |
+| T11-01-02 | Add decisions.md to TEMPLATE_FILES | **Complete** | P0 |
+| T11-01-03 | Update InitService for 6 files | **Complete** | P0 |
+| T11-01-04 | Update tests | **Complete** | P0 |
 
 ---
 
@@ -25,14 +25,14 @@
 **Objective**: Create template generator for decisions.md.
 
 **Files to Modify**:
-- [ ] `rice_factor/domain/services/init_service.py`
+- [x] `rice_factor/domain/services/init_service.py`
 
 **Implementation**:
-- [ ] Add `_decisions_template(responses)` function
-- [ ] Include Architecture Choices section
-- [ ] Include Rejected Approaches section
-- [ ] Include Tradeoffs Accepted section
-- [ ] Include Future Considerations section
+- [x] Add `_decisions_template(responses)` function
+- [x] Include Architecture Choices section
+- [x] Include Rejected Approaches section
+- [x] Include Tradeoffs Accepted section
+- [x] Include Future Considerations section
 
 **Template Content**:
 ```markdown
@@ -62,8 +62,8 @@
 ```
 
 **Acceptance Criteria**:
-- [ ] Template follows existing patterns
-- [ ] Matches spec section 2.2
+- [x] Template follows existing patterns
+- [x] Matches spec section 2.2
 
 ---
 
@@ -72,15 +72,15 @@
 **Objective**: Register decisions.md in template system.
 
 **Files to Modify**:
-- [ ] `rice_factor/domain/services/init_service.py`
+- [x] `rice_factor/domain/services/init_service.py`
 
 **Implementation**:
-- [ ] Add "decisions.md" to `TEMPLATE_FILES` list
-- [ ] Add entry to `TEMPLATE_GENERATORS` dict
+- [x] Add "decisions.md" to `TEMPLATE_FILES` list
+- [x] Add entry to `TEMPLATE_GENERATORS` dict
 
 **Acceptance Criteria**:
-- [ ] TEMPLATE_FILES has 6 entries
-- [ ] Generator is registered
+- [x] TEMPLATE_FILES has 6 entries
+- [x] Generator is registered
 
 ---
 
@@ -89,16 +89,16 @@
 **Objective**: Ensure initialize() creates all 6 files.
 
 **Files to Modify**:
-- [ ] `rice_factor/domain/services/init_service.py`
+- [x] `rice_factor/domain/services/init_service.py`
 
 **Implementation**:
-- [ ] Verify TEMPLATE_FILES order
-- [ ] Update docstrings to mention 6 files
-- [ ] Ensure consistent creation
+- [x] Verify TEMPLATE_FILES order
+- [x] Update docstrings to mention 6 files
+- [x] Ensure consistent creation
 
 **Acceptance Criteria**:
-- [ ] `initialize()` creates 6 files
-- [ ] Files are created in consistent order
+- [x] `initialize()` creates 6 files
+- [x] Files are created in consistent order
 
 ---
 
@@ -107,16 +107,16 @@
 **Objective**: Update tests for 6-file initialization.
 
 **Files to Modify**:
-- [ ] `tests/unit/domain/services/test_init_service.py`
+- [x] `tests/unit/domain/services/test_init_service.py`
 
 **Test Cases**:
-- [ ] Test 6 files created
-- [ ] Test decisions.md content
-- [ ] Test template markers present
+- [x] Test 6 files created
+- [x] Test decisions.md content
+- [x] Test template markers present
 
 **Acceptance Criteria**:
-- [ ] All existing tests still pass
-- [ ] New tests for decisions.md
+- [x] All existing tests still pass
+- [x] New tests for decisions.md
 
 ---
 

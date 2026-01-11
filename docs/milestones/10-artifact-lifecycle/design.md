@@ -450,6 +450,51 @@ class CoverageMonitorPort(ABC):
         ...
 ```
 
+### 5.1.1 Coverage Drift Measurement Algorithm
+
+From spec 5.5.3, coverage drift is calculated as:
+
+```python
+# Pseudocode for coverage drift measurement
+def measure_coverage_drift(test_plan: ArtifactEnvelope) -> CoverageDriftResult:
+    """
+    Coverage drift = baseline_coverage - current_coverage
+
+    A positive drift means coverage DECREASED (bad).
+    A negative drift means coverage INCREASED (good, but may indicate scope creep).
+    """
+    # Step 1: Get baseline from TestPlan metadata
+    baseline = test_plan.payload.get("baseline_coverage", 0.0)
+
+    # Step 2: Run current coverage measurement
+    current = run_coverage_tool()  # pytest --cov, go test -cover, etc.
+
+    # Step 3: Calculate drift
+    drift = baseline - current
+
+    # Step 4: Categorize severity
+    if drift > 20:
+        severity = "critical"      # Major coverage loss
+    elif drift > 10:
+        severity = "warning"       # Noticeable decline
+    elif drift > 5:
+        severity = "info"          # Minor variance
+    else:
+        severity = "ok"            # Within acceptable bounds
+
+    return CoverageDriftResult(
+        baseline=baseline,
+        current=current,
+        drift=drift,
+        severity=severity,
+        requires_review=drift > test_plan.policy.coverage_drift_threshold,
+    )
+```
+
+**Default Thresholds** (from design):
+- **coverage_drift_threshold**: 10% (triggers AUDIT FLAG)
+- **critical_drift_threshold**: 20% (triggers MANDATORY REVIEW)
+
 ### 5.2 Adapter Implementation
 
 ```python
@@ -546,6 +591,44 @@ def artifact_age(
         raise typer.Exit(2)
     elif report.requiring_action:
         raise typer.Exit(1)
+
+
+@app.command("extend")
+def artifact_extend(
+    artifact_id: str = typer.Argument(..., help="Artifact ID to extend"),
+    reason: str = typer.Option(..., "--reason", "-r", help="Reason for extension (required)"),
+    months: int = typer.Option(None, "--months", "-m", help="Extension period in months"),
+) -> None:
+    """Extend artifact validity period."""
+    lifecycle_service = container.get(LifecycleService)
+    artifact_store = container.get(StoragePort)
+
+    artifact = artifact_store.load(artifact_id)
+
+    # Cannot extend LOCKED artifacts
+    if artifact.status == ArtifactStatus.LOCKED:
+        console.print(f"[red]Cannot extend LOCKED artifact '{artifact_id}'[/red]")
+        raise typer.Exit(1)
+
+    # Cannot extend if mandatory violations exist
+    policy = lifecycle_service.policies.get(artifact.artifact_type)
+    if policy and policy.mandatory_on_violation:
+        violations = lifecycle_service._get_violations(artifact)
+        if violations:
+            console.print(f"[red]Cannot extend artifact with {len(violations)} unresolved violations[/red]")
+            console.print("Resolve violations first, then extend.")
+            raise typer.Exit(1)
+
+    # Calculate extension period
+    if months is None:
+        months = policy.review_after_months if policy else 3
+
+    # Record extension
+    lifecycle_service.extend_artifact(artifact_id, months, reason)
+
+    console.print(f"[green]Artifact '{artifact_id}' extended for {months} months.[/green]")
+    console.print(f"New review date: {artifact.last_reviewed_at + timedelta(days=months*30)}")
+    console.print(f"Reason recorded in audit log.")
 
 
 def _print_result(result: PolicyResult) -> None:

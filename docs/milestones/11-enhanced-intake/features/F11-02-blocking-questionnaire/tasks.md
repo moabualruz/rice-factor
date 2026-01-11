@@ -2,7 +2,7 @@
 
 > **Document Type**: Feature Task Breakdown
 > **Version**: 1.0.0
-> **Status**: Pending
+> **Status**: Complete
 > **Parent**: [requirements.md](../../requirements.md)
 
 ---
@@ -11,12 +11,12 @@
 
 | Task ID | Task Name | Status | Priority |
 |---------|-----------|--------|----------|
-| T11-02-01 | Create IntakeValidator service | Pending | P0 |
-| T11-02-02 | Implement file existence check | Pending | P0 |
-| T11-02-03 | Implement empty file detection | Pending | P0 |
-| T11-02-04 | Integrate with plan commands | Pending | P0 |
-| T11-02-05 | Add CLI error formatting | Pending | P1 |
-| T11-02-06 | Write unit tests | Pending | P0 |
+| T11-02-01 | Create IntakeValidator service | **Complete** | P0 |
+| T11-02-02 | Implement file existence check | **Complete** | P0 |
+| T11-02-03 | Implement empty file detection | **Complete** | P0 |
+| T11-02-04 | Integrate with plan commands | **Complete** | P0 |
+| T11-02-05 | Add CLI error formatting | **Complete** | P1 |
+| T11-02-06 | Write unit tests | **Complete** | P0 |
 
 ---
 
@@ -27,18 +27,18 @@
 **Objective**: Create the intake validation service.
 
 **Files to Create**:
-- [ ] `rice_factor/domain/services/intake_validator.py`
+- [x] `rice_factor/domain/services/intake_validator.py`
 
 **Implementation**:
-- [ ] Create `IntakeValidator` class
-- [ ] Define `REQUIRED_FILES` list (6 files)
-- [ ] Define `BLOCKING_FILES` list (requirements, constraints, glossary)
-- [ ] Create `validate(project_dir)` method
-- [ ] Return `IntakeValidationResult`
+- [x] Create `IntakeValidator` class
+- [x] Define `REQUIRED_FILES` list (6 files)
+- [x] Define `BLOCKING_FILES` list (requirements, constraints, glossary)
+- [x] Create `validate(project_dir)` method
+- [x] Return `IntakeValidationResult`
 
 **Acceptance Criteria**:
-- [ ] Service follows domain patterns
-- [ ] No external dependencies
+- [x] Service follows domain patterns
+- [x] No external dependencies
 
 ---
 
@@ -47,14 +47,14 @@
 **Objective**: Verify all required files exist.
 
 **Implementation**:
-- [ ] Iterate through REQUIRED_FILES
-- [ ] Check each file exists in .project/
-- [ ] Create FILE_MISSING error for missing files
-- [ ] Include file path in error
+- [x] Iterate through REQUIRED_FILES
+- [x] Check each file exists in .project/
+- [x] Create FILE_MISSING error for missing files
+- [x] Include file path in error
 
 **Acceptance Criteria**:
-- [ ] All 6 files checked
-- [ ] Clear error messages
+- [x] All 6 files checked
+- [x] Clear error messages
 
 ---
 
@@ -63,14 +63,14 @@
 **Objective**: Reject empty blocking files.
 
 **Implementation**:
-- [ ] For each file in BLOCKING_FILES
-- [ ] Read file content
-- [ ] Check if content is empty or whitespace only
-- [ ] Create FILE_EMPTY error
+- [x] For each file in BLOCKING_FILES
+- [x] Read file content
+- [x] Check if content is empty or whitespace only
+- [x] Create FILE_EMPTY error
 
 **Acceptance Criteria**:
-- [ ] Empty files detected
-- [ ] Only blocking files cause failure
+- [x] Empty files detected
+- [x] Only blocking files cause failure
 
 ---
 
@@ -79,18 +79,18 @@
 **Objective**: Block planning on invalid intake.
 
 **Files to Modify**:
-- [ ] `rice_factor/entrypoints/cli/commands/plan.py`
+- [x] `rice_factor/entrypoints/cli/commands/plan.py`
 
 **Implementation**:
-- [ ] Add intake validation before LLM invocation
-- [ ] Display validation errors
-- [ ] Exit with code 1 on failure
-- [ ] Apply to all plan subcommands
+- [x] Add intake validation before LLM invocation
+- [x] Display validation errors
+- [x] Exit with code 1 on failure
+- [x] Apply to all plan subcommands
 
 **Acceptance Criteria**:
-- [ ] `rice-factor plan project` validates intake
-- [ ] `rice-factor plan tests` validates intake
-- [ ] Clear error output
+- [x] `rice-factor plan project` validates intake
+- [x] `rice-factor plan tests` validates intake
+- [x] Clear error output
 
 ---
 
@@ -99,14 +99,14 @@
 **Objective**: Format intake errors for CLI display.
 
 **Implementation**:
-- [ ] Create `format_errors()` method on result
-- [ ] Use rich formatting for colors
-- [ ] Group errors by type
-- [ ] Show remediation hints
+- [x] Create `format_errors()` method on result
+- [x] Use rich formatting for colors
+- [x] Group errors by type
+- [x] Show remediation hints
 
 **Acceptance Criteria**:
-- [ ] Errors are readable
-- [ ] Actionable guidance provided
+- [x] Errors are readable
+- [x] Actionable guidance provided
 
 ---
 
@@ -115,18 +115,18 @@
 **Objective**: Test intake validation logic.
 
 **Files to Create**:
-- [ ] `tests/unit/domain/services/test_intake_validator.py`
+- [x] `tests/unit/domain/services/test_intake_validator.py`
 
 **Test Cases**:
-- [ ] Test all files present passes
-- [ ] Test missing file fails
-- [ ] Test empty blocking file fails
-- [ ] Test empty non-blocking file passes
-- [ ] Test multiple errors collected
+- [x] Test all files present passes
+- [x] Test missing file fails
+- [x] Test empty blocking file fails
+- [x] Test empty non-blocking file passes
+- [x] Test multiple errors collected
 
 **Acceptance Criteria**:
-- [ ] All scenarios covered
-- [ ] Uses temp directory fixtures
+- [x] All scenarios covered
+- [x] Uses temp directory fixtures
 
 ---
 

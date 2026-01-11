@@ -58,6 +58,18 @@ Implement CI/CD integration that enforces Rice-Factor's invariants in automated 
 | M08-U-003 | CI shall only verify, enforce, reject, and record | P0 |
 | M08-U-004 | CI shall treat all agent output as untrusted until approved | P0 |
 
+### 3.1.1 Agent Workflow Rule
+
+**Critical Rule** (from spec 3.12):
+> Agents run **only locally**, generate artifacts, never push directly, never interact with CI. CI treats agent output as **untrusted until approved**.
+
+This means:
+- Agents (Claude, GPT, etc.) operate on the developer's local machine
+- Agents produce artifacts which are committed to version control
+- CI validates the artifacts after they are pushed
+- CI never invokes agents or LLMs
+- Human approval is the trust boundary between agent output and CI acceptance
+
 ### 3.2 Pipeline Stage Requirements
 
 | ID | Requirement | Priority |

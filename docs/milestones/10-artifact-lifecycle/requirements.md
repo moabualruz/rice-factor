@@ -65,6 +65,31 @@ From the spec:
 | M10-U-004 | User can see TestPlan coverage drift | P1 | 5.5.3 |
 | M10-U-005 | User can extend artifact validity | P1 | - |
 
+### 3.1.1 Artifact Extension Mechanism
+
+Users can extend artifact validity when artifacts are still relevant but triggered for review:
+
+```bash
+# Extend a specific artifact
+$ rice-factor artifact extend <artifact-id> --reason "Still accurate, roadmap unchanged"
+
+# Extend with a new expiration date
+$ rice-factor artifact extend <artifact-id> --months 3 --reason "..."
+
+# Extend must provide a reason (auditable)
+$ rice-factor artifact extend project-plan-001 --reason "Q1 priorities unchanged"
+Artifact 'project-plan-001' extended for 3 months.
+New review date: 2026-04-11
+Reason recorded in audit log.
+```
+
+**Extension Rules**:
+- Extension requires a mandatory `--reason` parameter (auditable)
+- Default extension period matches the original policy (e.g., 3 months for ProjectPlan)
+- Extensions are recorded in the audit trail
+- Cannot extend a LOCKED artifact (must remain immutable)
+- Cannot extend if mandatory violations exist (must be resolved first)
+
 ### 3.2 System Requirements
 
 | ID | Requirement | Priority | Source |
