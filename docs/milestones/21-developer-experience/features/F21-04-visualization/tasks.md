@@ -3,7 +3,7 @@
 ## Tasks
 ### T21-04-01: Create GraphGenerator Service - DONE
 ### T21-04-02: Implement Mermaid Export - DONE
-### T21-04-03: Add `rice-factor viz` Command - DONE (via adapters, CLI deferred)
+### T21-04-03: Add `rice-factor viz` Command - DONE
 ### T21-04-04: Tests - DONE
 
 ## Actual Test Count: 45

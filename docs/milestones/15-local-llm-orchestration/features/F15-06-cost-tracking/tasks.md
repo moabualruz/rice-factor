@@ -28,8 +28,10 @@
 - export_json() for JSON-serializable metrics
 
 ### T15-06-06: Add CLI Command `rice-factor usage`
-- [ ] Files: `rice_factor/entrypoints/cli/commands/usage.py`
-- Deferred to CLI phase
+- [x] Files: `rice_factor/entrypoints/cli/commands/usage.py`
+- `usage show`: Display usage statistics by provider/model
+- `usage export`: Export as JSON or Prometheus format
+- `usage clear`: Reset usage tracking
 
 ### T15-06-07: Unit Tests for Usage Tracker
 - [x] Files: `tests/unit/adapters/llm/test_usage_tracker.py`

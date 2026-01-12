@@ -15,14 +15,14 @@ Improve developer usability with IDE integration, TUI mode, templates, and visua
 ## 2. Requirements
 
 ### REQ-21-01: VS Code Extension
-- [ ] Artifact viewer in IDE (deferred - external project)
-- [ ] Diff preview (deferred - external project)
-- [ ] Inline approval actions (deferred - external project)
+- [x] Artifact viewer in IDE (`rice-factor-vscode/src/artifactViewer.ts`)
+- [x] Diff preview (`rice-factor-vscode/src/diffPreview.ts`)
+- [x] Inline approval actions (`rice-factor-vscode/src/approvalService.ts`)
 
 ### REQ-21-02: Interactive TUI Mode
-- [ ] Rich terminal UI (deferred - requires Rich/Textual dependency)
-- [ ] Workflow navigation (deferred)
-- [ ] Artifact browser (deferred)
+- [x] Rich terminal UI (`rice-factor tui` command)
+- [x] Workflow navigation (WorkflowScreen)
+- [x] Artifact browser (ArtifactBrowserScreen)
 
 ### REQ-21-03: Project Templates
 - [x] Quick start presets
@@ -39,13 +39,13 @@ Improve developer usability with IDE integration, TUI mode, templates, and visua
 ---
 
 ## 3. Estimated Test Count: ~30
-## 4. Actual Test Count: 115
+## 4. Actual Test Count: 145
 
 | Feature | Tests |
 |---------|-------|
+| F21-01: VS Code Extension | 4 (TypeScript/Mocha) |
+| F21-02: Interactive TUI | 26 |
 | F21-03: Project Templates | 33 |
 | F21-04: Visualization | 45 |
 | F21-05: Doc Generation | 37 |
-| **Total** | **115** |
-
-Note: F21-01 (VS Code Extension) and F21-02 (Interactive TUI) are deferred as they require external projects or additional dependencies beyond the core Python package.
+| **Total** | **145** |

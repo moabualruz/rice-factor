@@ -1,0 +1,109 @@
+{
+  "name": "rice-factor-vscode",
+  "displayName": "Rice-Factor",
+  "description": "VS Code extension for Rice-Factor LLM-Assisted Development System",
+  "version": "0.1.0",
+  "publisher": "rice-factor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rice-factor/rice-factor"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:.project",
+    "workspaceContains:artifacts"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "rice-factor",
+          "title": "Rice-Factor",
+          "icon": "resources/rice-factor-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "rice-factor": [
+        {
+          "id": "riceFactorArtifacts",
+          "name": "Artifacts"
+        },
+        {
+          "id": "riceFactorWorkflow",
+          "name": "Workflow"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "riceFactor.refreshArtifacts",
+        "title": "Refresh Artifacts",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "riceFactor.approveArtifact",
+        "title": "Approve Artifact"
+      },
+      {
+        "command": "riceFactor.viewDiff",
+        "title": "View Diff"
+      },
+      {
+        "command": "riceFactor.applyDiff",
+        "title": "Apply Diff"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "riceFactor.refreshArtifacts",
+          "when": "view == riceFactorArtifacts",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "riceFactor.approveArtifact",
+          "when": "view == riceFactorArtifacts && viewItem == artifact-draft"
+        },
+        {
+          "command": "riceFactor.viewDiff",
+          "when": "view == riceFactorArtifacts && viewItem == artifact-implementation"
+        },
+        {
+          "command": "riceFactor.applyDiff",
+          "when": "view == riceFactorArtifacts && viewItem == artifact-approved"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.3"
+  }
+}

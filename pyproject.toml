@@ -33,6 +33,7 @@ dependencies = [
     "dynaconf>=3.2.0",
     "pyyaml>=6.0.0",
     "jsonschema>=4.20.0",
+    "textual>=7.2.0",
 ]
 
 [project.optional-dependencies]
@@ -48,6 +49,9 @@ all-llm = [
 ]
 refactoring = [
     "rope>=1.11.0",
+]
+tui = [
+    "textual>=0.40.0",
 ]
 dev = [
     "pytest>=8.0.0",
@@ -141,6 +145,10 @@ ignore = [
 # RUF012: Mutable class attrs are intentional for language configurations
 # SIM102: Nested ifs are kept for readability in matching logic
 "rice_factor/adapters/parsing/**/*.py" = ["ARG002", "RUF012", "SIM102"]
+# Textual TUI framework requires runtime imports for ComposeResult and uses BINDINGS class attrs
+# TC002: ComposeResult must be runtime import for Textual compose() method signatures
+# RUF012: BINDINGS is a Textual framework pattern that requires mutable class attribute
+"rice_factor/entrypoints/tui/**/*.py" = ["TC002", "RUF012"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["rice_factor"]

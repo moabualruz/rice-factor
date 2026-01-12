@@ -68,6 +68,7 @@ def main(
 
 # Import and register command modules
 from rice_factor.entrypoints.cli.commands import (
+    agents,
     apply,
     approve,
     artifact,
@@ -76,11 +77,13 @@ from rice_factor.entrypoints.cli.commands import (
     capabilities,
     ci,
     diagnose,
+    docs,
     impl,
     init,
     lock,
     metrics,
     migrate,
+    models,
     override,
     plan,
     reconcile,
@@ -89,7 +92,10 @@ from rice_factor.entrypoints.cli.commands import (
     review,
     scaffold,
     test,
+    tui,
+    usage,
     validate,
+    viz,
 )
 
 app.add_typer(init.app, name="init")
@@ -114,6 +120,14 @@ app.command(name="capabilities")(capabilities.capabilities)
 app.add_typer(migrate.app, name="migrate")
 app.add_typer(metrics.app, name="metrics")
 app.add_typer(batch.app, name="batch")
+
+# New commands from M15 and M21
+app.command(name="models")(models.models)
+app.add_typer(usage.app, name="usage")
+app.add_typer(agents.app, name="agents")
+app.command(name="viz")(viz.viz)
+app.command(name="docs")(docs.docs)
+app.command(name="tui")(tui.tui)
 
 
 if __name__ == "__main__":

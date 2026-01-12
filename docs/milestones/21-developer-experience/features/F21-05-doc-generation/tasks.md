@@ -3,7 +3,7 @@
 ## Tasks
 ### T21-05-01: Create DocGenerator Service - DONE
 ### T21-05-02: Implement Markdown Export - DONE
-### T21-05-03: Add `rice-factor docs` Command - DONE (via adapters, CLI deferred)
+### T21-05-03: Add `rice-factor docs` Command - DONE
 ### T21-05-04: Tests - DONE
 
 ## Actual Test Count: 37

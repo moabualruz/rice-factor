@@ -25,8 +25,9 @@
 - Automatically adds unknown models to registry
 
 ### T15-05-05: Add CLI Command `rice-factor models`
-- [ ] Files: `rice_factor/entrypoints/cli/commands/models.py`
-- Deferred to CLI phase (F15-07+)
+- [x] Files: `rice_factor/entrypoints/cli/commands/models.py`
+- Lists all registered LLM models with capabilities, context length, cost
+- Filters: --provider, --capability, --local, --cloud, --available, --json
 
 ### T15-05-06: Unit Tests for Model Registry
 - [x] Files: `tests/unit/domain/services/test_model_registry.py`
