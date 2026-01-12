@@ -1,53 +1,20 @@
 # F20-03: Unified Test Aggregation - Tasks
 
 ## Tasks
-### T20-03-01: Create UnifiedTestRunner Service
-- [ ] Define TestRunnerConfig model with language, command, args, env, timeout
-- [ ] Implement TestRunnerRegistry for per-language configurations
-- [ ] Create UnifiedTestRunner that dispatches to language-specific runners
+### T20-03-01: Create UnifiedTestRunner Service - DONE
+### T20-03-02: Implement Multi-Runner Orchestration - DONE
+### T20-03-03: Implement Result Aggregation - DONE
+### T20-03-04: Implement Per-Language Test Runner Configuration (GAP-SPEC-004) - DONE
+### T20-03-05: Unit Tests - DONE
 
-### T20-03-02: Implement Multi-Runner Orchestration
-- [ ] Run language-specific test runners in sequence or parallel
-- [ ] Handle runner failures gracefully (partial success support)
-- [ ] Implement timeout handling per runner
-
-### T20-03-03: Implement Result Aggregation
-- [ ] Aggregate test results from multiple runners
-- [ ] Normalize output formats (JUnit XML, JSON, TAP)
-- [ ] Generate unified summary report
-
-### T20-03-04: Implement Per-Language Test Runner Configuration (GAP-SPEC-004)
-- [ ] YAML configuration schema for test runner overrides
-- [ ] Language-specific test command customization
-- [ ] Support for custom test discovery patterns
-- [ ] Environment variable configuration per language
-
-### T20-03-05: Unit Tests
-- [ ] Test UnifiedTestRunner with mock runners
-- [ ] Test result aggregation logic
-- [ ] Test configuration loading and validation
-
-## Estimated Test Count: ~8
+## Actual Test Count: 37
 
 ## Implementation Notes
-
-### Test Runner Configuration Schema
-```yaml
-# .project/test-runners.yaml
-runners:
-  python:
-    command: pytest
-    args: ["-v", "--tb=short"]
-    timeout: 300
-  javascript:
-    command: npm
-    args: ["test"]
-    timeout: 120
-  java:
-    command: mvn
-    args: ["test"]
-    timeout: 600
-```
-
-### References
-- GAP-SPEC-004: Test Runner per-language configuration
+- Created `rice_factor/domain/services/unified_test_runner.py`
+- Models: TestStatus, OutputFormat, TestRunnerConfig, TestResult, AggregatedResult, TestRunnerRegistry
+- Default runners for 10 languages (Python, JS, TS, Java, Kotlin, Go, Rust, Ruby, PHP, C#)
+- Result aggregation with overall status calculation
+- Output parsing for pytest, Maven, Go test
+- Report generation: text, JSON, CSV formats
+- YAML configuration loading for custom runners
+- Dry-run mode for testing

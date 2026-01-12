@@ -1,0 +1,95 @@
+# Rice-Factor Rate Limits Configuration
+# Override these values via environment variables (RICE_RATE_LIMITS_*)
+# or project-specific config files
+
+# Global settings
+defaults:
+  strategy: "block"              # block | reject | degrade
+  enabled: true                  # Enable rate limiting globally
+
+# Per-provider rate limits
+providers:
+  # Claude (Anthropic)
+  claude:
+    requests_per_minute: 60      # API rate limit
+    tokens_per_minute: 100000    # Token throughput limit
+    tokens_per_day: 10000000     # Daily token budget
+    concurrent_requests: 5       # Max concurrent requests
+    enabled: true
+
+  # OpenAI
+  openai:
+    requests_per_minute: 60      # Tier 1 default
+    tokens_per_minute: 150000    # GPT-4 Turbo limit
+    tokens_per_day: 5000000      # Daily budget
+    concurrent_requests: 10
+    enabled: true
+
+  # Azure OpenAI
+  azure:
+    requests_per_minute: 120     # Higher enterprise limit
+    tokens_per_minute: 200000
+    tokens_per_day: 20000000
+    concurrent_requests: 20
+    enabled: true
+
+  # Ollama (local - no real limits needed)
+  ollama:
+    requests_per_minute: 1000    # High limit for local
+    tokens_per_minute: 1000000
+    tokens_per_day: 100000000
+    concurrent_requests: 4       # Based on GPU count
+    enabled: false               # Disabled by default for local
+
+  # vLLM (local - based on GPU capacity)
+  vllm:
+    requests_per_minute: 500
+    tokens_per_minute: 500000
+    tokens_per_day: 50000000
+    concurrent_requests: 8
+    enabled: false
+
+  # OpenAI-compatible servers (LocalAI, LM Studio, TGI)
+  openai_compat:
+    requests_per_minute: 300
+    tokens_per_minute: 200000
+    tokens_per_day: 20000000
+    concurrent_requests: 4
+    enabled: false
+
+# Tier-based presets (use with --rate-tier flag)
+tiers:
+  # Free tier - conservative limits
+  free:
+    requests_per_minute: 20
+    tokens_per_minute: 40000
+    tokens_per_day: 1000000
+    concurrent_requests: 2
+
+  # Standard tier - balanced limits
+  standard:
+    requests_per_minute: 60
+    tokens_per_minute: 100000
+    tokens_per_day: 5000000
+    concurrent_requests: 5
+
+  # Professional tier - higher limits
+  professional:
+    requests_per_minute: 200
+    tokens_per_minute: 300000
+    tokens_per_day: 20000000
+    concurrent_requests: 10
+
+  # Enterprise tier - maximum limits
+  enterprise:
+    requests_per_minute: 1000
+    tokens_per_minute: 1000000
+    tokens_per_day: 100000000
+    concurrent_requests: 50
+
+  # Local tier - no effective limits
+  local:
+    requests_per_minute: 10000
+    tokens_per_minute: 10000000
+    tokens_per_day: 1000000000
+    concurrent_requests: 100

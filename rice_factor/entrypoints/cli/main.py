@@ -72,12 +72,15 @@ from rice_factor.entrypoints.cli.commands import (
     approve,
     artifact,
     audit,
+    batch,
     capabilities,
     ci,
     diagnose,
     impl,
     init,
     lock,
+    metrics,
+    migrate,
     override,
     plan,
     reconcile,
@@ -108,6 +111,9 @@ app.add_typer(audit.app, name="audit")
 app.add_typer(artifact.app, name="artifact")
 app.command(name="reconcile")(reconcile.reconcile)
 app.command(name="capabilities")(capabilities.capabilities)
+app.add_typer(migrate.app, name="migrate")
+app.add_typer(metrics.app, name="metrics")
+app.add_typer(batch.app, name="batch")
 
 
 if __name__ == "__main__":

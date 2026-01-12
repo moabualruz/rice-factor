@@ -56,3 +56,76 @@ def get_config_paths() -> dict[str, Path | None]:
         "user": _user_config_file if _user_config_file.exists() else None,
         "project": _project_config_file if _project_config_file.exists() else None,
     }
+
+
+def get_rate_limits_config() -> dict:
+    """Load rate limits configuration.
+
+    Returns:
+        Dictionary with rate limit configuration, or empty dict if not configured.
+    """
+    rate_limits_file = Path(__file__).parent / "rate_limits.yaml"
+    if not rate_limits_file.exists():
+        return {}
+
+    try:
+        import yaml
+
+        with rate_limits_file.open() as f:
+            return yaml.safe_load(f) or {}
+    except ImportError:
+        return {}
+
+
+def get_provider_rate_limits(provider: str) -> dict:
+    """Get rate limits for a specific provider.
+
+    Args:
+        provider: Provider name (claude, openai, etc.).
+
+    Returns:
+        Dictionary with provider's rate limits, or defaults if not configured.
+    """
+    config = get_rate_limits_config()
+    providers = config.get("providers", {})
+
+    # Try to get provider-specific config
+    if provider in providers:
+        return providers[provider]
+
+    # Fall back to defaults
+    defaults = config.get("defaults", {})
+    return {
+        "requests_per_minute": 60,
+        "tokens_per_minute": 100000,
+        "tokens_per_day": 10000000,
+        "concurrent_requests": 10,
+        "enabled": defaults.get("enabled", True),
+    }
+
+
+def get_rate_limit_tier(tier: str) -> dict:
+    """Get rate limits for a tier preset.
+
+    Args:
+        tier: Tier name (free, standard, professional, enterprise, local).
+
+    Returns:
+        Dictionary with tier's rate limits, or standard tier if not found.
+    """
+    config = get_rate_limits_config()
+    tiers = config.get("tiers", {})
+
+    if tier in tiers:
+        return tiers[tier]
+
+    # Fall back to standard tier
+    return tiers.get(
+        "standard",
+        {
+            "requests_per_minute": 60,
+            "tokens_per_minute": 100000,
+            "tokens_per_day": 5000000,
+            "concurrent_requests": 5,
+        },
+    )

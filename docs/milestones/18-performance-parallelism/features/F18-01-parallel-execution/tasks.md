@@ -1,9 +1,9 @@
 # F18-01: Parallel Unit Execution - Tasks
 
 ## Tasks
-### T18-01-01: Create ParallelExecutor Service
-### T18-01-02: Implement Worker Pool
-### T18-01-03: Add Parallelism Configuration
-### T18-01-04: Unit Tests
+- [x] T18-01-01: Create ParallelExecutor Service
+- [x] T18-01-02: Implement Worker Pool
+- [x] T18-01-03: Add Parallelism Configuration
+- [x] T18-01-04: Unit Tests (34 tests)
 
-## Estimated Test Count: ~6
+## Estimated Test Count: ~6 (Actual: 34)

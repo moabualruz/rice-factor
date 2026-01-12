@@ -1,0 +1,51 @@
+# Rice-Factor Storage Configuration
+# Override these values via environment variables (RICE_STORAGE_*)
+# or project-specific config files
+
+# Default storage backend
+default_backend: "filesystem"
+
+# Filesystem storage (default)
+filesystem:
+  artifacts_dir: ".project/artifacts"
+  enabled: true
+
+# Amazon S3 storage
+s3:
+  bucket: ""                           # S3 bucket name (required if enabled)
+  prefix: "artifacts"                  # Key prefix for all artifacts
+  region: ""                           # AWS region (optional)
+  endpoint_url: ""                     # Custom endpoint for S3-compatible services
+  # Credentials (leave empty to use default AWS credential chain)
+  access_key_id: ""
+  secret_access_key: ""
+  enabled: false
+
+# Google Cloud Storage
+gcs:
+  bucket: ""                           # GCS bucket name (required if enabled)
+  prefix: "artifacts"                  # Path prefix for all artifacts
+  project: ""                          # GCP project ID (optional)
+  credentials_path: ""                 # Path to service account JSON (optional)
+  enabled: false
+
+# Storage selection priority
+# When multiple backends are enabled, use this order
+# First available backend will be used
+backend_priority:
+  - filesystem
+  - s3
+  - gcs
+
+# Fallback settings
+fallback:
+  enabled: true                        # Enable fallback to next backend on failure
+  write_through: false                 # Write to all enabled backends
+  read_first_available: true           # Read from first available backend
+
+# Caching settings
+cache:
+  enabled: false                       # Enable local cache for remote storage
+  ttl_seconds: 300                     # Cache TTL in seconds
+  max_size_mb: 100                     # Maximum cache size in MB
+  cache_dir: ".project/.cache"         # Local cache directory

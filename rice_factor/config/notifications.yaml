@@ -1,0 +1,155 @@
+# Rice-Factor Notification Webhook Configuration
+# This file configures webhook endpoints for notifications.
+
+# Global notification settings
+notifications:
+  # Whether notifications are enabled globally
+  enabled: true
+
+  # Default timeout for webhook requests (seconds)
+  default_timeout: 30
+
+  # Number of retry attempts for failed webhooks
+  retry_count: 3
+
+  # Delay between retries (seconds)
+  retry_delay: 1.0
+
+  # Whether to verify SSL certificates
+  verify_ssl: true
+
+# Webhook endpoint configurations
+webhooks:
+  # Slack webhook configuration
+  slack:
+    # Whether this webhook is enabled
+    enabled: false
+
+    # Slack incoming webhook URL (set via RICE_FACTOR_SLACK_WEBHOOK_URL env var)
+    webhook_url: "${RICE_FACTOR_SLACK_WEBHOOK_URL}"
+
+    # Override channel (optional, leave empty to use webhook default)
+    channel: ""
+
+    # Bot username to display
+    username: "Rice-Factor"
+
+    # Emoji icon for the bot
+    icon_emoji: ":rice:"
+
+    # Whether to include metadata in messages
+    include_metadata: true
+
+    # Events to notify on (empty list = all events)
+    events:
+      - artifact.created
+      - artifact.approved
+      - artifact.rejected
+      - artifact.locked
+      - build.started
+      - build.completed
+      - build.failed
+      - test.passed
+      - test.failed
+      - cost.threshold
+      - rate.limit
+      - error
+
+  # Microsoft Teams webhook configuration
+  teams:
+    # Whether this webhook is enabled
+    enabled: false
+
+    # Teams incoming webhook URL (set via RICE_FACTOR_TEAMS_WEBHOOK_URL env var)
+    webhook_url: "${RICE_FACTOR_TEAMS_WEBHOOK_URL}"
+
+    # Whether to include metadata in cards
+    include_metadata: true
+
+    # Use Adaptive Cards (true) or MessageCard (false, legacy)
+    use_adaptive_cards: true
+
+    # Events to notify on (empty list = all events)
+    events:
+      - artifact.approved
+      - artifact.rejected
+      - build.completed
+      - build.failed
+      - test.failed
+      - cost.threshold
+      - error
+
+  # Generic webhook configuration (for custom integrations)
+  generic:
+    # Whether this webhook is enabled
+    enabled: false
+
+    # Webhook URL (set via RICE_FACTOR_WEBHOOK_URL env var)
+    webhook_url: "${RICE_FACTOR_WEBHOOK_URL}"
+
+    # Custom headers to include (key: value)
+    headers:
+      Authorization: "Bearer ${RICE_FACTOR_WEBHOOK_TOKEN}"
+
+    # Request timeout (seconds)
+    timeout: 30
+
+    # Number of retries
+    retry_count: 3
+
+    # Events to notify on (empty list = all events)
+    events: []
+
+# Notification routing rules
+# Define which events go to which webhooks
+routing:
+  # Critical events go to all enabled webhooks
+  critical:
+    events:
+      - build.failed
+      - test.failed
+      - error
+      - cost.threshold
+    webhooks:
+      - slack
+      - teams
+      - generic
+
+  # Standard events go to primary webhook only
+  standard:
+    events:
+      - artifact.created
+      - artifact.approved
+      - artifact.locked
+      - build.started
+      - build.completed
+      - test.passed
+    webhooks:
+      - slack
+
+  # Verbose events (rate limit warnings, etc.)
+  verbose:
+    events:
+      - rate.limit
+      - artifact.rejected
+    webhooks:
+      - slack
+
+# Event severity mapping
+severity_mapping:
+  info:
+    - artifact.created
+    - build.started
+    - test.passed
+  warning:
+    - artifact.rejected
+    - rate.limit
+  error:
+    - build.failed
+    - test.failed
+    - error
+  success:
+    - artifact.approved
+    - artifact.locked
+    - build.completed
+    - cost.threshold  # Threshold notifications vary by level

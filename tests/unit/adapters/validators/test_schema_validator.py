@@ -273,3 +273,53 @@ class TestAllArtifactTypes:
             ArtifactType.VALIDATION_RESULT,
         )
         assert payload is not None
+
+    def test_project_plan_with_polyglot(self, validator: ArtifactValidator) -> None:
+        """Test ProjectPlan with polyglot configuration."""
+        payload = validator.validate_payload(
+            {
+                "domains": [{"name": "core", "responsibility": "Business logic"}],
+                "modules": [{"name": "api", "domain": "core"}],
+                "constraints": {"architecture": "hexagonal", "languages": ["python", "javascript"]},
+                "polyglot": {
+                    "primary_language": "python",
+                    "language_configs": [
+                        {"name": "python", "version": "3.11", "test_runner": "pytest"},
+                        {"name": "javascript", "version": "18", "test_runner": "jest"},
+                    ],
+                    "language_modules": [
+                        {"name": "backend", "language": "python", "domain": "core"},
+                        {"name": "frontend", "language": "javascript", "domain": "core"},
+                    ],
+                    "integrations": [
+                        {
+                            "type": "rest_api",
+                            "provider_language": "python",
+                            "consumer_language": "javascript",
+                        }
+                    ],
+                },
+            },
+            ArtifactType.PROJECT_PLAN,
+        )
+        assert payload is not None
+        assert payload.polyglot is not None
+        assert payload.polyglot.primary_language == "python"
+        assert len(payload.polyglot.language_configs) == 2
+        assert len(payload.polyglot.language_modules) == 2
+        assert len(payload.polyglot.integrations) == 1
+
+    def test_project_plan_polyglot_empty(self, validator: ArtifactValidator) -> None:
+        """Test ProjectPlan with empty polyglot configuration."""
+        payload = validator.validate_payload(
+            {
+                "domains": [{"name": "core", "responsibility": "Business logic"}],
+                "modules": [{"name": "api", "domain": "core"}],
+                "constraints": {"architecture": "hexagonal", "languages": ["python"]},
+                "polyglot": {},
+            },
+            ArtifactType.PROJECT_PLAN,
+        )
+        assert payload is not None
+        assert payload.polyglot is not None
+        assert payload.polyglot.primary_language is None
