@@ -1,0 +1,200 @@
+# Rice-Factor Documentation - MkDocs Material Configuration
+# Run with: mkdocs serve (development) or mkdocs build (production)
+# Install: pip install mkdocs-material
+
+site_name: Rice-Factor
+site_description: LLM-Assisted Development System - Treating LLMs as compilers, artifacts as IR
+site_author: Rice-Factor Team
+site_url: https://rice-factor.dev
+
+repo_url: https://github.com/user/rice-factor
+repo_name: rice-factor
+edit_uri: edit/main/docs/
+
+copyright: >
+  Copyright &copy; 2024 Rice-Factor –
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+
+  palette:
+    # Dark mode (default)
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+  features:
+    # Navigation
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+
+    # Table of contents
+    - toc.follow
+
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+
+    # Content
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+
+    # Header
+    - header.autohide
+
+  icon:
+    repo: fontawesome/brands/github
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/user/rice-factor
+      name: GitHub
+
+  generator: false
+
+  # Version provider (if using mike for versioning)
+  # version:
+  #   provider: mike
+
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+  # Python Markdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - minify:
+      minify_html: true
+
+nav:
+  - Home: index.md
+
+  - Getting Started:
+      - Installation: guides/getting-started/installation.md
+      - First Project: guides/getting-started/first-project.md
+      - Core Concepts: guides/getting-started/concepts.md
+
+  - Tutorials:
+      - Basic Workflow: guides/tutorials/basic-workflow.md
+      - Artifact Lifecycle: guides/tutorials/artifact-lifecycle.md
+      - TDD Workflow: guides/tutorials/tdd-workflow.md
+
+  - How-To Guides:
+      - Configure LLM Providers: guides/how-to/configure-llm-providers.md
+      - Customize Templates: guides/how-to/customize-templates.md
+      - Integrate CI/CD: guides/how-to/integrate-ci-cd.md
+      - Use TUI Mode: guides/how-to/use-tui.md
+
+  - Troubleshooting:
+      - Common Errors: guides/troubleshooting/common-errors.md
+      - FAQ: guides/troubleshooting/faq.md
+
+  - Reference:
+      - CLI:
+          - Commands: reference/cli/commands.md
+          - Examples: reference/cli/examples.md
+      - Configuration:
+          - Settings: reference/configuration/settings.md
+          - Environment Variables: reference/configuration/environment-variables.md
+          - Config Files: reference/configuration/config-files.md
+      - Artifacts:
+          - Overview: reference/artifacts/overview.md
+          - Schemas: reference/artifacts/schemas.md
+          - Lifecycle: reference/artifacts/lifecycle.md
+      - Architecture:
+          - Overview: reference/architecture/overview.md
+          - Domain Layer: reference/architecture/domain.md
+          - Adapters: reference/architecture/adapters.md
+          - Extending: reference/architecture/extending.md
+
+  - Contributing:
+      - Guide: contributing/README.md
+      - Development: contributing/development.md
+
+  - Internal:
+      - Internal Docs: internal/index.md

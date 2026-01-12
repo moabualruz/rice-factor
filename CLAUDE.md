@@ -27,33 +27,46 @@ A language-agnostic, LLM-assisted software development system that treats LLMs a
 
 ## Documentation
 
-### Original Specification Documents (in `docs/raw/`)
+### User-Facing Documentation
+
+| Path | Purpose |
+|------|---------|
+| `docs/guides/getting-started/` | Installation and first project setup |
+| `docs/guides/tutorials/` | Step-by-step learning tutorials |
+| `docs/guides/how-to/` | Task-oriented guides for specific goals |
+| `docs/guides/troubleshooting/` | Common errors and FAQ |
+| `docs/reference/cli/` | CLI command reference |
+| `docs/reference/configuration/` | Configuration options |
+| `docs/reference/artifacts/` | Artifact system documentation |
+| `docs/reference/architecture/` | Architecture deep-dive |
+
+### Internal Specification Documents (in `docs/internal/raw/`)
 
 | File | Purpose |
 |------|---------|
-| `docs/raw/product-requirements-specification.md` | Core vision and system components |
-| `docs/raw/implementation-ready-specification.md` | Formal artifact schemas and builder design |
-| `docs/raw/REFERENCE-IMPLEMENTATION-SKELETON.md` | Python reference implementation guide |
-| `docs/raw/01-end-to-end-design.md` | Full lifecycle workflow (phases 0-9) |
-| `docs/raw/02-Formal-Artifact-Schemas.md` | Detailed JSON schema definitions |
-| `docs/raw/03-Artifact-Builder.md` | LLM compiler pass design |
-| `docs/raw/04-repository-and-system-layout.md` | Directory structure and ownership |
-| `docs/raw/05-full-cli-agent-workflow-end-to-end-usage.md` | CLI usage patterns |
-| `docs/raw/Phase-01-mvp.md` | MVP scope and exit criteria |
-| `docs/raw/Item-01-mvp-example-walkthrough-end-to-end.md` | Concrete walkthrough |
-| `docs/raw/item-02-executor-design-and-pseudocode.md` | Executor interfaces |
-| `docs/raw/item-03-ci-cd-pipeline-and-automation-strategy.md` | CI/CD integration |
-| `docs/raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md` | Agent topology |
-| `docs/raw/item-05-Failure-Recovery-and-Resilience-Model.md` | Error handling |
-| `docs/raw/06-tools-to-integrte-with-or-learn-from.md` | Tool integration |
+| `docs/internal/raw/product-requirements-specification.md` | Core vision and system components |
+| `docs/internal/raw/implementation-ready-specification.md` | Formal artifact schemas and builder design |
+| `docs/internal/raw/REFERENCE-IMPLEMENTATION-SKELETON.md` | Python reference implementation guide |
+| `docs/internal/raw/01-end-to-end-design.md` | Full lifecycle workflow (phases 0-9) |
+| `docs/internal/raw/02-Formal-Artifact-Schemas.md` | Detailed JSON schema definitions |
+| `docs/internal/raw/03-Artifact-Builder.md` | LLM compiler pass design |
+| `docs/internal/raw/04-repository-and-system-layout.md` | Directory structure and ownership |
+| `docs/internal/raw/05-full-cli-agent-workflow-end-to-end-usage.md` | CLI usage patterns |
+| `docs/internal/raw/Phase-01-mvp.md` | MVP scope and exit criteria |
+| `docs/internal/raw/Item-01-mvp-example-walkthrough-end-to-end.md` | Concrete walkthrough |
+| `docs/internal/raw/item-02-executor-design-and-pseudocode.md` | Executor interfaces |
+| `docs/internal/raw/item-03-ci-cd-pipeline-and-automation-strategy.md` | CI/CD integration |
+| `docs/internal/raw/item-04-Multi-Agent-Coordination-Model-and-Run-Modes.md` | Agent topology |
+| `docs/internal/raw/item-05-Failure-Recovery-and-Resilience-Model.md` | Error handling |
+| `docs/internal/raw/06-tools-to-integrte-with-or-learn-from.md` | Tool integration |
 
 ### Milestone Documentation
 
 | Path | Purpose |
 |------|---------|
-| `docs/milestones/*/requirements.md` | Milestone requirements |
-| `docs/milestones/*/design.md` | Milestone design |
-| `docs/milestones/*/features/*/tasks.md` | Feature task breakdown |
+| `docs/internal/milestones/*/requirements.md` | Milestone requirements |
+| `docs/internal/milestones/*/design.md` | Milestone design |
+| `docs/internal/milestones/*/features/*/tasks.md` | Feature task breakdown |
 
 ---
 
@@ -173,7 +186,7 @@ rice-factor refactor dry-run        # Preview refactor
 | 21 | Developer Experience | Complete | P2 | VS Code extension, TUI mode, project templates, visualization |
 | 22 | Web Interface | Complete | P3 | Web dashboard, diff review UI, team approvals, history browser |
 
-> See `docs/gap-analysis-v3.md` for detailed gap analysis and feature breakdown.
+> See `docs/internal/gap-analysis/gap-analysis-v3.md` for detailed gap analysis and feature breakdown.
 
 ---
 
@@ -285,15 +298,15 @@ StatusBar { background: $rf-primary; color: white; }
 
 ### When Implementing Features
 
-1. **Read the original spec first**: Check `docs/raw/` for authoritative requirements
-2. **Check milestone docs**: `docs/milestones/<milestone>/` for task breakdown
+1. **Read the original spec first**: Check `docs/internal/raw/` for authoritative requirements
+2. **Check milestone docs**: `docs/internal/milestones/<milestone>/` for task breakdown
 3. **Cross-reference**: Verify implementation matches original spec intent
-4. **Track progress**: Update `docs/gap-analysis-v2.md` when completing items
+4. **Track progress**: Update `docs/internal/gap-analysis/gap-analysis-v2.md` when completing items
 
 ### Before Moving to Next Milestone
 
 1. Verify all tasks in current milestone are complete
-2. Run `docs/gap-analysis-v2.md` cross-check
+2. Run `docs/internal/gap-analysis/gap-analysis-v2.md` cross-check
 3. Ensure all tests pass
 4. Update milestone status in this file
 
@@ -301,6 +314,6 @@ StatusBar { background: $rf-primary; color: white; }
 
 | Document | Purpose |
 |----------|---------|
-| `docs/gap-analysis-v1-mvp.md` | MVP completion report (Milestones 01-07) |
-| `docs/gap-analysis-v2.md` | Post-MVP gap analysis (Milestones 08-13) |
-| `docs/gap-analysis-v3.md` | Future milestones assessment (Milestones 14-22) - includes capability registry & local LLM research |
+| `docs/internal/gap-analysis/gap-analysis-v1-mvp.md` | MVP completion report (Milestones 01-07) |
+| `docs/internal/gap-analysis/gap-analysis-v2.md` | Post-MVP gap analysis (Milestones 08-13) |
+| `docs/internal/gap-analysis/gap-analysis-v3.md` | Future milestones assessment (Milestones 14-22) - includes capability registry & local LLM research |

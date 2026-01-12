@@ -1,0 +1,165 @@
+/* Rice-Factor Brand Colors for MkDocs Material */
+
+:root {
+  /* Brand Colors */
+  --rf-primary: #00a020;
+  --rf-secondary: #009e20;
+  --rf-accent: #00c030;
+  --rf-bg-dark: #0a1a0a;
+  --rf-bg-light: #102010;
+}
+
+/* Light mode */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #00a020;
+  --md-primary-fg-color--light: #00c030;
+  --md-primary-fg-color--dark: #009e20;
+  --md-accent-fg-color: #00c030;
+  --md-typeset-a-color: #00a020;
+}
+
+/* Dark mode (slate) */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #00a020;
+  --md-primary-fg-color--light: #00c030;
+  --md-primary-fg-color--dark: #009e20;
+  --md-accent-fg-color: #00c030;
+  --md-typeset-a-color: #00c030;
+
+  /* Custom dark background */
+  --md-default-bg-color: #0d1f0d;
+  --md-default-bg-color--light: #0f240f;
+  --md-default-bg-color--lighter: #122912;
+  --md-default-bg-color--lightest: #153015;
+}
+
+/* Header styling */
+.md-header {
+  background-color: var(--rf-secondary);
+}
+
+/* Navigation tabs */
+.md-tabs {
+  background-color: var(--rf-primary);
+}
+
+/* Logo */
+.md-header__button.md-logo img {
+  height: 24px;
+}
+
+/* Footer */
+.md-footer {
+  background-color: var(--rf-bg-dark);
+}
+
+/* Code blocks */
+.md-typeset code {
+  background-color: rgba(0, 160, 32, 0.1);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(0, 192, 48, 0.15);
+}
+
+/* Admonitions with brand colors */
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--rf-accent);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: rgba(0, 192, 48, 0.1);
+  border-color: var(--rf-accent);
+}
+
+.md-typeset .tip > .admonition-title::before,
+.md-typeset .tip > summary::before {
+  background-color: var(--rf-accent);
+}
+
+/* Success/check admonitions */
+.md-typeset .admonition.success,
+.md-typeset details.success {
+  border-color: var(--rf-primary);
+}
+
+.md-typeset .success > .admonition-title,
+.md-typeset .success > summary {
+  background-color: rgba(0, 160, 32, 0.1);
+}
+
+/* Tables */
+.md-typeset table:not([class]) th {
+  background-color: var(--rf-primary);
+  color: white;
+}
+
+[data-md-color-scheme="default"] .md-typeset table:not([class]) th {
+  background-color: var(--rf-primary);
+}
+
+/* Buttons */
+.md-typeset .md-button--primary {
+  background-color: var(--rf-primary);
+  border-color: var(--rf-primary);
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: var(--rf-accent);
+  border-color: var(--rf-accent);
+}
+
+/* Search highlight */
+.md-search__form {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Grid cards (for index page) */
+.md-typeset .grid.cards > ul > li {
+  border: 1px solid var(--rf-secondary);
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: var(--rf-accent);
+}
+
+/* Custom status badges */
+.status-draft {
+  background-color: #ffc107;
+  color: black;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.status-approved {
+  background-color: var(--rf-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.status-locked {
+  background-color: #dc3545;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+/* Terminal/CLI code styling */
+.md-typeset pre > code {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ASCII diagrams */
+.md-typeset pre:has(code:not([class*="language-"])) {
+  background-color: var(--rf-bg-dark);
+}
+
+[data-md-color-scheme="slate"] .md-typeset pre:has(code:not([class*="language-"])) {
+  background-color: #0a150a;
+}
