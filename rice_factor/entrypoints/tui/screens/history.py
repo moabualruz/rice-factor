@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Input, Label, ListItem, ListView, Static
 
 
@@ -187,7 +187,7 @@ class AuditDetailPanel(Static):
             yield Label(entry_hash[:32] + "...", classes="field-value")
 
 
-class HistoryScreen(Static):
+class HistoryScreen(Container):
     """History/Audit trail viewer screen.
 
     Shows audit log entries with filtering and export capabilities.
@@ -330,8 +330,7 @@ class HistoryScreen(Static):
         self._load_entries()
         self._apply_filter()
 
-        list_view = ListView(id="history-list")
-
+        items = []
         for entry in self._filtered_entries:
             item = AuditLogItem(
                 entry_id=str(entry.get("id", "")),
@@ -339,9 +338,9 @@ class HistoryScreen(Static):
                 action=str(entry.get("action", "")),
                 summary=str(entry.get("summary", entry.get("target", ""))),
             )
-            list_view.mount(item)
+            items.append(item)
 
-        return list_view
+        return ListView(*items, id="history-list")
 
     def _load_entries(self) -> None:
         """Load audit log entries from storage."""

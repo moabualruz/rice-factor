@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Container, Vertical
 from textual.widgets import Label, Static
 
 if TYPE_CHECKING:
@@ -126,7 +126,7 @@ class WorkflowStep(Static):
             self.add_class("unavailable")
 
 
-class WorkflowScreen(Static):
+class WorkflowScreen(Container):
     """Workflow navigation screen.
 
     Shows the current project phase and workflow progress.

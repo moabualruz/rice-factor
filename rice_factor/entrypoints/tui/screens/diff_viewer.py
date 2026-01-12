@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Label, ListItem, ListView, Static
 
 if TYPE_CHECKING:
@@ -109,7 +109,7 @@ class DiffContentPanel(Static):
     }
 
     DiffContentPanel .diff-line {
-        font-family: monospace;
+        /* Note: font-family is set by terminal, not CSS */
     }
 
     DiffContentPanel .diff-add {
@@ -249,7 +249,7 @@ class DiffContentPanel(Static):
             return "diff-context"
 
 
-class DiffViewerScreen(Static):
+class DiffViewerScreen(Container):
     """Diff viewer screen.
 
     Shows pending diffs and allows reviewing changes in a split view.
@@ -376,20 +376,16 @@ class DiffViewerScreen(Static):
         """
         self._load_diffs()
 
-        list_view = ListView(id="diff-list")
+        items = []
+        for diff in self._diffs:
+            item = DiffListItem(
+                diff_id=str(diff.get("id", "")),
+                file_path=str(diff.get("file_path", "unknown")),
+                status=str(diff.get("status", "pending")),
+            )
+            items.append(item)
 
-        if not self._diffs:
-            pass  # Empty list handled in compose
-        else:
-            for diff in self._diffs:
-                item = DiffListItem(
-                    diff_id=str(diff.get("id", "")),
-                    file_path=str(diff.get("file_path", "unknown")),
-                    status=str(diff.get("status", "pending")),
-                )
-                list_view.mount(item)
-
-        return list_view
+        return ListView(*items, id="diff-list")
 
     def _load_diffs(self) -> None:
         """Load diffs from storage."""

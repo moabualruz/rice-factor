@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container
 from textual.widgets import Footer, Header, TabbedContent, TabPane
 
 from rice_factor.entrypoints.tui.screens.browser import ArtifactBrowserScreen
@@ -258,7 +257,7 @@ class RiceFactorTUI(App[None]):
         """
         yield Header()
 
-        with Container(id="main-container"), TabbedContent(id="tabs"):
+        with TabbedContent(id="tabs"):
             with TabPane("Workflow", id="workflow-tab"):
                 yield WorkflowScreen(
                     project_root=self._project_root,

@@ -11,7 +11,7 @@ from typing import Any
 
 import yaml
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Label, ListItem, ListView, Static, TextArea
 
 
@@ -271,7 +271,7 @@ paths:
             pass
 
 
-class ConfigEditorScreen(Static):
+class ConfigEditorScreen(Container):
     """Configuration editor screen.
 
     Shows available configuration files and allows editing them.
@@ -372,17 +372,16 @@ class ConfigEditorScreen(Static):
         """
         self._load_config_files()
 
-        list_view = ListView(id="config-list")
-
+        items = []
         for config in self._config_files:
             item = ConfigFileItem(
                 file_path=Path(config["path"]),
                 file_name=config["name"],
                 exists=config["exists"],
             )
-            list_view.mount(item)
+            items.append(item)
 
-        return list_view
+        return ListView(*items, id="config-list")
 
     def _load_config_files(self) -> None:
         """Load list of configuration files."""

@@ -35,7 +35,12 @@
       "Bash(uv add:*)",
       "Bash(xargs:*)",
       "Bash(python3:*)",
-      "Bash(python -m py_compile:*)"
+      "Bash(python -m py_compile:*)",
+      "Bash(.venv/Scripts/python:*)",
+      "Bash(.venv/Scripts/pytest tests/e2e/ -v --tb=short)",
+      "Bash(where:*)",
+      "Bash(uv pip:*)",
+      "Bash(npx playwright test:*)"
     ]
   }
 }

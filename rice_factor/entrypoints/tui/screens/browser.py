@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any
 
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
+from textual.widget import Widget
 from textual.widgets import Label, ListItem, ListView, Static
 
 if TYPE_CHECKING:
@@ -171,7 +172,7 @@ class ArtifactDetailPanel(Static):
             yield Label(payload_str, classes="field-value")
 
 
-class ArtifactBrowserScreen(Static):
+class ArtifactBrowserScreen(Container):
     """Artifact browser screen.
 
     Shows a list of artifacts and allows viewing details.
@@ -282,21 +283,16 @@ class ArtifactBrowserScreen(Static):
         """
         self._load_artifacts()
 
-        list_view = ListView(id="artifact-list")
+        items = []
+        for artifact in self._artifacts:
+            item = ArtifactListItem(
+                artifact_id=str(artifact.get("id", "")),
+                artifact_type=str(artifact.get("artifact_type", "")),
+                status=str(artifact.get("status", "")),
+            )
+            items.append(item)
 
-        if not self._artifacts:
-            # No artifacts - add placeholder
-            pass
-        else:
-            for artifact in self._artifacts:
-                item = ArtifactListItem(
-                    artifact_id=str(artifact.get("id", "")),
-                    artifact_type=str(artifact.get("artifact_type", "")),
-                    status=str(artifact.get("status", "")),
-                )
-                list_view.mount(item)
-
-        return list_view
+        return ListView(*items, id="artifact-list")
 
     def _load_artifacts(self) -> None:
         """Load artifacts from storage."""

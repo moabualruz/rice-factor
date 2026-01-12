@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Button, Label, Static
 
 
@@ -70,7 +70,7 @@ class GraphRenderer:
         Args:
             nodes: Dictionary of artifact ID to GraphNode.
         """
-        self._nodes = nodes
+        self._graph_nodes = nodes
 
     def render(self) -> str:
         """Render the graph as ASCII art.
@@ -78,7 +78,7 @@ class GraphRenderer:
         Returns:
             ASCII representation of the graph.
         """
-        if not self._nodes:
+        if not self._graph_nodes:
             return "No artifacts to display"
 
         lines: list[str] = []
@@ -97,7 +97,7 @@ class GraphRenderer:
         ]
 
         nodes_by_type: dict[str, list[GraphNode]] = {}
-        for node in self._nodes.values():
+        for node in self._graph_nodes.values():
             if node.artifact_type not in nodes_by_type:
                 nodes_by_type[node.artifact_type] = []
             nodes_by_type[node.artifact_type].append(node)
@@ -210,7 +210,7 @@ class GraphRenderer:
         lines = ["```mermaid", "graph TD"]
 
         # Define nodes
-        for node in self._nodes.values():
+        for node in self._graph_nodes.values():
             node_id = node.artifact_id[:8]
             label = f"{node.artifact_type}\\n{node_id}"
             style = ""
@@ -225,11 +225,11 @@ class GraphRenderer:
             lines.append(f"    {node_id}[{label}]{style}")
 
         # Define edges
-        for node in self._nodes.values():
+        for node in self._graph_nodes.values():
             src_id = node.artifact_id[:8]
             for dep_id in node.depends_on:
-                if dep_id in self._nodes:
-                    lines.append(f"    {self._nodes[dep_id].artifact_id[:8]} --> {src_id}")
+                if dep_id in self._graph_nodes:
+                    lines.append(f"    {self._graph_nodes[dep_id].artifact_id[:8]} --> {src_id}")
 
         # Define styles
         lines.extend([
@@ -258,7 +258,6 @@ class GraphPanel(Static):
 
     GraphPanel .graph-content {
         color: #00c030;
-        font-family: monospace;
     }
 
     GraphPanel .graph-header {
@@ -286,12 +285,14 @@ class GraphPanel(Static):
             content: Rendered graph content.
         """
         self._graph_content = content
-        self.refresh_display()
+        if self.is_attached:
+            self.refresh_display()
 
     def refresh_display(self) -> None:
         """Refresh the display."""
-        self.remove_children()
-        self.mount_all(list(self.compose()))
+        if self.is_attached:
+            self.remove_children()
+            self.mount_all(list(self.compose()))
 
     def compose(self) -> ComposeResult:
         """Compose the graph panel.
@@ -302,7 +303,7 @@ class GraphPanel(Static):
         yield Label(self._graph_content, classes="graph-content")
 
 
-class GraphScreen(Static):
+class GraphScreen(Container):
     """Graph screen for visualizing artifact dependencies.
 
     Shows artifact relationships using ASCII box-drawing characters.
@@ -366,7 +367,7 @@ class GraphScreen(Static):
         """
         super().__init__()
         self._project_root = project_root or Path.cwd()
-        self._nodes: dict[str, GraphNode] = {}
+        self._graph_nodes: dict[str, GraphNode] = {}
         self._display_format: str = "ascii"
 
     @property
@@ -382,40 +383,45 @@ class GraphScreen(Static):
         """
         yield Static("Artifact Dependency Graph", id="graph-header")
 
-        # Toolbar
-        with Horizontal(id="graph-toolbar"):
-            yield Button("Refresh", id="refresh-btn")
-            yield Button("ASCII View", id="ascii-btn", variant="primary")
-            yield Button("Mermaid", id="mermaid-btn")
-            yield Button("Export", id="export-btn")
-            yield Label(f"Format: {self._display_format}", classes="format-label")
+        # Toolbar - don't use context managers
+        yield Horizontal(
+            Button("Refresh", id="refresh-btn"),
+            Button("ASCII View", id="ascii-btn", variant="primary"),
+            Button("Mermaid", id="mermaid-btn"),
+            Button("Export", id="export-btn"),
+            Label(f"Format: {self._display_format}", classes="format-label"),
+            id="graph-toolbar",
+        )
 
         # Graph content
-        with Vertical(id="graph-content"):
-            self._load_artifacts()
-            renderer = GraphRenderer(self._nodes)
+        self._load_artifacts()
+        renderer = GraphRenderer(self._graph_nodes)
 
-            if self._display_format == "mermaid":
-                content = renderer.render_mermaid()
-            else:
-                content = renderer.render()
+        if self._display_format == "mermaid":
+            content = renderer.render_mermaid()
+        else:
+            content = renderer.render()
 
-            panel = GraphPanel()
-            panel.set_content(content)
-            yield panel
+        # Create panel with content already set
+        panel = GraphPanel()
+        panel._graph_content = content
+
+        yield Vertical(panel, id="graph-content")
 
         # Stats bar
-        with Horizontal(id="stats-bar"):
-            artifact_count = len(self._nodes)
-            dependency_count = sum(len(n.depends_on) for n in self._nodes.values())
-            yield Label(
+        artifact_count = len(self._graph_nodes)
+        dependency_count = sum(len(n.depends_on) for n in self._graph_nodes.values())
+        yield Horizontal(
+            Label(
                 f"Artifacts: {artifact_count} | Dependencies: {dependency_count}",
                 classes="stats-label",
-            )
+            ),
+            id="stats-bar",
+        )
 
     def _load_artifacts(self) -> None:
         """Load artifacts and build dependency graph."""
-        self._nodes = {}
+        self._graph_nodes = {}
 
         artifacts_dir = self._project_root / "artifacts"
         if not artifacts_dir.exists():
@@ -449,16 +455,16 @@ class GraphScreen(Static):
                             else:
                                 node.depends_on.append(str(dep_value))
 
-                self._nodes[artifact_id] = node
+                self._graph_nodes[artifact_id] = node
 
             except (json.JSONDecodeError, OSError):
                 continue
 
         # Build reverse dependencies
-        for node in self._nodes.values():
+        for node in self._graph_nodes.values():
             for dep_id in node.depends_on:
-                if dep_id in self._nodes:
-                    self._nodes[dep_id].dependents.append(node.artifact_id)
+                if dep_id in self._graph_nodes:
+                    self._graph_nodes[dep_id].dependents.append(node.artifact_id)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses.
@@ -485,7 +491,7 @@ class GraphScreen(Static):
         """Refresh the graph display with current format."""
         try:
             panel = self.query_one(GraphPanel)
-            renderer = GraphRenderer(self._nodes)
+            renderer = GraphRenderer(self._graph_nodes)
 
             if self._display_format == "mermaid":
                 content = renderer.render_mermaid()
@@ -498,7 +504,7 @@ class GraphScreen(Static):
 
     def _export_graph(self) -> None:
         """Export the graph to a file."""
-        renderer = GraphRenderer(self._nodes)
+        renderer = GraphRenderer(self._graph_nodes)
 
         if self._display_format == "mermaid":
             export_path = self._project_root / "artifact-graph.md"
