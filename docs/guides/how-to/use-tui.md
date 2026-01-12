@@ -20,6 +20,44 @@ rice-factor tui
 rice-factor tui --project /path/to/project
 ```
 
+## Screenshots
+
+### Workflow View
+
+The main workflow screen shows the development workflow and phase progress:
+
+![TUI Workflow Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-workflow.svg)
+
+### Artifact Browser
+
+Browse and inspect all project artifacts:
+
+![TUI Artifacts Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-artifacts.svg)
+
+### Diff Viewer
+
+Review pending code changes with syntax highlighting:
+
+![TUI Diffs Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-diffs.svg)
+
+### Configuration Editor
+
+Edit project configuration with YAML validation:
+
+![TUI Config Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-config.svg)
+
+### History View
+
+Browse the complete audit trail:
+
+![TUI History Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-history.svg)
+
+### Artifact Graph
+
+Visualize artifact dependencies:
+
+![TUI Graph Screen](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-graph.svg)
+
 ## Interface Layout
 
 ```

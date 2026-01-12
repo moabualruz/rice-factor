@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".branding/logo.svg" alt="Rice-Factor" width="300">
+  <img src="https://raw.githubusercontent.com/moabualruz/rice-factor/main/.branding/logo.svg" alt="Rice-Factor" width="300">
 </p>
 
 <p align="center">
@@ -104,7 +104,7 @@ rice-factor --version
 
 Rice-Factor provides a modern web interface for managing artifacts and reviews:
 
-![Rice-Factor Web Dashboard](docs/assets/screenshots/web-dashboard.png)
+![Rice-Factor Web Dashboard](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-dashboard.png)
 
 ### 2. The CLI Workflow
 
@@ -114,14 +114,13 @@ Start by initializing a new project:
 rice-factor init
 ```
 
-![Rice-Factor CLI Demo](docs/assets/demos/demo.gif)
-*(Note: Generate this demo using `vhs docs/assets/demos/demo.tape`)*
+![Rice-Factor CLI Init](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-init.svg)
 
 ### 3. The TUI Dashboard
 
-For terminal purists, a TUI is also available:
+For terminal purists, a full TUI is available with workflow navigation:
 
-![Rice-Factor TUI](docs/assets/screenshots/tui-dashboard.png)
+![Rice-Factor TUI Workflow](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/tui/tui-workflow.svg)
 
 ### Your First Project
 
@@ -338,5 +337,5 @@ See [LICENSE.md](LICENSE.md) for details. For commercial licensing inquiries, co
 ---
 
 <p align="center">
-  <sub>Built with the philosophy that AI should augment human judgment, not replace it.</sub>
+  <sub>Built By Rice, with the philosophy that AI should augment human judgment, not replace it.</sub>
 </p>

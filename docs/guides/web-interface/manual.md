@@ -35,7 +35,7 @@ rice-factor web serve --host 0.0.0.0 --port 3000
 
 The **Dashboard** is your landing page, providing an immediate snapshot of project health.
 
-![Dashboard Screenshot](../../assets/screenshots/web-dashboard.png)
+![Dashboard Screenshot](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-dashboard.png)
 
 ### Statistics Cards
 
@@ -94,6 +94,8 @@ A real-time list of recent actions:
 
 Navigate to **Artifacts** in the sidebar to browse all project artifacts.
 
+![Artifacts View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-artifacts.png)
+
 ### List View
 
 The artifacts list provides:
@@ -145,6 +147,8 @@ If an artifact has multiple versions:
 ## Diffs View
 
 The **Diffs** view is optimized for code review.
+
+![Diffs View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-diffs.png)
 
 ### List View
 
@@ -198,6 +202,8 @@ Comments are saved and visible to all reviewers.
 
 The **Approvals** view shows all items pending review in one place.
 
+![Approvals View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-approvals.png)
+
 ### Pending Items
 
 Two sections:
@@ -224,6 +230,8 @@ For efficiency:
 ## History View
 
 The **History** view provides a complete audit trail.
+
+![History View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-history.png)
 
 ### Event Log
 
@@ -258,6 +266,8 @@ Download the audit log:
 ## Configuration View
 
 The **Configuration** view provides a YAML editor for project settings.
+
+![Configuration View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-configuration.png)
 
 ### Configuration Files
 
@@ -306,6 +316,8 @@ paths:
 ## Commands View
 
 The **Commands** view allows executing Rice-Factor CLI commands from the browser.
+
+![Commands View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-commands.png)
 
 ### Command Selector
 
@@ -358,6 +370,8 @@ Previous commands are saved:
 
 The **Login** view handles authentication.
 
+![Login View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-login.png)
+
 ### Authentication Options
 
 | Method | Description |
@@ -384,6 +398,8 @@ The **Login** view handles authentication.
 ## Init View
 
 The **Init** view appears for uninitialized projects.
+
+![Init View](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-init.png)
 
 ### Project Initialization
 

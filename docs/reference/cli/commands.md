@@ -2,6 +2,8 @@
 
 Complete reference for all Rice-Factor CLI commands.
 
+![CLI Help](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-help.svg)
+
 ## Global Options
 
 These options are available for all commands:
@@ -18,6 +20,8 @@ These options are available for all commands:
 ### rice-factor init
 
 Initialize a new Rice-Factor project.
+
+![CLI Init](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-init.svg)
 
 ```bash
 rice-factor init [OPTIONS]
@@ -41,6 +45,8 @@ rice-factor init --path ./my-project
 ### rice-factor plan
 
 Generate planning artifacts.
+
+![CLI Plan](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-plan.svg)
 
 #### rice-factor plan project
 
@@ -138,6 +144,8 @@ rice-factor plan refactor "Extract interface from UserService"
 
 Create file structure from ScaffoldPlan.
 
+![CLI Scaffold](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-scaffold.svg)
+
 ```bash
 rice-factor scaffold [OPTIONS]
 ```
@@ -155,6 +163,8 @@ rice-factor scaffold [OPTIONS]
 ### rice-factor impl
 
 Generate implementation diff for a file.
+
+![CLI Impl](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-impl.svg)
 
 ```bash
 rice-factor impl FILE_PATH [OPTIONS]
@@ -215,6 +225,8 @@ rice-factor apply [OPTIONS]
 
 Run test suite.
 
+![CLI Test](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-test.svg)
+
 ```bash
 rice-factor test [OPTIONS]
 ```
@@ -230,6 +242,8 @@ rice-factor test [OPTIONS]
 ### rice-factor approve
 
 Approve an artifact.
+
+![CLI Approve](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-approve.svg)
 
 ```bash
 rice-factor approve ARTIFACT [OPTIONS]
@@ -305,6 +319,8 @@ rice-factor diagnose [OPTIONS]
 ---
 
 ## CI/CD Commands
+
+![CLI CI](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-ci.svg)
 
 ### rice-factor ci validate
 
@@ -536,6 +552,8 @@ rice-factor artifact migrate [OPTIONS]
 
 ## Drift Detection
 
+![CLI Audit](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-audit.svg)
+
 ### rice-factor audit drift
 
 Detect drift between code and artifacts.
@@ -593,6 +611,8 @@ rice-factor audit coverage [OPTIONS]
 
 Generate reconciliation plan.
 
+![CLI Reconcile](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-reconcile.svg)
+
 ```bash
 rice-factor reconcile [OPTIONS]
 ```
@@ -610,6 +630,8 @@ rice-factor reconcile [OPTIONS]
 ---
 
 ## Refactoring Commands
+
+![CLI Refactor](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-refactor.svg)
 
 ### rice-factor refactor check
 
@@ -916,6 +938,8 @@ rice-factor docs [OPTIONS]
 ### rice-factor tui
 
 Launch TUI mode.
+
+![CLI TUI](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-tui.svg)
 
 ```bash
 rice-factor tui [OPTIONS]

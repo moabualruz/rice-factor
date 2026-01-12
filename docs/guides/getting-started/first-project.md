@@ -2,6 +2,8 @@
 
 This tutorial walks you through creating your first Rice-Factor project from scratch.
 
+![Rice-Factor CLI](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-help.svg)
+
 ## Overview
 
 You'll learn the complete Rice-Factor workflow:
@@ -15,6 +17,8 @@ You'll learn the complete Rice-Factor workflow:
 ## Step 1: Initialize the Project
 
 Create a new directory and initialize Rice-Factor:
+
+![CLI Init](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-init.svg)
 
 ```bash
 # Create project directory
@@ -89,6 +93,8 @@ rice-factor approve <artifact-id>
 ## Step 3: Create File Scaffolding
 
 Generate the file structure based on your approved ProjectPlan:
+
+![CLI Scaffold](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-scaffold.svg)
 
 ```bash
 rice-factor scaffold
@@ -181,6 +187,8 @@ This applies the diff to your codebase using `git apply`.
 ## Step 8: Run Tests
 
 Verify everything works:
+
+![CLI Test](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/cli/cli-test.svg)
 
 ```bash
 rice-factor test

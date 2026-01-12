@@ -30,12 +30,24 @@ By default, the interface will be available at **http://127.0.0.1:8000**.
 
 ## Navigation
 
-The interface is divided into four main sections:
+The interface is divided into several main sections:
 
-1.  **Dashboard**: The command center.
+1.  **Dashboard**: The command center with project status overview.
 2.  **Artifacts**: Manage Plans, Specs, and Reports.
 3.  **Diffs**: Review and apply code changes.
 4.  **Approvals**: Pending items requiring human intervention.
+5.  **History**: Complete audit trail of all actions.
+6.  **Configuration**: Edit project settings.
+7.  **Commands**: Execute CLI commands from the browser.
 
-![Web Interface Dashboard](../../assets/screenshots/dashboard_mockup.png)
-*(Note: Visual assets will be generated in Phase 5)*
+![Web Interface Dashboard](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-dashboard.png)
+
+### Quick Access to Key Views
+
+| View | Screenshot |
+|------|------------|
+| **Artifacts** | ![Artifacts](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-artifacts.png) |
+| **Diffs** | ![Diffs](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-diffs.png) |
+| **History** | ![History](https://raw.githubusercontent.com/moabualruz/rice-factor/main/docs/assets/screenshots/web/web-history.png) |
+
+For detailed documentation of each view, see the [Web Interface Manual](manual.md).
