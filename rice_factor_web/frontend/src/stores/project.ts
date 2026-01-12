@@ -45,6 +45,12 @@ export const useProjectStore = defineStore('project', () => {
     await Promise.all([fetchProject(), fetchPhase()])
   }
 
+  async function removeProject(): Promise<void> {
+      // Logic to clear local state if needed
+      project.value = null
+      phase.value = null
+  }
+
   return {
     project,
     phase,
@@ -56,5 +62,6 @@ export const useProjectStore = defineStore('project', () => {
     fetchProject,
     fetchPhase,
     refresh,
+    removeProject
   }
 })

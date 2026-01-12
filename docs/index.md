@@ -1,7 +1,7 @@
 # Rice-Factor Documentation
 
 <p align="center">
-  <img src="assets/logo.png" alt="Rice-Factor" width="200">
+    <img src="../.branding/logo.svg" alt="Rice-Factor" width="300">
 </p>
 
 <p align="center">

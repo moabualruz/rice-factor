@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".branding/logo.svg" alt="Rice-Factor" width="600">
+  <img src=".branding/logo.svg" alt="Rice-Factor" width="300">
 </p>
 
 <p align="center">
@@ -99,6 +99,31 @@ pip install rice-factor
 # Verify installation
 rice-factor --version
 ```
+
+## ⚡ Quick Start
+
+### 1. The Web Dashboard
+
+Rice-Factor provides a modern web interface for managing artifacts and reviews:
+
+![Rice-Factor Web Dashboard](docs/assets/screenshots/web-dashboard.png)
+
+### 2. The CLI Workflow
+
+Start by initializing a new project:
+
+```bash
+rice-factor init
+```
+
+![Rice-Factor CLI Demo](docs/assets/demos/demo.gif)
+*(Note: Generate this demo using `vhs docs/assets/demos/demo.tape`)*
+
+### 3. The TUI Dashboard
+
+For terminal purists, a TUI is also available:
+
+![Rice-Factor TUI](docs/assets/screenshots/tui-dashboard.png)
 
 ### Your First Project
 
@@ -272,6 +297,7 @@ See [Artifact Reference](docs/reference/artifacts/overview.md) for schemas and d
 | [CLI Reference](docs/reference/cli/commands.md) | All commands documented |
 | [Configuration](docs/reference/configuration/settings.md) | All config options |
 | [Architecture](docs/reference/architecture/overview.md) | System design deep-dive |
+| [Web Interface](docs/guides/web-interface/overview.md) | Web Dashboard Manual |
 
 ---
 

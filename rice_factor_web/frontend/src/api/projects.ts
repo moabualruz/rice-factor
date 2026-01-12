@@ -24,3 +24,17 @@ export interface ProjectConfig {
 export async function getProjectConfig(): Promise<ProjectConfig> {
   return api.get<ProjectConfig>('/projects/config')
 }
+
+export interface InitResponse {
+  initialized: boolean
+  project_dir: string
+  files_created: string[]
+}
+
+export interface InitRequest {
+  responses?: Record<string, unknown>
+}
+
+export async function initProject(data: InitRequest = {}): Promise<InitResponse> {
+  return api.post<InitResponse>('/projects/init', data)
+}

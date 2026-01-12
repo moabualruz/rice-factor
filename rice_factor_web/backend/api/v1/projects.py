@@ -242,3 +242,44 @@ async def switch_project(
         "new_root": str(new_path),
         "is_rice_factor_project": is_rf_project,
     }
+
+@router.post("/init")
+async def initialize_project(
+    request: dict[str, Any] = {},  # noqa: B006
+    adapter: ServiceAdapter = None,
+) -> dict[str, Any]:
+    """Initialize the current project.
+    
+    Creates .project/ directory and template files.
+    """
+    from fastapi import HTTPException, status
+    from rice_factor.domain.services.init_service import InitService
+    from rice_factor.domain.services.questionnaire import QuestionnaireResponse
+
+    settings = get_settings()
+    project_root = Path(settings.project_root).resolve()
+    service = InitService(project_root=project_root)
+
+    if service.is_initialized():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Project already initialized",
+        )
+
+    try:
+        # Convert request dict to QuestionnaireResponse
+        # If request is empty, use defaults
+        responses = QuestionnaireResponse(**request.get("responses", {}))
+        
+        created_files = service.initialize(responses=responses)
+        
+        return {
+            "initialized": True,
+            "project_dir": str(service.project_dir),
+            "files_created": [str(f.name) for f in created_files],
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Initialization failed: {str(e)}",
+        )

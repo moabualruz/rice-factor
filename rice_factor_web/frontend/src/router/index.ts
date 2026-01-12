@@ -50,6 +50,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LoginView.vue'),
     meta: { title: 'Login', guest: true },
   },
+  {
+    path: '/init',
+    name: 'init',
+    component: () => import('@/views/InitView.vue'),
+    meta: { title: 'Initialize Project' },
+  },
 ]
 
 const router = createRouter({

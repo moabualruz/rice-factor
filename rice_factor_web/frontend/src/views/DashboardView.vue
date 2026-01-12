@@ -1,68 +1,74 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useArtifacts } from '@/composables/useArtifacts'
-import { useDiffs } from '@/composables/useDiffs'
-import { useProjectStore } from '@/stores/project'
-import { listPendingApprovals } from '@/api/approvals'
-import { getArtifactGraph } from '@/api/artifacts'
-import type { ApprovalListResponse } from '@/api/types'
-import StatsCard from '@/components/StatsCard.vue'
-import ActivityFeed from '@/components/ActivityFeed.vue'
-import PhaseIndicator from '@/components/PhaseIndicator.vue'
-import MermaidDiagram from '@/components/MermaidDiagram.vue'
+import { onMounted, ref, computed } from "vue";
+import { useArtifacts } from "@/composables/useArtifacts";
+import { useDiffs } from "@/composables/useDiffs";
+import { useProjectStore } from "@/stores/project";
+import { listPendingApprovals } from "@/api/approvals";
+import { getArtifactGraph } from "@/api/artifacts";
+import type { ApprovalListResponse } from "@/api/types";
+import StatsCard from "@/components/StatsCard.vue";
+import ActivityFeed from "@/components/ActivityFeed.vue";
+import PhaseIndicator from "@/components/PhaseIndicator.vue";
+import MermaidDiagram from "@/components/MermaidDiagram.vue";
 
-const projectStore = useProjectStore()
-const { stats, fetchStats } = useArtifacts()
-const { pendingDiffs, fetchDiffs } = useDiffs()
+const projectStore = useProjectStore();
+const { stats, fetchStats } = useArtifacts();
+const { pendingDiffs, fetchDiffs } = useDiffs();
 
-const approvals = ref<ApprovalListResponse | null>(null)
-const loading = ref(true)
-const artifactGraph = ref<string>('')
-const graphLoading = ref(false)
-const graphError = ref<string | null>(null)
+const approvals = ref<ApprovalListResponse | null>(null);
+const loading = ref(true);
+const artifactGraph = ref<string>("");
+const graphLoading = ref(false);
+const graphError = ref<string | null>(null);
 
-const hasArtifacts = computed(() => (stats.value?.total ?? 0) > 0)
+const hasArtifacts = computed(() => (stats.value?.total ?? 0) > 0);
 
 onMounted(async () => {
-  loading.value = true
+  loading.value = true;
   await Promise.all([
     projectStore.refresh(),
     fetchStats(),
     fetchDiffs(),
     loadApprovals(),
-  ])
-  loading.value = false
+  ]);
+  loading.value = false;
+
+  // Redirect to init if not initialized
+  if (!projectStore.isInitialized) {
+    import("@/router").then((m) => m.default.push("/init"));
+    return;
+  }
 
   // Load graph after stats are available
   if (hasArtifacts.value) {
-    await loadArtifactGraph()
+    await loadArtifactGraph();
   }
-})
+});
 
 async function loadApprovals(): Promise<void> {
   try {
-    approvals.value = await listPendingApprovals()
+    approvals.value = await listPendingApprovals();
   } catch (e) {
-    console.error('Failed to load approvals:', e)
+    console.error("Failed to load approvals:", e);
   }
 }
 
 async function loadArtifactGraph(): Promise<void> {
-  graphLoading.value = true
-  graphError.value = null
+  graphLoading.value = true;
+  graphError.value = null;
   try {
-    const result = await getArtifactGraph()
-    artifactGraph.value = result.diagram
+    const result = await getArtifactGraph();
+    artifactGraph.value = result.diagram;
   } catch (e) {
-    console.error('Failed to load artifact graph:', e)
-    graphError.value = 'Failed to load artifact relationships'
+    console.error("Failed to load artifact graph:", e);
+    graphError.value = "Failed to load artifact relationships";
   } finally {
-    graphLoading.value = false
+    graphLoading.value = false;
   }
 }
 
 async function refreshGraph(): Promise<void> {
-  await loadArtifactGraph()
+  await loadArtifactGraph();
 }
 </script>
 
@@ -108,7 +114,9 @@ async function refreshGraph(): Promise<void> {
       <!-- Artifact breakdown -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="card">
-          <h2 class="text-lg font-semibold text-white mb-4">Artifacts by Type</h2>
+          <h2 class="text-lg font-semibold text-white mb-4">
+            Artifacts by Type
+          </h2>
           <div v-if="stats" class="space-y-2">
             <div
               v-for="(count, type) in stats.by_type"
@@ -118,26 +126,36 @@ async function refreshGraph(): Promise<void> {
               <span class="text-gray-300">{{ type }}</span>
               <span class="text-rf-accent font-mono">{{ count }}</span>
             </div>
-            <div v-if="Object.keys(stats.by_type).length === 0" class="text-gray-500 text-sm">
+            <div
+              v-if="Object.keys(stats.by_type).length === 0"
+              class="text-gray-500 text-sm"
+            >
               No artifacts yet
             </div>
           </div>
         </div>
 
         <div class="card">
-          <h2 class="text-lg font-semibold text-white mb-4">Artifacts by Status</h2>
+          <h2 class="text-lg font-semibold text-white mb-4">
+            Artifacts by Status
+          </h2>
           <div v-if="stats" class="space-y-2">
             <div
               v-for="(count, status) in stats.by_status"
               :key="status"
               class="flex items-center justify-between text-sm"
             >
-              <span :class="['status-' + status, 'px-2 py-0.5 rounded text-xs']">
+              <span
+                :class="['status-' + status, 'px-2 py-0.5 rounded text-xs']"
+              >
                 {{ status }}
               </span>
               <span class="text-rf-accent font-mono">{{ count }}</span>
             </div>
-            <div v-if="Object.keys(stats.by_status).length === 0" class="text-gray-500 text-sm">
+            <div
+              v-if="Object.keys(stats.by_status).length === 0"
+              class="text-gray-500 text-sm"
+            >
               No artifacts yet
             </div>
           </div>
@@ -147,13 +165,15 @@ async function refreshGraph(): Promise<void> {
       <!-- Artifact Relationship Graph -->
       <div v-if="hasArtifacts" class="card">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-white">Artifact Relationships</h2>
+          <h2 class="text-lg font-semibold text-white">
+            Artifact Relationships
+          </h2>
           <button
             class="btn btn-secondary text-sm"
             :disabled="graphLoading"
             @click="refreshGraph"
           >
-            {{ graphLoading ? 'Loading...' : 'Refresh' }}
+            {{ graphLoading ? "Loading..." : "Refresh" }}
           </button>
         </div>
         <div v-if="graphLoading" class="flex items-center justify-center py-8">
@@ -163,7 +183,10 @@ async function refreshGraph(): Promise<void> {
           {{ graphError }}
         </div>
         <div v-else-if="artifactGraph" class="overflow-x-auto">
-          <MermaidDiagram :diagram="artifactGraph" id="dashboard-artifact-graph" />
+          <MermaidDiagram
+            :diagram="artifactGraph"
+            id="dashboard-artifact-graph"
+          />
         </div>
         <div v-else class="text-gray-500 text-sm py-4">
           No artifact relationships to display
