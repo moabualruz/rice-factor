@@ -20,3 +20,18 @@
 - CLI entry: `rice-factor tui` command
 - Keyboard bindings: q (quit), w (workflow), a (artifacts), r (refresh), ? (help)
 - Integrates with PhaseService and ArtifactService when project is initialized
+
+## Branding
+The TUI uses Rice-Factor brand colors from `.branding/`:
+- **Primary**: `#00a020` (bright green)
+- **Secondary**: `#009e20` (darker green)
+- **Accent**: `#00c030` (lighter green)
+- **Background Dark**: `#0a1a0a` (dark green-black)
+- **Background Light**: `#102010` (lighter green-black)
+
+### Recommended Font
+For the best visual experience, use the **Terminus (Nerd Font)** included in `.branding/Terminus/`:
+- `TerminessNerdFontMono-Regular.ttf` - Regular weight
+- `TerminessNerdFontMono-Bold.ttf` - Bold weight
+
+Configure your terminal emulator to use this font for the TUI.
