@@ -96,6 +96,16 @@ module = [
     "openai.*",
     "rope",
     "rope.*",
+    "httpx",
+    "httpx.*",
+    "requests",
+    "requests.*",
+    "psutil",
+    "psutil.*",
+    "tree_sitter",
+    "tree_sitter.*",
+    "tree_sitter_language_pack",
+    "tree_sitter_language_pack.*",
 ]
 ignore_missing_imports = true
 
@@ -126,6 +136,11 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["TC002"]  # Allow runtime type imports in tests for cast()
+# Tree-sitter parsing adapters use class attributes for configuration patterns
+# ARG002: Unused args are intentional (subclass hooks, future use)
+# RUF012: Mutable class attrs are intentional for language configurations
+# SIM102: Nested ifs are kept for readability in matching logic
+"rice_factor/adapters/parsing/**/*.py" = ["ARG002", "RUF012", "SIM102"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["rice_factor"]

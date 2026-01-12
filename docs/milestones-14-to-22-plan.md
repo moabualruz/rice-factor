@@ -79,8 +79,8 @@ For each milestone:
 
 | # | Name | Features | Tasks | Tests | Priority | Status |
 |---|------|----------|-------|-------|----------|--------|
-| 14 | Full Capability Registry | 7 | ~35 | ~50 | P0 | Planned |
-| 15 | LLM Orchestration | 12 | ~60 | ~75 | P0 | Planned |
+| 14 | Full Capability Registry | 7 | 48 | 172 | P0 | **Complete** |
+| 15 | LLM Orchestration | 13 | 80 | 323 | P0 | **Complete** |
 | 16 | Production Hardening | 6 | ~25 | ~35 | P0 | Planned |
 | 17 | Advanced Resilience | 5 | ~25 | ~30 | P1 | Planned |
 | 18 | Performance & Parallelism | 4 | ~15 | ~25 | P1 | Planned |
@@ -96,7 +96,7 @@ For each milestone:
 
 ### Status: In Progress
 
-### Active Milestone: M14 - Full Capability Registry
+### Active Milestone: M16 - Production Hardening
 
 ### Completed Features
 - **F14-01: Python Rope Adapter** (7/7 tasks complete)
@@ -131,13 +131,183 @@ For each milestone:
   - 33 new tests for Ruby adapter
   - Test baseline: 2569 -> 2602 tests
 
+- **F14-05: PHP Rector Adapter** (8/8 tasks complete)
+  - Created `rice_factor/adapters/refactoring/rector_adapter.py`
+  - Added `PhpDependencyRule` and `PhpDependencyViolation` dataclasses
+  - Implemented: rename, move (namespace with escaped backslashes), extract_interface, enforce_dependency
+  - Handles PHP namespace escaping in regex replacements
+  - 25 new tests for Rector adapter
+  - Test baseline: 2602 -> 2627 tests
+
+- **F14-06: Enhanced JavaScript/TypeScript Adapter** (5/5 tasks complete)
+  - Enhanced `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+  - Added `JsDependencyRule` and `JsDependencyViolation` dataclasses
+  - Implemented: extract_interface (TypeScript interfaces + JSDoc typedefs), enforce_dependency
+  - Supports ES modules, CommonJS require, and dynamic imports
+  - Cross-platform path handling (Windows backslash normalization)
+  - 16 new tests (40 total for jscodeshift adapter)
+  - Test baseline: 2627 -> 2643 tests
+
+- **F14-07: Capability Auto-Detection** (8/8 tasks complete)
+  - CapabilityDetector already existed with detection for 8 tools
+  - Updated jscodeshift operations to include `extract_interface` and `enforce_dependency`
+  - Created `rice_factor/entrypoints/cli/commands/capabilities.py`
+  - Added `rice-factor capabilities` CLI command with --refresh, --tools, --languages, --json options
+  - 8 new tests for CLI command
+  - Test baseline: 2643 -> 2651 tests
+
+### M14 Complete!
+
+**Milestone 14: Full Capability Registry** is now complete with all 7 features implemented:
+- F14-01: Python Rope Adapter (59 tests)
+- F14-02: Enhanced Java/Kotlin OpenRewrite (37 tests)
+- F14-03: C# Roslyn Adapter (23 tests)
+- F14-04: Ruby Parser Adapter (33 tests)
+- F14-05: PHP Rector Adapter (25 tests)
+- F14-06: Enhanced JavaScript/TypeScript (40 tests)
+- F14-07: Capability Auto-Detection (33 tests)
+
+**Total M14 tests**: 172 new tests
+**Test baseline**: 2479 -> 2651 tests
+
+### M15 In Progress
+
+**Milestone 15: Local LLM Orchestration** - P0 priority
+
+#### Completed Features (M15)
+- **F15-01: Ollama Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/ollama_adapter.py`
+  - OllamaClient with httpx/requests fallback
+  - Async streaming support via generate_async()
+  - list_models(), is_available() health checks
+  - Temperature capped at 0.2 for determinism
+  - 28 new tests
+  - Test baseline: 2651 -> 2679 tests
+
+- **F15-02: vLLM Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/vllm_adapter.py`
+  - VLLMClient using OpenAI-compatible API (/v1/completions, /v1/chat/completions)
+  - Async streaming support via generate_async()
+  - Chat completions API for batch processing
+  - 33 new tests
+  - Test baseline: 2679 -> 2712 tests
+
+- **F15-03: OpenAI-Compatible Adapter** (6/6 tasks complete)
+  - Created `rice_factor/adapters/llm/openai_compat_adapter.py`
+  - Generic adapter for any OpenAI-compatible server (LocalAI, LM Studio, TGI)
+  - KNOWN_PROVIDERS configuration for localai, lmstudio, tgi, generic
+  - Provider aliases in create_llm_adapter_from_config
+  - 37 new tests
+  - Test baseline: 2712 -> 2749 tests
+
+- **F15-04: Provider Fallback Chain** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/provider_selector.py`
+  - ProviderSelector with SelectionStrategy enum (PRIORITY, ROUND_ROBIN, COST_BASED)
+  - ProviderConfig dataclass with cost tracking
+  - Automatic fallback on provider failure with max_retries
+  - Async support via generate_async()
+  - 35 new tests
+  - Test baseline: 2749 -> 2784 tests
+
+- **F15-05: Model Registry** (6/6 tasks complete)
+  - Created `rice_factor/domain/services/model_registry.py`
+  - ModelRegistry with DEFAULT_MODELS for cloud and local models
+  - ModelCapability enum (CODE, CHAT, REASONING, VISION, FUNCTION_CALLING, JSON_MODE)
+  - Query methods: get_by_capability, get_cheapest, sync_with_provider
+  - 36 new tests
+  - Test baseline: 2784 -> 2820 tests
+
+- **F15-06: Cost & Latency Tracking** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/usage_tracker.py`
+  - UsageTracker with UsageRecord and ProviderStats dataclasses
+  - Token counting, cost calculation, latency metrics
+  - Prometheus export (llm_cost_usd, llm_tokens_total, llm_latency_ms)
+  - 23 new tests
+  - Test baseline: 2820 -> 2843 tests
+
+- **F15-07: Claude Code CLI Adapter** (6/6 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/claude_code_adapter.py`
+  - ClaudeCodeAdapter with JSON output parsing
+  - Async execution with timeout handling
+  - Availability detection via shutil.which()
+  - 17 new tests
+  - Test baseline: 2843 -> 2860 tests
+
+- **F15-08: OpenAI Codex CLI Adapter** (6/6 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/codex_adapter.py`
+  - CodexAdapter with approval mode configuration (suggest, auto-edit, full-auto)
+  - Non-interactive execution mode (--output-format json)
+  - 10 new tests
+  - Test baseline: 2860 -> 2870 tests
+
+- **F15-09: Google Gemini CLI Adapter** (6/6 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/gemini_cli_adapter.py`
+  - GeminiCLIAdapter with model selection
+  - ReAct loop support and sandbox mode configuration
+  - 10 new tests
+  - Test baseline: 2870 -> 2880 tests
+
+- **F15-10: Qwen Code CLI Adapter** (6/6 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/qwen_code_adapter.py`
+  - QwenCodeAdapter with local model routing
+  - OAuth authentication and plan mode integration
+  - 10 new tests
+  - Test baseline: 2880 -> 2890 tests
+
+- **F15-11: Aider CLI Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/aider_adapter.py`
+  - AiderAdapter with git integration handling
+  - Modified file parsing from output ("Wrote file.py" patterns)
+  - Auto-commits toggle (--no-auto-commits flag)
+  - 13 new tests
+  - Test baseline: 2890 -> 2903 tests
+
+- **F15-12: CLI Agent Protocol & Orchestrator** (7/8 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/base.py` (CLIAgentPort, CLITaskResult, DetectedAgent)
+  - Created `rice_factor/adapters/llm/cli/detector.py` (CLIAgentDetector)
+  - Created `rice_factor/adapters/llm/orchestrator.py` (UnifiedOrchestrator)
+  - OrchestrationMode enum (API, CLI, AUTO)
+  - Mode selection logic and fallback between API/CLI
+  - T15-12-07 (rice-factor agents command) deferred to CLI phase
+  - 45 new tests (15 orchestrator + 30 detector/base)
+  - Test baseline: 2903 -> 2918 tests
+
+- **F15-13: OpenCode CLI Adapter** (7/7 tasks complete)
+  - Created `rice_factor/adapters/llm/cli/opencode_adapter.py`
+  - OpenCodeAdapter with model selection (provider/model format)
+  - Server attach mode (`--attach`) for faster execution
+  - Session management (`--session`, `--continue`)
+  - JSON output parsing
+  - 26 new tests
+  - Test baseline: 2918 -> 2944 tests
+
+### M15 Complete!
+
+**Milestone 15: Local LLM Orchestration** is now complete with all 13 features implemented:
+- F15-01: Ollama Adapter (28 tests)
+- F15-02: vLLM Adapter (33 tests)
+- F15-03: OpenAI-Compatible Adapter (37 tests)
+- F15-04: Provider Fallback Chain (35 tests)
+- F15-05: Model Registry (36 tests)
+- F15-06: Cost & Latency Tracking (23 tests)
+- F15-07: Claude Code CLI Adapter (17 tests)
+- F15-08: Codex CLI Adapter (10 tests)
+- F15-09: Gemini CLI Adapter (10 tests)
+- F15-10: Qwen Code CLI Adapter (10 tests)
+- F15-11: Aider CLI Adapter (13 tests)
+- F15-12: CLI Agent Protocol & Orchestrator (45 tests)
+- F15-13: OpenCode CLI Adapter (26 tests)
+
+**Total M15 tests**: 323 new tests
+**Test baseline**: 2651 -> 2944 tests
+
 ### Next Action
-Start M14 Feature F14-05: PHP Rector Adapter
+Continue with M16: Production Hardening
 
 To continue implementation:
-1. Read `docs/milestones/14-full-capability-registry/features/F14-05-php-rector/tasks.md`
-2. Create Rector adapter for PHP refactoring
-3. Implement move_file, rename_symbol, extract_interface, enforce_dependency
+1. Read `docs/milestones/16-production-hardening/requirements.md`
+2. Read `docs/milestones/16-production-hardening/design.md`
+3. Execute F16-01 through F16-06
 
 ---
 

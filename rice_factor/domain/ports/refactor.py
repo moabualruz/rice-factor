@@ -36,6 +36,9 @@ class RefactorRequest:
         file_path: Optional specific file to operate on.
         line: Optional line number for position-based operations.
         column: Optional column number for position-based operations.
+        interface_name: Name for extracted interface (EXTRACT_INTERFACE operation).
+        dependency_rules: Dependency rules for ENFORCE_DEPENDENCY operation.
+            Format: {"forbidden": ["pkg1", "pkg2"], "allowed": ["pkg3"]}.
     """
 
     operation: RefactorOperation
@@ -45,6 +48,8 @@ class RefactorRequest:
     file_path: str | None = None
     line: int | None = None
     column: int | None = None
+    interface_name: str | None = None
+    dependency_rules: dict[str, list[str]] | None = None
 
 
 @dataclass

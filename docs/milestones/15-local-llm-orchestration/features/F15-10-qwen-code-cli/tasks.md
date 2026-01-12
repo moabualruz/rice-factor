@@ -1,14 +1,14 @@
 # F15-10: Qwen Code CLI Adapter - Tasks
 
 ## Tasks
-### T15-10-01: Implement QwenCodeAdapter
-### T15-10-02: Add OAuth Authentication Support
-### T15-10-03: Implement Plan Mode Integration
-### T15-10-04: Add Local Model Routing (Ollama)
-### T15-10-05: Implement Output Parsing
-### T15-10-06: Write Unit Tests
+### T15-10-01: Implement QwenCodeAdapter ✅
+### T15-10-02: Add OAuth Authentication Support ✅
+### T15-10-03: Implement Plan Mode Integration ✅
+### T15-10-04: Add Local Model Routing (Ollama) ✅
+### T15-10-05: Implement Output Parsing ✅
+### T15-10-06: Write Unit Tests ✅
 
-## Estimated Test Count: ~7
+## Estimated Test Count: ~7 (Actual: 10)
 
 ## Implementation Notes
 

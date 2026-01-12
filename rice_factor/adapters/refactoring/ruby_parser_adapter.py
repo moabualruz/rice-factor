@@ -336,9 +336,13 @@ class RubyParserAdapter(RefactorToolPort):
                 )
                 # Capture old/new in closure to avoid B023
                 old_req, new_req = old_require, new_require
+
+                def replace_require(m: re.Match[str], old: str = old_req, new: str = new_req) -> str:
+                    return m.group(0).replace(old, new)
+
                 new_content = re.sub(
                     rf"require_relative\s+['\"].*{re.escape(old_require)}",
-                    lambda m, old=old_req, new=new_req: m.group(0).replace(old, new),
+                    replace_require,
                     new_content,
                 )
 

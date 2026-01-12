@@ -1,10 +1,12 @@
 """gopls adapter for Go refactoring.
 
 gopls is the official Go language server that provides refactoring
-capabilities through LSP. This adapter uses gorename for CLI-based
-renames and gopls for other operations.
+capabilities through LSP. This adapter uses:
+- Tree-sitter for AST-based operations (extract_interface, enforce_dependency)
+- gorename/gopls for semantic operations (rename)
 """
 
+import logging
 import subprocess
 from pathlib import Path
 from typing import ClassVar
@@ -17,12 +19,14 @@ from rice_factor.domain.ports.refactor import (
     RefactorToolPort,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class GoplsAdapter(RefactorToolPort):
-    """Adapter for gopls (Go Language Server).
+    """Adapter for Go refactoring with tree-sitter AST and gopls LSP.
 
-    Uses gorename for rename operations and gopls for other refactoring.
-    Requires Go tools to be installed.
+    Uses tree-sitter for structural operations (extract_interface, enforce_dependency)
+    and gopls/gorename for semantic operations (rename).
 
     Attributes:
         project_root: Root directory of the Go project.
@@ -32,6 +36,8 @@ class GoplsAdapter(RefactorToolPort):
 
     OPERATIONS: ClassVar[list[RefactorOperation]] = [
         RefactorOperation.RENAME,
+        RefactorOperation.EXTRACT_INTERFACE,
+        RefactorOperation.ENFORCE_DEPENDENCY,
         RefactorOperation.EXTRACT_METHOD,
         RefactorOperation.INLINE,
     ]
@@ -123,6 +129,10 @@ class GoplsAdapter(RefactorToolPort):
 
         if request.operation == RefactorOperation.RENAME:
             return self._rename(request, dry_run)
+        elif request.operation == RefactorOperation.EXTRACT_INTERFACE:
+            return self._extract_interface(request, dry_run)
+        elif request.operation == RefactorOperation.ENFORCE_DEPENDENCY:
+            return self._enforce_dependency(request, dry_run)
         elif request.operation == RefactorOperation.EXTRACT_METHOD:
             return self._extract_method(request, dry_run)
         elif request.operation == RefactorOperation.INLINE:
@@ -279,6 +289,260 @@ class GoplsAdapter(RefactorToolPort):
             tool_used="gopls",
             dry_run=dry_run,
         )
+
+    def _extract_interface(
+        self,
+        request: RefactorRequest,
+        dry_run: bool,
+    ) -> RefactorResult:
+        """Extract interface from a Go struct using tree-sitter AST.
+
+        Parses the struct and its methods, generates an interface definition.
+
+        Args:
+            request: The extract interface request.
+            dry_run: If True, only preview changes.
+
+        Returns:
+            RefactorResult with the generated interface.
+        """
+        if not request.file_path:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["file_path is required for extract_interface"],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
+
+        try:
+            from rice_factor.adapters.parsing import TreeSitterAdapter
+            from rice_factor.domain.ports.ast import SymbolKind, Visibility
+
+            parser = TreeSitterAdapter()
+            if not parser.is_available():
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=[
+                        "tree-sitter not available. Install: pip install tree-sitter-language-pack"
+                    ],
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Parse the file
+            result = parser.parse_file(request.file_path)
+            if not result.success:
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=result.errors,
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Find the target struct
+            target_struct = None
+            for symbol in result.symbols:
+                if symbol.kind == SymbolKind.STRUCT and symbol.name == request.target:
+                    target_struct = symbol
+                    break
+
+            if not target_struct:
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=[f"Struct '{request.target}' not found in {request.file_path}"],
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Find all public methods with this struct as receiver
+            methods = [
+                s
+                for s in result.symbols
+                if s.kind == SymbolKind.METHOD
+                and s.parent_name == request.target
+                and s.visibility == Visibility.PUBLIC
+            ]
+
+            if not methods:
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=[f"No public methods found for struct '{request.target}'"],
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Generate interface name
+            interface_name = request.new_value or f"{request.target}er"
+
+            # Generate interface definition
+            interface_lines = [f"type {interface_name} interface {{"]
+            for method in methods:
+                # Build method signature
+                params = ", ".join(
+                    f"{p.name} {p.type_annotation}" if p.type_annotation else p.name
+                    for p in method.parameters
+                    if p.name != "self"  # Skip receiver
+                )
+                return_type = method.return_type or ""
+                if return_type:
+                    interface_lines.append(f"\t{method.name}({params}) {return_type}")
+                else:
+                    interface_lines.append(f"\t{method.name}({params})")
+            interface_lines.append("}")
+            interface_code = "\n".join(interface_lines)
+
+            # Read original file
+            file_path = Path(request.file_path)
+            original_content = file_path.read_text(encoding="utf-8")
+
+            # Insert interface after struct definition
+            insert_position = target_struct.line_end
+            lines = original_content.split("\n")
+            new_lines = [
+                *lines[:insert_position],
+                "",
+                interface_code,
+                "",
+                *lines[insert_position:],
+            ]
+            new_content = "\n".join(new_lines)
+
+            changes = [
+                RefactorChange(
+                    file_path=str(file_path),
+                    original_content=original_content,
+                    new_content=new_content,
+                    description=f"Extracted interface {interface_name} from {request.target}",
+                )
+            ]
+
+            if not dry_run:
+                file_path.write_text(new_content, encoding="utf-8")
+
+            return RefactorResult(
+                success=True,
+                changes=changes,
+                errors=[],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
+
+        except Exception as e:
+            logger.error(f"Error in extract_interface: {e}")
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=[str(e)],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
+
+    def _enforce_dependency(
+        self,
+        request: RefactorRequest,
+        dry_run: bool,
+    ) -> RefactorResult:
+        """Analyze and enforce dependency rules using tree-sitter AST.
+
+        Parses imports and checks against dependency rules.
+
+        Args:
+            request: The enforce dependency request.
+            dry_run: If True, only report violations.
+
+        Returns:
+            RefactorResult with dependency violations.
+        """
+        if not request.file_path:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["file_path is required for enforce_dependency"],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
+
+        try:
+            from rice_factor.adapters.parsing import TreeSitterAdapter
+
+            parser = TreeSitterAdapter()
+            if not parser.is_available():
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=[
+                        "tree-sitter not available. Install: pip install tree-sitter-language-pack"
+                    ],
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Parse the file
+            result = parser.parse_file(request.file_path)
+            if not result.success:
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=result.errors,
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                )
+
+            # Get imports
+            imports = result.imports
+
+            # Parse dependency rules from request.dependency_rules
+            rules = request.dependency_rules or {}
+            forbidden = rules.get("forbidden", [])
+            allowed = rules.get("allowed", [])
+
+            violations: list[str] = []
+            for imp in imports:
+                # Check forbidden imports
+                for pattern in forbidden:
+                    if pattern in imp.module:
+                        violations.append(
+                            f"Line {imp.line}: Forbidden import '{imp.module}' (matches '{pattern}')"
+                        )
+
+                # Check if import is in allowed list (if allowed list is specified)
+                if allowed and not any(pattern in imp.module for pattern in allowed):
+                    violations.append(
+                        f"Line {imp.line}: Import '{imp.module}' not in allowed list"
+                    )
+
+            if violations:
+                return RefactorResult(
+                    success=False,
+                    changes=[],
+                    errors=violations,
+                    tool_used="tree-sitter",
+                    dry_run=dry_run,
+                    warnings=[f"Found {len(violations)} dependency violations"],
+                )
+
+            return RefactorResult(
+                success=True,
+                changes=[],
+                errors=[],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
+
+        except Exception as e:
+            logger.error(f"Error in enforce_dependency: {e}")
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=[str(e)],
+                tool_used="tree-sitter",
+                dry_run=dry_run,
+            )
 
     def _extract_method(
         self,

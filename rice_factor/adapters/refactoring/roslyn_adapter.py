@@ -4,6 +4,8 @@ Roslyn is the .NET Compiler Platform that provides rich code analysis APIs
 for C# and Visual Basic. This adapter uses the dotnet CLI with Roslynator
 or other Roslyn-based tools to perform AST-based refactoring.
 
+Now enhanced with tree-sitter AST for method extraction.
+
 Documentation:
 - Roslyn: https://github.com/dotnet/roslyn
 - Roslynator: https://github.com/dotnet/roslynator
@@ -11,12 +13,15 @@ Documentation:
 
 from __future__ import annotations
 
+import logging
 import re
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path  # noqa: TC003 - Path used at runtime
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
+from rice_factor.adapters.parsing.treesitter_adapter import TreeSitterAdapter
+from rice_factor.domain.ports.ast import ParseResult, SymbolKind, Visibility
 from rice_factor.domain.ports.refactor import (
     RefactorChange,
     RefactorOperation,
@@ -27,6 +32,8 @@ from rice_factor.domain.ports.refactor import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -90,6 +97,32 @@ class RoslynAdapter(RefactorToolPort):
         self.project_root = project_root
         self._dotnet_version: str | None = None
         self._has_roslynator: bool | None = None
+        self._ast_adapter: TreeSitterAdapter | None = None
+
+    def _get_ast_adapter(self) -> TreeSitterAdapter | None:
+        """Get or create tree-sitter adapter for AST parsing."""
+        if self._ast_adapter is not None:
+            return self._ast_adapter
+        try:
+            self._ast_adapter = TreeSitterAdapter()
+            return self._ast_adapter
+        except (ImportError, RuntimeError):
+            logger.warning("tree-sitter not available for AST parsing")
+            return None
+
+    def _parse_file(self, file_path: Path, content: str | None = None) -> ParseResult | None:
+        """Parse a C# file using tree-sitter."""
+        ast_adapter = self._get_ast_adapter()
+        if not ast_adapter:
+            return None
+        try:
+            if content is None:
+                content = file_path.read_text(encoding="utf-8")
+            result = ast_adapter.parse_file(str(file_path), content)
+            return result if result.success else None
+        except (OSError, ValueError) as e:
+            logger.error(f"Failed to parse {file_path}: {e}")
+            return None
 
     def get_supported_languages(self) -> list[str]:
         """Return supported languages."""
@@ -585,17 +618,66 @@ class RoslynAdapter(RefactorToolPort):
         content: str,
         class_name: str,
         filter_methods: Sequence[str] | None,
+        file_path: Path | None = None,
     ) -> list[dict[str, Any]]:
-        """Extract method signatures from a C# class.
+        """Extract method signatures from a C# class using tree-sitter AST.
 
         Args:
             content: C# source code.
             class_name: Name of the class to extract from.
             filter_methods: Optional list of method names to include.
+            file_path: Optional file path for AST parsing.
 
         Returns:
             List of method signature dictionaries.
         """
+        signatures: list[dict[str, Any]] = []
+
+        # Try tree-sitter first
+        parse_result = self._parse_file(file_path or Path("temp.cs"), content)
+
+        if parse_result:
+            for symbol in parse_result.symbols:
+                # Find methods in the target class
+                if symbol.parent_name != class_name:
+                    continue
+                if symbol.kind != SymbolKind.METHOD:
+                    continue
+                if symbol.visibility != Visibility.PUBLIC:
+                    continue
+
+                # Filter if specified
+                if filter_methods and symbol.name not in filter_methods:
+                    continue
+
+                # Build params string (C# style: Type name)
+                params_parts = []
+                for p in symbol.parameters:
+                    if p.type_annotation:
+                        params_parts.append(f"{p.type_annotation} {p.name}")
+                    else:
+                        params_parts.append(p.name)
+
+                signatures.append({
+                    "name": symbol.name,
+                    "return_type": symbol.return_type or "void",
+                    "params": ", ".join(params_parts),
+                    "is_async": "async" in (symbol.modifiers or []),
+                })
+
+            return signatures
+
+        # Fallback to regex if tree-sitter fails
+        logger.warning("Tree-sitter not available, falling back to regex")
+        return self._extract_csharp_methods_regex(content, class_name, filter_methods)
+
+    def _extract_csharp_methods_regex(
+        self,
+        content: str,
+        class_name: str,
+        filter_methods: Sequence[str] | None,
+    ) -> list[dict[str, Any]]:
+        """Fallback regex-based method extraction for C#."""
         signatures: list[dict[str, Any]] = []
 
         # Find the class
@@ -604,10 +686,8 @@ class RoslynAdapter(RefactorToolPort):
         if not class_match:
             return signatures
 
-        # Extract class body (simplified - doesn't handle nested braces perfectly)
         class_start = class_match.end()
 
-        # Find public methods
         # Pattern: public [modifiers] ReturnType MethodName(params)
         method_pattern = (
             r"public\s+(?:(?:static|virtual|override|async)\s+)*"
@@ -632,14 +712,12 @@ class RoslynAdapter(RefactorToolPort):
             # Check if it's async
             is_async = "async" in content[class_start + match.start() - 20:class_start + match.start()]
 
-            signatures.append(
-                {
-                    "name": method_name,
-                    "return_type": return_type,
-                    "params": params,
-                    "is_async": is_async,
-                }
-            )
+            signatures.append({
+                "name": method_name,
+                "return_type": return_type,
+                "params": params,
+                "is_async": is_async,
+            })
 
         return signatures
 

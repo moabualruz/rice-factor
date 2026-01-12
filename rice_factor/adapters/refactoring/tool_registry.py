@@ -60,9 +60,9 @@ class RefactoringToolRegistry:
         from rice_factor.adapters.refactoring.openrewrite_adapter import (
             OpenRewriteAdapter,
         )
+        from rice_factor.adapters.refactoring.rector_adapter import RectorAdapter
         from rice_factor.adapters.refactoring.rope_adapter import RopeAdapter
         from rice_factor.adapters.refactoring.roslyn_adapter import RoslynAdapter
-        from rice_factor.adapters.refactoring.rector_adapter import RectorAdapter
         from rice_factor.adapters.refactoring.ruby_parser_adapter import (
             RubyParserAdapter,
         )

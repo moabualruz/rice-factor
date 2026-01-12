@@ -261,7 +261,7 @@ class CapabilityDetector:
             available=version is not None,
             version=version,
             languages=["javascript", "typescript", "jsx", "tsx"],
-            operations=["rename", "move"],
+            operations=["rename", "move", "extract_interface", "enforce_dependency"],
         )
 
     def _detect_gopls(self) -> ToolAvailability:

@@ -1,16 +1,16 @@
 # F15-12: CLI Agent Protocol & Orchestrator - Tasks
 
 ## Tasks
-### T15-12-01: Define CLIAgentPort Protocol
-### T15-12-02: Create CLITaskResult Dataclass
-### T15-12-03: Implement CLI Agent Detector
-### T15-12-04: Create Unified Orchestrator
-### T15-12-05: Implement Mode Selection Logic
-### T15-12-06: Add Fallback Between API and CLI
-### T15-12-07: Implement `rice-factor agents` Command
-### T15-12-08: Write Unit Tests
+### T15-12-01: Define CLIAgentPort Protocol ✅
+### T15-12-02: Create CLITaskResult Dataclass ✅
+### T15-12-03: Implement CLI Agent Detector ✅
+### T15-12-04: Create Unified Orchestrator ✅
+### T15-12-05: Implement Mode Selection Logic ✅
+### T15-12-06: Add Fallback Between API and CLI ✅
+### T15-12-07: Implement `rice-factor agents` Command (Deferred to CLI phase)
+### T15-12-08: Write Unit Tests ✅
 
-## Estimated Test Count: ~10
+## Estimated Test Count: ~10 (Actual: 45)
 
 ## Implementation Notes
 

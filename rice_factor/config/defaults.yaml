@@ -32,3 +32,48 @@ paths:
   artifacts_dir: ".project/artifacts"
   audit_dir: ".project/audit"
   staging_dir: ".project/staging"
+
+# AST Parsing Configuration
+parsing:
+  provider: "treesitter"         # treesitter (multi-language AST parser)
+  fallback_enabled: false        # No regex fallback - AST or error
+
+# LSP Server Configuration
+lsp:
+  enabled: true                  # Enable LSP for rename/references
+  one_shot_mode: true            # Start -> execute -> kill (no resident servers)
+  default_timeout: 60            # Default timeout in seconds
+
+  servers:
+    gopls:
+      command: ["gopls", "serve"]
+      languages: ["go"]
+      memory_limit_mb: 4096      # gopls can use 9-14GB on large projects
+      on_memory_exceed: "kill"   # kill | warn
+      timeout_seconds: 60
+      install_hint: "go install golang.org/x/tools/gopls@latest"
+
+    rust_analyzer:
+      command: ["rust-analyzer"]
+      languages: ["rust"]
+      memory_limit_mb: 3072      # rust-analyzer uses 4-5GB commonly
+      on_memory_exceed: "kill"
+      timeout_seconds: 120       # Rust analysis can be slow
+      initialization_timeout: 60 # Initial indexing takes time
+      install_hint: "rustup component add rust-analyzer"
+
+    typescript_language_server:
+      command: ["typescript-language-server", "--stdio"]
+      languages: ["typescript", "javascript"]
+      memory_limit_mb: 2048
+      on_memory_exceed: "kill"
+      timeout_seconds: 60
+      install_hint: "npm install -g typescript-language-server typescript"
+
+    pylsp:
+      command: ["pylsp"]
+      languages: ["python"]
+      memory_limit_mb: 1024
+      on_memory_exceed: "warn"   # Rope handles most Python operations
+      timeout_seconds: 60
+      install_hint: "pip install python-lsp-server"

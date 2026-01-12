@@ -1,14 +1,14 @@
 # F15-08: OpenAI Codex CLI Adapter - Tasks
 
 ## Tasks
-### T15-08-01: Implement CodexAdapter
-### T15-08-02: Add Non-Interactive Execution Mode
-### T15-08-03: Implement Approval Mode Configuration
-### T15-08-04: Add JSON Output Parsing
-### T15-08-05: Implement Model Selection
-### T15-08-06: Write Unit Tests
+### T15-08-01: Implement CodexAdapter ✅
+### T15-08-02: Add Non-Interactive Execution Mode ✅
+### T15-08-03: Implement Approval Mode Configuration ✅
+### T15-08-04: Add JSON Output Parsing ✅
+### T15-08-05: Implement Model Selection ✅
+### T15-08-06: Write Unit Tests ✅
 
-## Estimated Test Count: ~7
+## Estimated Test Count: ~7 (Actual: 10)
 
 ## Implementation Notes
 

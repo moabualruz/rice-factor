@@ -72,6 +72,7 @@ from rice_factor.entrypoints.cli.commands import (
     approve,
     artifact,
     audit,
+    capabilities,
     ci,
     diagnose,
     impl,
@@ -106,6 +107,7 @@ app.add_typer(ci.app, name="ci")
 app.add_typer(audit.app, name="audit")
 app.add_typer(artifact.app, name="artifact")
 app.command(name="reconcile")(reconcile.reconcile)
+app.command(name="capabilities")(capabilities.capabilities)
 
 
 if __name__ == "__main__":

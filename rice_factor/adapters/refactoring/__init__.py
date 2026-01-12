@@ -24,7 +24,11 @@ from rice_factor.adapters.refactoring.capability_detector import (
 )
 from rice_factor.adapters.refactoring.diff_patch_adapter import DiffPatchAdapter
 from rice_factor.adapters.refactoring.gopls_adapter import GoplsAdapter
-from rice_factor.adapters.refactoring.jscodeshift_adapter import JscodeshiftAdapter
+from rice_factor.adapters.refactoring.jscodeshift_adapter import (
+    JscodeshiftAdapter,
+    JsDependencyRule,
+    JsDependencyViolation,
+)
 from rice_factor.adapters.refactoring.openrewrite_adapter import OpenRewriteAdapter
 from rice_factor.adapters.refactoring.rector_adapter import RectorAdapter
 from rice_factor.adapters.refactoring.rope_adapter import RopeAdapter
@@ -37,6 +41,8 @@ __all__ = [
     "CapabilityDetector",
     "DiffPatchAdapter",
     "GoplsAdapter",
+    "JsDependencyRule",
+    "JsDependencyViolation",
     "JscodeshiftAdapter",
     "LanguageCapability",
     "OpenRewriteAdapter",

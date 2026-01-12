@@ -1,14 +1,14 @@
 # F15-09: Google Gemini CLI Adapter - Tasks
 
 ## Tasks
-### T15-09-01: Implement GeminiCLIAdapter
-### T15-09-02: Add ReAct Loop Support
-### T15-09-03: Implement Sandbox Mode Configuration
-### T15-09-04: Add Tool Permission Management
-### T15-09-05: Implement Output Parsing
-### T15-09-06: Write Unit Tests
+### T15-09-01: Implement GeminiCLIAdapter ✅
+### T15-09-02: Add ReAct Loop Support ✅
+### T15-09-03: Implement Sandbox Mode Configuration ✅
+### T15-09-04: Add Tool Permission Management ✅
+### T15-09-05: Implement Output Parsing ✅
+### T15-09-06: Write Unit Tests ✅
 
-## Estimated Test Count: ~7
+## Estimated Test Count: ~7 (Actual: 10)
 
 ## Implementation Notes
 

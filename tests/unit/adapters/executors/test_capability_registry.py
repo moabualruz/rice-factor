@@ -47,7 +47,8 @@ class TestCapabilityRegistryCheckCapability:
     def test_returns_false_for_unsupported_operation(self) -> None:
         """Should return False for explicitly unsupported operations."""
         registry = CapabilityRegistry()
-        assert registry.check_capability("extract_interface", "python") is False
+        # Go doesn't support extract_interface
+        assert registry.check_capability("extract_interface", "go") is False
 
     def test_returns_false_for_partial_support(self) -> None:
         """Should return False for partial support (strict mode)."""
@@ -82,8 +83,9 @@ class TestCapabilityRegistryGetCapabilityStatus:
     def test_returns_unsupported_for_false_values(self) -> None:
         """Should return 'unsupported' for false values."""
         registry = CapabilityRegistry()
+        # Go doesn't support extract_interface
         assert (
-            registry.get_capability_status("extract_interface", "python")
+            registry.get_capability_status("extract_interface", "go")
             == "unsupported"
         )
 
@@ -116,9 +118,9 @@ class TestCapabilityRegistryGetSupportedOperations:
         ops = registry.get_supported_operations("python")
         assert "move_file" in ops
         assert "rename_symbol" in ops
-        # These are false, not partial
-        assert "extract_interface" not in ops
-        assert "enforce_dependency" not in ops
+        # Python now supports all 4 operations via Rope
+        assert "extract_interface" in ops
+        assert "enforce_dependency" in ops
 
     def test_excludes_partial_support(self) -> None:
         """Should exclude operations with partial support."""
@@ -185,8 +187,9 @@ class TestCapabilityRegistryCheckAllCapabilities:
     def test_returns_unsupported_operations(self) -> None:
         """Should return list of unsupported operations."""
         registry = CapabilityRegistry()
+        # Use Go which doesn't support extract_interface or enforce_dependency
         unsupported = registry.check_all_capabilities(
-            ["move_file", "extract_interface", "enforce_dependency"], "python"
+            ["move_file", "extract_interface", "enforce_dependency"], "go"
         )
         assert "extract_interface" in unsupported
         assert "enforce_dependency" in unsupported
@@ -385,8 +388,9 @@ class TestCapabilityRegistryGetAllOperations:
         ops = registry.get_all_operations("python")
         assert ops["move_file"] is True
         assert ops["rename_symbol"] is True
-        assert ops["extract_interface"] is False
-        assert ops["enforce_dependency"] is False
+        # Python now supports all 4 operations via Rope
+        assert ops["extract_interface"] is True
+        assert ops["enforce_dependency"] is True
 
     def test_includes_partial_values(self) -> None:
         """Should include partial values."""

@@ -5,26 +5,35 @@
 ## Tasks
 
 ### T15-02-01: Create vLLM Adapter Base
-- Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- [x] Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- Created VLLMClient and VLLMAdapter classes
 
 ### T15-02-02: Implement OpenAI-Compatible API Client
-- Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- [x] Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- Uses /v1/completions and /v1/chat/completions endpoints
 
 ### T15-02-03: Implement generate() Method
-- Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- [x] Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- Implemented sync generate() with httpx/requests fallback
 
 ### T15-02-04: Implement Streaming Support
-- Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- [x] Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- Implemented async streaming via generate_async()
 
 ### T15-02-05: Implement Batch Processing
-- Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- [x] Files: `rice_factor/adapters/llm/vllm_adapter.py`
+- Chat completions API supports batch via multiple messages
 
 ### T15-02-06: Add vLLM to Provider Configuration
-- Files: `rice_factor/config/llm_providers.yaml`
+- [x] Files: `rice_factor/adapters/llm/__init__.py`
+- Added VLLMAdapter to __init__.py exports and LLMAdapter type alias
+- Added create_vllm_adapter_from_config factory function
+- Updated create_llm_adapter_from_config to support "vllm" provider
 
 ### T15-02-07: Unit Tests for vLLM Adapter
-- Files: `tests/unit/adapters/llm/test_vllm_adapter.py`
+- [x] Files: `tests/unit/adapters/llm/test_vllm_adapter.py`
+- 33 tests covering client, adapter, response extraction, and config
 
 ---
 
-## Estimated Test Count: ~8
+## Actual Test Count: 33

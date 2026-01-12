@@ -5,20 +5,47 @@
 ## Tasks
 
 ### T14-06-01: Add extract_interface for TypeScript
-- Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Added `EXTRACT_INTERFACE` to supported operations
+- [x] Implemented `extract_interface()` method generating TypeScript interfaces
+- [x] Private/protected method filtering
 
 ### T14-06-02: Add extract_interface for JavaScript (JSDoc)
-- Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Implemented `_generate_jsdoc_typedef()` for JavaScript files
+- [x] Generates JSDoc `@typedef` with `@property` annotations
 
 ### T14-06-03: Implement enforce_dependency Operation
-- Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Added `JsDependencyRule` and `JsDependencyViolation` dataclasses
+- [x] Implemented `enforce_dependency()` method
+- [x] Added `_find_js_dependency_violations()` and `_check_js_file_violations()`
+- [x] Added `_remove_js_import()` for fix mode
 
 ### T14-06-04: Support ESM and CommonJS Modules
-- Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] Files: `rice_factor/adapters/refactoring/jscodeshift_adapter.py`
+- [x] ES module import detection (`import { X } from '...'`)
+- [x] CommonJS require detection (`const x = require('...')`)
+- [x] Dynamic import detection (`await import('...')`)
+- [x] Cross-platform path normalization (Windows backslash handling)
 
 ### T14-06-05: Unit Tests for Enhanced jscodeshift
-- Files: `tests/unit/adapters/refactoring/test_jscodeshift_adapter.py`
+- [x] Files: `tests/unit/adapters/refactoring/test_jscodeshift.py`
+- [x] Added `TestJscodeshiftExtractInterface` class (7 tests)
+- [x] Added `TestJscodeshiftEnforceDependency` class (9 tests)
 
 ---
 
-## Estimated Test Count: ~6
+## Actual Test Count: 16 new tests (40 total for jscodeshift adapter)
+
+## Test Baseline: 2627 → 2643 tests
+
+---
+
+## Summary
+
+Enhanced the jscodeshift adapter with M14 features:
+- **extract_interface**: Generates TypeScript interfaces or JSDoc typedefs from classes
+- **enforce_dependency**: Detects and optionally fixes import violations (ES modules, CommonJS, dynamic imports)
+- Updated `__init__.py` to export `JsDependencyRule` and `JsDependencyViolation`
+- Cross-platform compatible (Windows path handling)

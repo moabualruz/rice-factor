@@ -16,8 +16,8 @@ languages:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: false
+      extract_interface: true
+      enforce_dependency: true
 
   rust:
     operations:
@@ -37,33 +37,47 @@ languages:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: false
+      extract_interface: true
+      enforce_dependency: true
 
   typescript:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: false
+      extract_interface: true
+      enforce_dependency: true
 
   java:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: partial
+      extract_interface: true
+      enforce_dependency: true
 
   csharp:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: false
+      extract_interface: true
+      enforce_dependency: true
 
   kotlin:
     operations:
       move_file: true
       rename_symbol: true
-      extract_interface: false
-      enforce_dependency: false
+      extract_interface: true
+      enforce_dependency: true
+
+  ruby:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: true
+      enforce_dependency: true
+
+  php:
+    operations:
+      move_file: true
+      rename_symbol: true
+      extract_interface: true
+      enforce_dependency: true

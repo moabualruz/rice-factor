@@ -2,12 +2,19 @@
 
 rust-analyzer provides AST-based refactoring for Rust through LSP.
 This adapter uses rust-analyzer and cargo for Rust-native refactoring.
+
+Now enhanced with tree-sitter AST for:
+- extract_interface: Parse struct/impl to generate trait definition
+- enforce_dependency: Parse use statements and check against rules
 """
 
+import logging
 import subprocess
 from pathlib import Path
 from typing import ClassVar
 
+from rice_factor.adapters.parsing.treesitter_adapter import TreeSitterAdapter
+from rice_factor.domain.ports.ast import ParseResult, SymbolKind, Visibility
 from rice_factor.domain.ports.refactor import (
     RefactorChange,
     RefactorOperation,
@@ -15,6 +22,8 @@ from rice_factor.domain.ports.refactor import (
     RefactorResult,
     RefactorToolPort,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class RustAnalyzerAdapter(RefactorToolPort):
@@ -33,6 +42,8 @@ class RustAnalyzerAdapter(RefactorToolPort):
         RefactorOperation.RENAME,
         RefactorOperation.EXTRACT_METHOD,
         RefactorOperation.INLINE,
+        RefactorOperation.EXTRACT_INTERFACE,
+        RefactorOperation.ENFORCE_DEPENDENCY,
     ]
 
     def __init__(self, project_root: Path) -> None:
@@ -43,6 +54,7 @@ class RustAnalyzerAdapter(RefactorToolPort):
         """
         self.project_root = project_root
         self._version: str | None = None
+        self._ast_adapter: TreeSitterAdapter | None = None
 
     def get_supported_languages(self) -> list[str]:
         """Return supported languages (Rust only)."""
@@ -125,6 +137,10 @@ class RustAnalyzerAdapter(RefactorToolPort):
             return self._extract_method(request, dry_run)
         elif request.operation == RefactorOperation.INLINE:
             return self._inline(request, dry_run)
+        elif request.operation == RefactorOperation.EXTRACT_INTERFACE:
+            return self._extract_interface(request, dry_run)
+        elif request.operation == RefactorOperation.ENFORCE_DEPENDENCY:
+            return self._enforce_dependency(request, dry_run)
 
         return RefactorResult(
             success=False,
@@ -375,3 +391,280 @@ class RustAnalyzerAdapter(RefactorToolPort):
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
+
+    def _get_ast_adapter(self) -> TreeSitterAdapter | None:
+        """Get or create tree-sitter adapter for AST parsing.
+
+        Returns:
+            TreeSitterAdapter instance or None if unavailable.
+        """
+        if self._ast_adapter is not None:
+            return self._ast_adapter
+
+        try:
+            self._ast_adapter = TreeSitterAdapter()
+            return self._ast_adapter
+        except (ImportError, RuntimeError):
+            logger.warning("tree-sitter not available for AST parsing")
+            return None
+
+    def _parse_file(self, file_path: Path) -> ParseResult | None:
+        """Parse a Rust file using tree-sitter.
+
+        Args:
+            file_path: Path to the Rust file.
+
+        Returns:
+            ParseResult or None if parsing failed.
+        """
+        ast_adapter = self._get_ast_adapter()
+        if not ast_adapter:
+            return None
+
+        try:
+            source = file_path.read_text(encoding="utf-8")
+            result = ast_adapter.parse_file(str(file_path), source)
+            return result if result.success else None
+        except (OSError, ValueError) as e:
+            logger.error(f"Failed to parse {file_path}: {e}")
+            return None
+
+    def _extract_interface(
+        self,
+        request: RefactorRequest,
+        dry_run: bool,
+    ) -> RefactorResult:
+        """Extract trait from struct/impl using tree-sitter AST.
+
+        In Rust, this extracts public methods from an impl block or struct
+        and generates a trait definition.
+
+        Args:
+            request: Request containing target struct/type name.
+            dry_run: If True, only preview changes.
+
+        Returns:
+            RefactorResult with generated trait.
+        """
+        if not request.file_path:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["file_path is required for extract_interface"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        file_path = Path(request.file_path)
+        if not file_path.exists():
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=[f"File not found: {file_path}"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        parse_result = self._parse_file(file_path)
+        if not parse_result:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["Failed to parse file - tree-sitter not available"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        # Find the target struct/impl
+        target_type = request.target
+        methods_to_extract = []
+
+        for symbol in parse_result.symbols:
+            # Find public methods in impl blocks for this type
+            is_target_method = (
+                symbol.parent_name == target_type
+                and symbol.kind == SymbolKind.FUNCTION
+                and symbol.visibility == Visibility.PUBLIC
+            )
+            if is_target_method:
+                methods_to_extract.append(symbol)
+
+        if not methods_to_extract:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=[f"No public methods found for type '{target_type}'"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        # Generate trait name
+        trait_name = request.interface_name or f"{target_type}Trait"
+
+        # Generate trait definition
+        trait_lines = [f"pub trait {trait_name} {{"]
+        for method in methods_to_extract:
+            # Build method signature for trait
+            params = []
+            has_self = False
+            for p in method.parameters:
+                if p.name == "self":
+                    has_self = True
+                    if p.type_annotation:
+                        params.append(p.type_annotation)
+                    else:
+                        params.append("&self")
+                else:
+                    type_ann = p.type_annotation or "impl Any"
+                    params.append(f"{p.name}: {type_ann}")
+
+            if not has_self:
+                params.insert(0, "&self")
+
+            return_type = f" -> {method.return_type}" if method.return_type else ""
+            trait_lines.append(f"    fn {method.name}({', '.join(params)}){return_type};")
+
+        trait_lines.append("}")
+        trait_content = "\n".join(trait_lines)
+
+        # Read original content
+        original_content = file_path.read_text(encoding="utf-8")
+
+        # Find insertion point (after use statements, before first item)
+        lines = original_content.split("\n")
+        insert_line = 0
+        for i, line in enumerate(lines):
+            if line.strip().startswith("use ") or line.strip().startswith("mod "):
+                insert_line = i + 1
+
+        # Insert trait definition
+        new_lines = [*lines[:insert_line], "", trait_content, "", *lines[insert_line:]]
+        new_content = "\n".join(new_lines)
+
+        change = RefactorChange(
+            file_path=str(file_path),
+            original_content=original_content,
+            new_content=new_content,
+            description=f"Extracted trait {trait_name} from {target_type}",
+            line_start=insert_line + 1,
+            line_end=insert_line + len(trait_lines) + 2,
+        )
+
+        if not dry_run:
+            file_path.write_text(new_content, encoding="utf-8")
+
+        return RefactorResult(
+            success=True,
+            changes=[change],
+            errors=[],
+            tool_used="rust-analyzer+tree-sitter",
+            dry_run=dry_run,
+            warnings=[
+                f"Generated trait with {len(methods_to_extract)} methods",
+                "You may need to add `impl Trait for Type` block manually",
+            ],
+        )
+
+    def _enforce_dependency(
+        self,
+        request: RefactorRequest,
+        dry_run: bool,
+    ) -> RefactorResult:
+        """Enforce dependency rules using tree-sitter AST.
+
+        Analyzes use statements and checks against forbidden/allowed rules.
+
+        Args:
+            request: Request with dependency_rules specifying forbidden/allowed crates.
+            dry_run: If True, only report violations.
+
+        Returns:
+            RefactorResult with violations found.
+        """
+        if not request.file_path:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["file_path is required for enforce_dependency"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        file_path = Path(request.file_path)
+        if not file_path.exists():
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=[f"File not found: {file_path}"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        parse_result = self._parse_file(file_path)
+        if not parse_result:
+            return RefactorResult(
+                success=False,
+                changes=[],
+                errors=["Failed to parse file - tree-sitter not available"],
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        # Parse dependency rules from request
+        rules = request.dependency_rules or {}
+        forbidden = rules.get("forbidden", [])
+        allowed = rules.get("allowed", [])
+
+        violations: list[str] = []
+        changes: list[RefactorChange] = []
+
+        for imp in parse_result.imports:
+            # Extract crate name (first part of module path)
+            module_parts = imp.module.replace("::", ".").split(".")
+            crate_name = module_parts[0] if module_parts else imp.module
+
+            # Skip std, self, super, crate
+            if crate_name in ("std", "self", "super", "crate", "core", "alloc"):
+                continue
+
+            # Check forbidden
+            if crate_name in forbidden:
+                violations.append(
+                    f"Line {imp.line}: Forbidden crate '{crate_name}' "
+                    f"used in '{imp.module}'"
+                )
+
+            # Check allowed (if specified, only these are allowed)
+            if allowed and crate_name not in allowed:
+                violations.append(
+                    f"Line {imp.line}: Crate '{crate_name}' is not in allowed list"
+                )
+
+        if violations:
+            # Read original for change record
+            original_content = file_path.read_text(encoding="utf-8")
+            changes.append(
+                RefactorChange(
+                    file_path=str(file_path),
+                    original_content=original_content,
+                    new_content=original_content,  # No modification
+                    description="Dependency violations found:\n" + "\n".join(violations),
+                )
+            )
+
+            return RefactorResult(
+                success=False,
+                changes=changes,
+                errors=violations,
+                tool_used="rust-analyzer+tree-sitter",
+                dry_run=dry_run,
+            )
+
+        return RefactorResult(
+            success=True,
+            changes=[],
+            errors=[],
+            tool_used="rust-analyzer+tree-sitter",
+            dry_run=dry_run,
+            warnings=[f"Checked {len(parse_result.imports)} use statements"],
+        )

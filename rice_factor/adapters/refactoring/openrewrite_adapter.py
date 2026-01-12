@@ -5,18 +5,21 @@ through Maven or Gradle plugins. This adapter wraps OpenRewrite to
 provide language-native refactoring capabilities.
 
 Enhanced in M14 to support:
-- extract_interface: Extract interface from concrete class
-- enforce_dependency: ArchUnit-style dependency enforcement
+- extract_interface: Extract interface from concrete class (now uses tree-sitter)
+- enforce_dependency: ArchUnit-style dependency enforcement (now uses tree-sitter)
 """
 
 from __future__ import annotations
 
+import logging
 import re
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path  # noqa: TC003 - Path used at runtime via self.project_root operations
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
+from rice_factor.adapters.parsing.treesitter_adapter import TreeSitterAdapter
+from rice_factor.domain.ports.ast import ParseResult, SymbolKind, Visibility
 from rice_factor.domain.ports.refactor import (
     RefactorChange,
     RefactorOperation,
@@ -27,6 +30,8 @@ from rice_factor.domain.ports.refactor import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -98,6 +103,7 @@ class OpenRewriteAdapter(RefactorToolPort):
         self.project_root = project_root
         self._build_tool: str | None = None
         self._version: str | None = None
+        self._ast_adapter: TreeSitterAdapter | None = None
 
     def get_supported_languages(self) -> list[str]:
         """Return supported JVM languages."""
@@ -426,6 +432,49 @@ class OpenRewriteAdapter(RefactorToolPort):
             return False
 
     # ========================================================================
+    # Tree-sitter AST helpers (M14+ enhancement)
+    # ========================================================================
+
+    def _get_ast_adapter(self) -> TreeSitterAdapter | None:
+        """Get or create tree-sitter adapter for AST parsing.
+
+        Returns:
+            TreeSitterAdapter instance or None if unavailable.
+        """
+        if self._ast_adapter is not None:
+            return self._ast_adapter
+
+        try:
+            self._ast_adapter = TreeSitterAdapter()
+            return self._ast_adapter
+        except (ImportError, RuntimeError):
+            logger.warning("tree-sitter not available for AST parsing")
+            return None
+
+    def _parse_file(self, file_path: Path, content: str | None = None) -> ParseResult | None:
+        """Parse a JVM file using tree-sitter.
+
+        Args:
+            file_path: Path to the file.
+            content: Optional content string. If None, reads from file.
+
+        Returns:
+            ParseResult or None if parsing failed.
+        """
+        ast_adapter = self._get_ast_adapter()
+        if not ast_adapter:
+            return None
+
+        try:
+            if content is None:
+                content = file_path.read_text(encoding="utf-8")
+            result = ast_adapter.parse_file(str(file_path), content)
+            return result if result.success else None
+        except (OSError, ValueError) as e:
+            logger.error(f"Failed to parse {file_path}: {e}")
+            return None
+
+    # ========================================================================
     # Enhanced M14 Methods: extract_interface and enforce_dependency
     # ========================================================================
 
@@ -530,8 +579,67 @@ class OpenRewriteAdapter(RefactorToolPort):
         content: str,
         class_name: str,
         filter_methods: Sequence[str] | None,
+        file_path: Path | None = None,
     ) -> list[dict[str, Any]]:
-        """Extract method signatures from a Java class.
+        """Extract method signatures from a Java class using tree-sitter AST.
+
+        Args:
+            content: Java source code.
+            class_name: Name of the class to extract from.
+            filter_methods: Optional list of method names to include.
+            file_path: Optional file path for AST parsing.
+
+        Returns:
+            List of method signature dictionaries.
+        """
+        signatures: list[dict[str, Any]] = []
+
+        # Try tree-sitter first
+        parse_result = self._parse_file(
+            file_path or Path("temp.java"), content
+        )
+
+        if parse_result:
+            for symbol in parse_result.symbols:
+                # Find methods in the target class
+                if symbol.parent_name != class_name:
+                    continue
+                if symbol.kind != SymbolKind.METHOD:
+                    continue
+                if symbol.visibility != Visibility.PUBLIC:
+                    continue
+
+                # Filter if specified
+                if filter_methods and symbol.name not in filter_methods:
+                    continue
+
+                # Build params string from ParameterInfo
+                params_parts = []
+                for p in symbol.parameters:
+                    if p.type_annotation:
+                        params_parts.append(f"{p.type_annotation} {p.name}")
+                    else:
+                        params_parts.append(p.name)
+
+                signatures.append({
+                    "name": symbol.name,
+                    "return_type": symbol.return_type or "void",
+                    "params": ", ".join(params_parts),
+                })
+
+            return signatures
+
+        # Fallback to regex if tree-sitter fails
+        logger.warning("Tree-sitter not available, falling back to regex")
+        return self._extract_java_methods_regex(content, class_name, filter_methods)
+
+    def _extract_java_methods_regex(
+        self,
+        content: str,
+        class_name: str,
+        filter_methods: Sequence[str] | None,
+    ) -> list[dict[str, Any]]:
+        """Fallback regex-based method extraction for Java.
 
         Args:
             content: Java source code.
@@ -541,7 +649,7 @@ class OpenRewriteAdapter(RefactorToolPort):
         Returns:
             List of method signature dictionaries.
         """
-        signatures: list[dict[str, str]] = []
+        signatures: list[dict[str, Any]] = []
 
         # Find the class
         class_pattern = rf"class\s+{re.escape(class_name)}\s*(?:extends|implements|{{)"
@@ -549,7 +657,6 @@ class OpenRewriteAdapter(RefactorToolPort):
         if not class_match:
             return signatures
 
-        # Find methods (simplified regex - real implementation would use a parser)
         # Pattern: public [modifiers] ReturnType methodName(params) [throws...]
         method_pattern = (
             r"public\s+(?:(?:static|final|synchronized)\s+)*"
@@ -558,12 +665,12 @@ class OpenRewriteAdapter(RefactorToolPort):
             r"\(([^)]*)\)"  # Parameters
         )
 
-        for match in re.finditer(method_pattern, content[class_match.start() :]):
+        for match in re.finditer(method_pattern, content[class_match.start():]):
             return_type = match.group(1)
             method_name = match.group(2)
             params = match.group(3).strip()
 
-            # Skip constructors and private methods
+            # Skip constructors
             if method_name == class_name:
                 continue
 
@@ -571,13 +678,11 @@ class OpenRewriteAdapter(RefactorToolPort):
             if filter_methods and method_name not in filter_methods:
                 continue
 
-            signatures.append(
-                {
-                    "name": method_name,
-                    "return_type": return_type,
-                    "params": params,
-                }
-            )
+            signatures.append({
+                "name": method_name,
+                "return_type": return_type,
+                "params": params,
+            })
 
         return signatures
 
@@ -586,8 +691,68 @@ class OpenRewriteAdapter(RefactorToolPort):
         content: str,
         class_name: str,
         filter_methods: Sequence[str] | None,
+        file_path: Path | None = None,
     ) -> list[dict[str, Any]]:
-        """Extract method signatures from a Kotlin class.
+        """Extract method signatures from a Kotlin class using tree-sitter AST.
+
+        Args:
+            content: Kotlin source code.
+            class_name: Name of the class to extract from.
+            filter_methods: Optional list of method names to include.
+            file_path: Optional file path for AST parsing.
+
+        Returns:
+            List of method signature dictionaries.
+        """
+        signatures: list[dict[str, Any]] = []
+
+        # Try tree-sitter first
+        parse_result = self._parse_file(
+            file_path or Path("temp.kt"), content
+        )
+
+        if parse_result:
+            for symbol in parse_result.symbols:
+                # Find methods in the target class
+                if symbol.parent_name != class_name:
+                    continue
+                if symbol.kind not in (SymbolKind.METHOD, SymbolKind.FUNCTION):
+                    continue
+                if symbol.visibility not in (Visibility.PUBLIC, Visibility.INTERNAL):
+                    continue
+
+                # Filter if specified
+                if filter_methods and symbol.name not in filter_methods:
+                    continue
+
+                # Build params string from ParameterInfo (Kotlin style: name: Type)
+                params_parts = []
+                for p in symbol.parameters:
+                    if p.type_annotation:
+                        params_parts.append(f"{p.name}: {p.type_annotation}")
+                    else:
+                        params_parts.append(p.name)
+
+                signatures.append({
+                    "name": symbol.name,
+                    "return_type": symbol.return_type or "Unit",
+                    "params": ", ".join(params_parts),
+                    "is_suspend": "suspend" in (symbol.modifiers or []),
+                })
+
+            return signatures
+
+        # Fallback to regex if tree-sitter fails
+        logger.warning("Tree-sitter not available, falling back to regex")
+        return self._extract_kotlin_methods_regex(content, class_name, filter_methods)
+
+    def _extract_kotlin_methods_regex(
+        self,
+        content: str,
+        class_name: str,
+        filter_methods: Sequence[str] | None,
+    ) -> list[dict[str, Any]]:
+        """Fallback regex-based method extraction for Kotlin.
 
         Args:
             content: Kotlin source code.
@@ -605,16 +770,15 @@ class OpenRewriteAdapter(RefactorToolPort):
         if not class_match:
             return signatures
 
-        # Find methods (Kotlin syntax)
         # Pattern: [modifiers] fun methodName(params): ReturnType
         method_pattern = (
             r"(?:open\s+|public\s+)*fun\s+"
             r"(\w+)\s*"  # Method name
             r"\(([^)]*)\)"  # Parameters
-            r"(?:\s*:\s*(\w+(?:<[^>]+>)?\??))?"  # Return type (optional, with nullable ?)
+            r"(?:\s*:\s*(\w+(?:<[^>]+>)?\??))?"  # Return type
         )
 
-        for match in re.finditer(method_pattern, content[class_match.start() :]):
+        for match in re.finditer(method_pattern, content[class_match.start():]):
             method_name = match.group(1)
             params = match.group(2).strip()
             return_type = match.group(3) or "Unit"
@@ -627,14 +791,12 @@ class OpenRewriteAdapter(RefactorToolPort):
             if f"private fun {method_name}" in content:
                 continue
 
-            signatures.append(
-                {
-                    "name": method_name,
-                    "return_type": return_type,
-                    "params": params,
-                    "is_suspend": "suspend fun " + method_name in content,
-                }
-            )
+            signatures.append({
+                "name": method_name,
+                "return_type": return_type,
+                "params": params,
+                "is_suspend": "suspend fun " + method_name in content,
+            })
 
         return signatures
 

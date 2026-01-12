@@ -162,8 +162,9 @@ rice-factor refactor dry-run        # Preview refactor
 
 | # | Milestone | Status | Priority | Description |
 |---|-----------|--------|----------|-------------|
-| 14 | Full Capability Registry | Planned | P0 | Python/Ruby/PHP adapters, full extract_interface & enforce_dependency |
-| 15 | Local LLM Orchestration | Planned | P0 | Ollama, vLLM, LocalAI adapters, provider fallback, model registry |
+| 14 | Full Capability Registry | Complete | P0 | Python/Ruby/PHP adapters, full extract_interface & enforce_dependency |
+| 14.5 | AST Parsing & LSP Integration | Complete | P0 | Tree-sitter AST for 9 languages, LSP client with memory management, replace regex parsing |
+| 15 | Local LLM Orchestration | Complete | P0 | Ollama, vLLM, LocalAI adapters, provider fallback, model registry, CLI agent adapters |
 | 16 | Production Hardening | Planned | P0 | Rate limiting, cost tracking, remote storage, webhooks, metrics |
 | 17 | Advanced Resilience | Planned | P1 | State reconstruction, override tracking, orphan detection, migration |
 | 18 | Performance & Parallelism | Planned | P1 | Parallel execution, artifact caching, incremental validation |

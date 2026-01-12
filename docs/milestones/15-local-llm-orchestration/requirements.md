@@ -1,6 +1,6 @@
 # Milestone 15: LLM Orchestration - Requirements
 
-> **Status**: Planned
+> **Status**: Complete
 > **Priority**: P0 (Cost reduction, privacy, offline mode, CLI integration)
 > **Dependencies**: None
 
@@ -11,7 +11,7 @@
 Support multiple orchestration modes for AI-assisted code generation:
 
 1. **API Providers** - Cloud and local REST API services (Claude, OpenAI, Ollama, vLLM)
-2. **CLI Agents** - Agentic coding tools that run as terminal applications (Claude Code, Codex CLI, Gemini CLI, Qwen Code, Aider)
+2. **CLI Agents** - Agentic coding tools that run as terminal applications (Claude Code, Codex CLI, Gemini CLI, Qwen Code, Aider, OpenCode)
 
 This dual-mode architecture enables:
 - **Cost optimization** via local models and CLI tools with free tiers
@@ -30,7 +30,7 @@ This dual-mode architecture enables:
 ### Target State
 
 - 4+ API providers supported (Ollama, vLLM, LM Studio, LocalAI)
-- 5+ CLI agent adapters (Claude Code, Codex, Gemini CLI, Qwen Code, Aider)
+- 6+ CLI agent adapters (Claude Code, Codex, Gemini CLI, Qwen Code, Aider, OpenCode)
 - Automatic provider/agent fallback on failure
 - Model registry with capability metadata
 - Cost and latency tracking per provider
@@ -217,6 +217,23 @@ This dual-mode architecture enables:
 
 ---
 
+### REQ-15-13: OpenCode CLI Adapter
+
+**Description**: Integrate OpenCode CLI for agentic coding tasks.
+
+**Acceptance Criteria**:
+- [ ] `opencode_adapter.py` implements CLIAgentPort protocol
+- [ ] Spawns `opencode run` for non-interactive execution
+- [ ] Parses JSON output with `--format json`
+- [ ] Supports model selection (`--model provider/model`)
+- [ ] Auto-detects OpenCode availability (`which opencode`)
+- [ ] Supports server attach mode (`--attach`) for faster execution
+- [ ] Session resume capability (`--session`, `--continue`)
+
+**Tool**: [OpenCode CLI](https://opencode.ai/)
+
+---
+
 ## 3. Configuration Schema
 
 ```yaml
@@ -304,6 +321,16 @@ providers:
       model: claude-3-5-sonnet  # or ollama/codestral for local
       capabilities: [code_generation, refactoring, git_integration]
       free_tier: true  # Open source, pay per LLM usage
+    opencode:
+      enabled: true
+      command: opencode
+      args: ["run", "--format", "json"]
+      priority: 15
+      timeout_seconds: 300
+      model: anthropic/claude-4-sonnet  # provider/model format
+      attach_url: null  # Optional: http://localhost:4096 for server mode
+      capabilities: [code_generation, refactoring, file_manipulation, command_execution]
+      free_tier: true  # Open source, pay per LLM usage
 
 fallback:
   strategy: priority  # priority | round_robin | cost_based | api_first | cli_first
@@ -349,6 +376,7 @@ fallback:
 - [ ] Gemini CLI executes tasks with sandbox support
 - [ ] Qwen Code CLI executes tasks with OAuth or API key
 - [ ] Aider executes tasks in non-interactive mode
+- [ ] OpenCode CLI executes tasks with JSON output and server attach mode
 - [ ] CLI agent auto-detection works correctly
 
 ### General
@@ -362,7 +390,7 @@ fallback:
 
 ## 6. Estimated Test Count
 
-~75 tests (unit + integration per adapter)
+~85 tests (unit + integration per adapter)
 - API adapters: ~30 tests
-- CLI adapters: ~35 tests
+- CLI adapters: ~45 tests (includes OpenCode)
 - Provider selector & fallback: ~10 tests

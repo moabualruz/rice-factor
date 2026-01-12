@@ -1,6 +1,6 @@
 # Milestone 15: LLM Orchestration - Design
 
-> **Status**: Planned
+> **Status**: Complete
 > **Priority**: P0
 
 ---
@@ -77,6 +77,7 @@ rice_factor/adapters/llm/
 │   ├── gemini_cli_adapter.py    # NEW: Google Gemini CLI
 │   ├── qwen_code_adapter.py     # NEW: Qwen Code CLI
 │   ├── aider_adapter.py         # NEW: Aider CLI
+│   ├── opencode_adapter.py      # NEW: OpenCode CLI
 │   └── detector.py              # NEW: CLI tool auto-detection
 │
 │  # Orchestration (NEW)
@@ -742,6 +743,120 @@ class AiderAdapter:
 
 ---
 
+## 12.5 OpenCode CLI Adapter
+
+```python
+# rice_factor/adapters/llm/cli/opencode_adapter.py
+
+class OpenCodeAdapter:
+    """Adapter for OpenCode CLI (opencode.ai).
+
+    OpenCode is an open-source AI coding agent with 50k+ GitHub stars.
+    Supports multiple AI providers (Claude, OpenAI, Gemini, Groq, etc.).
+    """
+
+    def __init__(
+        self,
+        command: str = "opencode",
+        model: str | None = None,  # e.g., "anthropic/claude-4-sonnet"
+        attach_url: str | None = None,  # e.g., "http://localhost:4096"
+        timeout_seconds: float = 300.0,
+    ):
+        self.command = command
+        self.model = model
+        self.attach_url = attach_url
+        self.timeout_seconds = timeout_seconds
+
+    @property
+    def name(self) -> str:
+        return "opencode"
+
+    async def is_available(self) -> bool:
+        return shutil.which(self.command) is not None
+
+    async def execute_task(
+        self,
+        prompt: str,
+        working_dir: Path,
+        timeout_seconds: float | None = None,
+    ) -> CLITaskResult:
+        """Execute task via OpenCode CLI in non-interactive mode."""
+        timeout = timeout_seconds or self.timeout_seconds
+        start_time = asyncio.get_event_loop().time()
+
+        # Build command: opencode run --format json "prompt"
+        cmd = [self.command, "run", "--format", "json"]
+
+        # Add model if specified
+        if self.model:
+            cmd.extend(["--model", self.model])
+
+        # Add server attach for faster execution (avoids cold boot)
+        if self.attach_url:
+            cmd.extend(["--attach", self.attach_url])
+
+        # Add the prompt
+        cmd.append(prompt)
+
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            cwd=working_dir,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(),
+            timeout=timeout,
+        )
+
+        duration = asyncio.get_event_loop().time() - start_time
+
+        return CLITaskResult(
+            success=process.returncode == 0,
+            output=stdout.decode("utf-8"),
+            error=stderr.decode("utf-8") if stderr else None,
+            files_modified=self._parse_modified_files(stdout.decode()),
+            duration_seconds=duration,
+            agent_name=self.name,
+        )
+
+    def _parse_modified_files(self, output: str) -> list[str]:
+        """Parse modified files from JSON output."""
+        try:
+            import json
+            data = json.loads(output)
+            return data.get("files_modified", [])
+        except json.JSONDecodeError:
+            return []
+
+    def get_capabilities(self) -> list[str]:
+        return ["code_generation", "refactoring", "file_manipulation", "command_execution"]
+```
+
+### OpenCode CLI Key Features
+
+1. **Non-Interactive Mode**: `opencode run "prompt"` for scripted execution
+2. **JSON Output**: `--format json` for structured response parsing
+3. **Multi-Provider Support**: Anthropic, OpenAI, Google, Groq, AWS Bedrock, etc.
+4. **Server Attach Mode**: `--attach http://localhost:4096` avoids cold boot overhead
+5. **Session Management**: `--session <id>` or `--continue` to resume conversations
+6. **Built-in Agents**: `build` (full access) and `plan` (read-only analysis)
+
+### Server Mode Optimization
+
+For repeated task execution, use server mode to avoid startup latency:
+
+```bash
+# Terminal 1: Start persistent server
+opencode serve --port 4096
+
+# Terminal 2+: Fast task execution via attach
+opencode run --attach http://localhost:4096 --format json "prompt"
+```
+
+---
+
 ## 13. CLI Agent Detector
 
 ```python
@@ -765,6 +880,7 @@ class CLIAgentDetector:
         "gemini": {"command": "gemini", "version_flag": "--version"},
         "qwen_code": {"command": "qwen-code", "version_flag": "--version"},
         "aider": {"command": "aider", "version_flag": "--version"},
+        "opencode": {"command": "opencode", "version_flag": "--version"},
     }
 
     def detect_all(self) -> list[DetectedAgent]:
@@ -891,6 +1007,7 @@ rice-factor providers
 # gemini       | ✓      | 12       | code_generation, file_ops
 # qwen_code    | ✗      | 13       | (not installed)
 # aider        | ✓      | 14       | code_generation, git
+# opencode     | ✓      | 15       | code_generation, refactoring
 
 # Detect installed CLI agents
 rice-factor agents detect
@@ -901,6 +1018,7 @@ rice-factor agents detect
 # ✓ gemini v2.1.0 (gemini_cli)
 # ✗ qwen-code (not found)
 # ✓ aider v0.82.0 (aider)
+# ✓ opencode v0.5.0 (opencode)
 
 # Execute task with specific mode
 rice-factor exec --mode cli "Add unit tests for auth module"

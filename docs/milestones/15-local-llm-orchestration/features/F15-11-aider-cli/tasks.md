@@ -1,15 +1,15 @@
 # F15-11: Aider CLI Adapter - Tasks
 
 ## Tasks
-### T15-11-01: Implement AiderAdapter
-### T15-11-02: Add Non-Interactive Mode Support
-### T15-11-03: Implement Model Selection
-### T15-11-04: Add Local Model Routing (Ollama)
-### T15-11-05: Implement Git Integration Handling
-### T15-11-06: Parse Modified Files from Output
-### T15-11-07: Write Unit Tests
+### T15-11-01: Implement AiderAdapter ✅
+### T15-11-02: Add Non-Interactive Mode Support ✅
+### T15-11-03: Implement Model Selection ✅
+### T15-11-04: Add Local Model Routing (Ollama) ✅
+### T15-11-05: Implement Git Integration Handling ✅
+### T15-11-06: Parse Modified Files from Output ✅
+### T15-11-07: Write Unit Tests ✅
 
-## Estimated Test Count: ~8
+## Estimated Test Count: ~8 (Actual: 13)
 
 ## Implementation Notes
 
