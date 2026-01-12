@@ -60,11 +60,12 @@ class StatusBar(Static):
             UI components.
         """
         with Horizontal():
-            yield Label(f"Phase: {self._phase}", classes="status-section phase-label")
+            yield Label(f"Phase: {self._phase}", classes="status-section phase-label", id="phase-label")
             yield Label("|", classes="separator")
             yield Label(
                 self._message or "Press ? for help",
                 classes="status-section message",
+                id="message-label",
             )
 
     def update_phase(self, phase: str) -> None:
@@ -74,7 +75,11 @@ class StatusBar(Static):
             phase: New phase value to display.
         """
         self._phase = phase
-        self._refresh_display()
+        try:
+            self.query_one("#phase-label", Label).update(f"Phase: {phase}")
+        except Exception:
+            # Widget might not be mounted yet
+            pass
 
     def update_message(self, message: str) -> None:
         """Update the status message.
@@ -83,9 +88,8 @@ class StatusBar(Static):
             message: New message to display.
         """
         self._message = message
-        self._refresh_display()
-
-    def _refresh_display(self) -> None:
-        """Refresh the status bar display."""
-        self.remove_children()
-        self.mount_all(list(self.compose()))
+        try:
+            self.query_one("#message-label", Label).update(message or "Press ? for help")
+        except Exception:
+            # Widget might not be mounted yet
+            pass

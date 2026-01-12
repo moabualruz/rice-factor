@@ -69,7 +69,7 @@ def tui(
             pass
 
     # Launch TUI
-    console.print("[cyan]Launching TUI...[/cyan]")
+    # console.print("[cyan]Launching TUI...[/cyan]")
     app = RiceFactorTUI(
         project_root=project_root,
         phase_service=phase_service,

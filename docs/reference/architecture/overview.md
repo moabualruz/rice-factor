@@ -42,58 +42,39 @@ Hexagonal:
 
 ## Architecture Diagram
 
-```
-                    ┌───────────────────────────────────────────────────┐
-                    │                  ENTRYPOINTS                      │
-                    │  ┌─────────┐  ┌─────────┐  ┌─────────┐            │
-                    │  │   CLI   │  │   TUI   │  │   Web   │            │
-                    │  │ (Typer) │  │(Textual)│  │(FastAPI)│            │
-                    │  └────┬────┘  └────┬────┘  └────┬────┘            │
-                    └───────┼────────────┼────────────┼─────────────────┘
-                            │            │            │
-                            ▼            ▼            ▼
-┌───────────────────────────────────────────────────────────────────────┐
-│                           ADAPTERS                                    │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │
-│  │ LLM         │  │ Storage     │  │ Executor    │  │ Validator   │   │
-│  │ Adapters    │  │ Adapters    │  │ Adapters    │  │ Adapters    │   │
-│  │             │  │             │  │             │  │             │   │
-│  │ - Claude    │  │ - Filesystem│  │ - Scaffold  │  │ - Schema    │   │
-│  │ - OpenAI    │  │ - S3        │  │ - Diff      │  │ - Test      │   │
-│  │ - Ollama    │  │ - Git       │  │ - Refactor  │  │ - Lint      │   │
-│  │ - vLLM      │  │             │  │ - Test      │  │ - Arch      │   │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘   │
-└─────────┼────────────────┼────────────────┼────────────────┼──────────┘
-          │                │                │                │
-          │ implements     │ implements     │ implements     │ implements
-          ▼                ▼                ▼                ▼
-┌───────────────────────────────────────────────────────────────────────┐
-│                            DOMAIN                                     │
-│                                                                       │
-│  ┌───────────────────────────────────────────────────────────────┐    │
-│  │                         PORTS                                 │    │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │    │
-│  │  │ LLMPort  │  │StorageP. │  │ExecutorP.│  │ValidatorP│       │    │
-│  │  │(Protocol)│  │(Protocol)│  │(Protocol)│  │(Protocol)│       │    │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘       │    │
-│  └───────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-│  ┌───────────────────────────────────────────────────────────────┐    │
-│  │                       SERVICES                                │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │    │
-│  │  │ArtifactServ. │  │ PlanService  │  │ExecutorServ. │         │    │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘         │    │
-│  └───────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-│  ┌───────────────────────────────────────────────────────────────┐    │
-│  │                       MODELS                                  │    │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐               │    │
-│  │  │ Artifacts  │  │  Failures  │  │   Enums    │               │    │
-│  │  │ (Pydantic) │  │ (Pydantic) │  │            │               │    │
-│  │  └────────────┘  └────────────┘  └────────────┘               │    │
-│  └───────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph ENTRYPOINTS
+        CLI[CLI Typer]
+        TUI[TUI Textual]
+        WEB[Web FastAPI]
+    end
+
+    subgraph ADAPTERS
+        LLM[LLM Adapters]
+        STORAGE[Storage Adapters]
+        EXEC[Executor Adapters]
+        VALID[Validator Adapters]
+    end
+
+    subgraph DOMAIN
+        PORTS[Ports]
+        SERVICES[Services]
+        ARTIFACTS[Artifact Models]
+    end
+
+    CLI --> SERVICES
+    TUI --> SERVICES
+    WEB --> SERVICES
+
+    SERVICES --> PORTS
+    
+    LLM -. implements .-> PORTS
+    STORAGE -. implements .-> PORTS
+    EXEC -. implements .-> PORTS
+    VALID -. implements .-> PORTS
+
+    ENTRYPOINTS --> ADAPTERS
 ```
 
 ---

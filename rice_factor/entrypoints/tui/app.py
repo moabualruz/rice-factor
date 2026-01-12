@@ -185,8 +185,29 @@ class RiceFactorTUI(App[None]):
         Binding("w", "switch_tab('workflow')", "Workflow"),
         Binding("a", "switch_tab('artifacts')", "Artifacts"),
         Binding("r", "refresh", "Refresh"),
+        Binding("enter", "execute_step", "Execute"),
         Binding("?", "help", "Help"),
     ]
+
+    def action_execute_step(self) -> None:
+        """Execute the current step in the active screen."""
+        tabs = self.query_one(TabbedContent)
+        if tabs.active == "workflow-tab":
+            workflow = self.query_one(WorkflowScreen)
+            # We need to await it, but action handlers in Textual can be async
+            # However, looking at the base App class, we might need to be careful.
+            # Let's delegate to the screen.
+            # workflow.action_execute_step() # This isn't how actions work in Textual usually.
+            # We can define the action on the specific widget and let bubbling handle it, 
+            # OR explicitly call it.
+            # Since I added `action_execute_step` to WorkflowScreen, I should let the app delegate it.
+            
+            # Actually, better pattern:
+            # If the focus is on the WorkflowScreen, it should catch the action?
+            # But WorkflowScreen is a Static, might not have focus.
+            # Let's manually call the method on the screen instance.
+            import asyncio
+            asyncio.create_task(workflow.action_execute_step())
 
     def __init__(
         self,
