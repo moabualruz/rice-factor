@@ -478,7 +478,7 @@ class HistoryScreen(Static):
                         str(entry.get("status", "")),
                     ]
                     # Escape commas and quotes
-                    row = [f'"{v.replace('"', '""')}"' for v in row]
+                    row = [f'"{v.replace(chr(34), chr(34)+chr(34))}"' for v in row]
                     f.write(",".join(row) + "\n")
             self.notify(f"Exported to {export_path}")
         except OSError as e:
