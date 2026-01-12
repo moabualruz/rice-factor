@@ -72,7 +72,7 @@ $ rice-factor test                    # Verify tests pass
 - **Rate Limiting** - Built-in protection against API abuse
 
 ### Developer Experience
-- **29 CLI Commands** - Comprehensive tooling for the full development lifecycle
+- **30 CLI Commands** - Comprehensive tooling for the full development lifecycle
 - **TUI Mode** - Interactive terminal interface for workflow navigation
 - **Web Dashboard** - Browser-based artifact review and approval
 - **VS Code Extension** - IDE integration for seamless development
@@ -99,8 +99,6 @@ pip install rice-factor
 # Verify installation
 rice-factor --version
 ```
-
-## ⚡ Quick Start
 
 ### 1. The Web Dashboard
 
@@ -280,7 +278,7 @@ See [Artifact Reference](docs/reference/artifacts/overview.md) for schemas and d
 - Full artifact lifecycle with approval gates
 - Claude and OpenAI LLM providers
 - Local LLM support (Ollama, vLLM)
-- 29 CLI commands
+- 30 CLI commands
 - TUI and Web interfaces
 - CI/CD pipeline integration
 - Multi-agent coordination modes
@@ -307,7 +305,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Development setup
-git clone https://github.com/[user]/rice-factor.git
+git clone https://github.com/moabualruz/rice-factor.git
 cd rice-factor
 uv venv && source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 uv pip install -e ".[dev]"
