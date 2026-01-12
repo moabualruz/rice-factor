@@ -40,7 +40,8 @@
       "Bash(.venv/Scripts/pytest tests/e2e/ -v --tb=short)",
       "Bash(where:*)",
       "Bash(uv pip:*)",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(gh auth:*)"
     ]
   }
 }
