@@ -7,7 +7,7 @@ site_description: LLM-Assisted Development System - Treating LLMs as compilers, 
 site_author: Rice-Factor Team
 site_url: https://rice-factor.dev
 
-repo_url: https://github.com/user/rice-factor
+repo_url: https://github.com/moabualruz/rice-factor
 repo_name: rice-factor
 edit_uri: edit/main/docs/
 
@@ -91,7 +91,7 @@ extra_css:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/user/rice-factor
+      link: https://github.com/moabualruz/rice-factor
       name: GitHub
 
   generator: false
@@ -163,12 +163,18 @@ nav:
       - Basic Workflow: guides/tutorials/basic-workflow.md
       - Artifact Lifecycle: guides/tutorials/artifact-lifecycle.md
       - TDD Workflow: guides/tutorials/tdd-workflow.md
+      - Web UI Walkthrough: guides/tutorials/web-ui-walkthrough.md
 
   - How-To Guides:
       - Configure LLM Providers: guides/how-to/configure-llm-providers.md
       - Customize Templates: guides/how-to/customize-templates.md
       - Integrate CI/CD: guides/how-to/integrate-ci-cd.md
       - Use TUI Mode: guides/how-to/use-tui.md
+
+  - Web Interface:
+      - Overview: guides/web-interface/overview.md
+      - User Manual: guides/web-interface/manual.md
+      - Workflows: guides/web-interface/workflows.md
 
   - Troubleshooting:
       - Common Errors: guides/troubleshooting/common-errors.md
@@ -191,10 +197,16 @@ nav:
           - Domain Layer: reference/architecture/domain.md
           - Adapters: reference/architecture/adapters.md
           - Extending: reference/architecture/extending.md
+      - API:
+          - REST API: reference/api/rest-api.md
+          - WebSocket Events: reference/api/websocket-events.md
+          - Client Library: reference/api/client-library.md
 
   - Contributing:
       - Guide: contributing/README.md
       - Development: contributing/development.md
+      - Changelog: contributing/CHANGELOG.md
+      - Security: contributing/SECURITY.md
 
   - Internal:
       - Internal Docs: internal/index.md
