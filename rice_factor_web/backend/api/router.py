@@ -12,6 +12,8 @@ from rice_factor_web.backend.api.v1 import (
     approvals,
     artifacts,
     auth,
+    commands,
+    configuration,
     diffs,
     history,
     projects,
@@ -37,3 +39,5 @@ api_router.include_router(approvals.router)
 api_router.include_router(history.router)
 api_router.include_router(auth.router)
 api_router.include_router(projects.router)
+api_router.include_router(configuration.router)
+api_router.include_router(commands.router)

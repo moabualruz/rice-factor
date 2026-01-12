@@ -206,21 +206,24 @@ class WorkflowScreen(Static):
         yield Static(phase_text, id="phase-info")
 
         # Workflow steps
-        with Vertical(id="workflow-steps"):
-            current_step = self._get_current_step()
-            for i, (cmd, title, desc) in enumerate(WORKFLOW_STEPS):
-                is_current = cmd == current_step
-                is_complete = self._is_step_complete(i)
-                is_available = self._is_step_available(cmd)
+        
+        current_step = self._get_current_step()
+        steps = []
+        for i, (cmd, title, desc) in enumerate(WORKFLOW_STEPS):
+            is_current = cmd == current_step
+            is_complete = self._is_step_complete(i)
+            is_available = self._is_step_available(cmd)
 
-                yield WorkflowStep(
-                    step_name=cmd,
-                    title=title,
-                    description=desc,
-                    is_current=is_current,
-                    is_complete=is_complete,
-                    is_available=is_available,
-                )
+            steps.append(WorkflowStep(
+                step_name=cmd,
+                title=title,
+                description=desc,
+                is_current=is_current,
+                is_complete=is_complete,
+                is_available=is_available,
+            ))
+        
+        yield Vertical(*steps, id="workflow-steps")
 
     def _get_phase_text(self) -> str:
         """Get the current phase display text.
@@ -304,56 +307,45 @@ class WorkflowScreen(Static):
     async def action_execute_step(self) -> None:
         """Execute the current workflow step."""
         current_step = self._get_current_step()
+        await self._exec_command_for_step(current_step)
+
+    async def _exec_command_for_step(self, step_cmd: str) -> None:
+        """Execute the equivalent CLI command for a step."""
+        from rice_factor.entrypoints.tui.screens.command_output import CommandOutputScreen
         
-        if current_step == "init":
-            await self._exec_init()
+        # specific handling for init to show questionnaire could be kept,
+        # but for parity running the CLI (which handles it) is cleaner via the output screen
+        # IF the CLI is interactive, our text log won't handle inputs well yet.
+        # For this implementation, we assume non-interactive or "default" args where possible
+        # or we implement a real terminal widget.
+        # Given constraints, we will run commands with flags to avoid interaction or assume the log is just tailored.
+        
+        # Map step name to CLI args
+        # "init", "plan project", "scaffold", "plan tests", "lock", "plan impl", "impl", "apply", "test"
+        
+        cmd_map = {
+            "init": ["init", "--skip-questionnaire"], # Non-interactive for basic TUI flow
+            "plan project": ["plan", "--mode", "planning"],
+            "scaffold": ["scaffold"],
+            "plan tests": ["plan", "--mode", "tests"],
+            "lock": ["lock"],
+            "plan impl": ["plan", "--mode", "implementation"],
+            "impl": ["impl"],
+            "apply": ["apply"],
+            "test": ["test"],
+        }
+        
+        args = cmd_map.get(step_cmd)
+        if args:
+            self.app.push_screen(CommandOutputScreen(title=f"Running {step_cmd.title()}...", command_args=args))
         else:
-            self.notify(f"Command '{current_step}' must be run from CLI for now.", severity="warning")
+             self.notify(f"Unknown command mapping for '{step_cmd}'", severity="error")
 
     async def _exec_init(self) -> None:
-        """Execute project initialization."""
-        try:
-            from rice_factor.domain.services.init_service import InitService
-            
-            # Confirm initialization
-            from textual.widgets import Button, Label
-            from textual.screen import ModalScreen
-            from textual.containers import Grid
-            
-            class ConfirmInitScreen(ModalScreen[bool]):
-                def compose(self) -> ComposeResult:
-                    yield Grid(
-                        Label("Initialize project in current directory?", id="question"),
-                        Button("Yes", variant="primary", id="yes"),
-                        Button("Cancel", variant="error", id="no"),
-                        id="dialog",
-                    )
-                
-                def on_button_pressed(self, event: Button.Pressed) -> None:
-                    self.dismiss(event.button.id == "yes")
-            
-            # Show confirmation dialog (not fully implemented in this snippet, defaulting to direct execution for now)
-            # In a real scenario, we'd wait for the result. 
-            # For this task, we'll just run it and notify.
-            
-            service = InitService(self.project_root)
-            if service.is_initialized():
-                 self.notify("Project already initialized.", severity="warning")
-                 return
+        """Deprecated: Use _exec_command_for_step."""
+        pass
 
-            service.initialize()
-            self.notify("Project initialized successfully!", severity="information")
-            
-            if self._phase_service:
-                 # Force reload phase service or trigger a global refresh
-                 # self.app.action_refresh() would happen if bound
-                 pass
-
-        except Exception as e:
-            self.notify(f"Initialization failed: {e}", severity="error")
-
-    def refresh_view(self) -> None:
+    async def refresh_view(self) -> None:
         """Refresh the workflow view."""
-        # Re-compose by removing and re-adding children
-        self.remove_children()
-        self.mount_all(list(self.compose()))
+        await self.remove_children()
+        await self.mount_all(list(self.compose()))

@@ -290,7 +290,7 @@ class RiceFactorTUI(App[None]):
         elif tab_id == "artifacts":
             tabs.active = "artifacts-tab"
 
-    def action_refresh(self) -> None:
+    async def action_refresh(self) -> None:
         """Refresh the current view."""
         self.refresh_status()
 
@@ -298,10 +298,10 @@ class RiceFactorTUI(App[None]):
         tabs = self.query_one(TabbedContent)
         if tabs.active == "workflow-tab":
             workflow = self.query_one(WorkflowScreen)
-            workflow.refresh_view()
+            await workflow.refresh_view()
         elif tabs.active == "artifacts-tab":
             browser = self.query_one(ArtifactBrowserScreen)
-            browser.refresh_view()
+            await browser.refresh_view()
 
     def action_help(self) -> None:
         """Show help information."""

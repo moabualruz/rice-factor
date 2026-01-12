@@ -342,8 +342,8 @@ class ArtifactBrowserScreen(Static):
                     detail_panel.set_artifact(artifact)
                     break
 
-    def refresh_view(self) -> None:
+    async def refresh_view(self) -> None:
         """Refresh the artifact browser view."""
         self._load_artifacts()
-        self.remove_children()
-        self.mount_all(list(self.compose()))
+        await self.remove_children()
+        await self.mount_all(list(self.compose()))

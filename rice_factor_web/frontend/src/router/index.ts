@@ -56,6 +56,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/InitView.vue'),
     meta: { title: 'Initialize Project' },
   },
+  {
+    path: '/configuration',
+    name: 'configuration',
+    component: () => import('@/views/ConfigurationView.vue'),
+    meta: { title: 'Configuration' },
+  },
+  {
+    path: '/commands',
+    name: 'commands',
+    component: () => import('@/views/CommandView.vue'),
+    meta: { title: 'Advanced Commands' },
+  },
 ]
 
 const router = createRouter({
