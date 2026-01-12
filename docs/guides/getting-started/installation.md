@@ -46,7 +46,7 @@ For development or to get the latest features:
 
 ```bash
 # Clone the repository
-git clone https://github.com/[user]/rice-factor.git
+git clone https://github.com/moabualruz/rice-factor.git
 cd rice-factor
 
 # Create and activate a virtual environment

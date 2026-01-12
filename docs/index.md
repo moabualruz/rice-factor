@@ -153,7 +153,7 @@ Rice-Factor uses **Hexagonal Architecture** (Ports & Adapters):
 
 - [FAQ](guides/troubleshooting/faq.md) - Frequently asked questions
 - [Common Errors](guides/troubleshooting/common-errors.md) - Error solutions
-- [GitHub Issues](https://github.com/user/rice-factor/issues) - Report bugs
+- [GitHub Issues](https://github.com/moabualruz/rice-factor/issues) - Report bugs
 
 ## License
 

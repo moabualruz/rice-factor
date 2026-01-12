@@ -193,7 +193,7 @@ This means your implementation doesn't match the locked tests. Fix the implement
 ### Where can I get help?
 
 - [Common Errors](common-errors.md)
-- [GitHub Issues](https://github.com/[user]/rice-factor/issues)
+- [GitHub Issues](https://github.com/moabualruz/rice-factor/issues)
 - [Documentation](../../index.md)
 
 ## Philosophy

@@ -10,7 +10,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ### Reporting Bugs
 
-1. Check [existing issues](https://github.com/user/rice-factor/issues) first
+1. Check [existing issues](https://github.com/moabualruz/rice-factor/issues) first
 2. Use the bug report template
 3. Include:
    - Rice-Factor version (`rice-factor --version`)
@@ -352,8 +352,8 @@ mkdocs build
 
 ## Getting Help
 
-- **Questions**: Open a [Discussion](https://github.com/user/rice-factor/discussions)
-- **Bugs**: Open an [Issue](https://github.com/user/rice-factor/issues)
+- **Questions**: Open a [Discussion](https://github.com/moabualruz/rice-factor/discussions)
+- **Bugs**: Open an [Issue](https://github.com/moabualruz/rice-factor/issues)
 - **Chat**: Join our Discord (link TBD)
 
 ## License

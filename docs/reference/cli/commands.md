@@ -308,7 +308,7 @@ rice-factor diagnose [OPTIONS]
 
 ### rice-factor ci validate
 
-Run CI validation pipeline.
+Run full CI validation pipeline.
 
 ```bash
 rice-factor ci validate [OPTIONS]
@@ -318,15 +318,122 @@ rice-factor ci validate [OPTIONS]
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--path`, `-p` | Project root directory | `.` |
-| `--stage`, `-s` | Specific stage | All |
-| `--stop-on-failure/--continue` | Stop or continue on failure | stop |
-| `--json` | Output as JSON | `false` |
+| `--json` | Output results as JSON | `false` |
+| `--continue-on-failure` | Run all stages even if earlier stages fail | `false` |
 
-**Stages:**
-- `artifact_validation`
-- `approval_verification`
-- `invariant_enforcement`
-- `audit_verification`
+**Stages Executed:**
+1. Artifact Validation - Check artifact status and schema
+2. Approval Verification - Check all required approvals
+3. Invariant Enforcement - Check test locks, architecture rules
+4. Audit Verification - Verify audit trail integrity
+
+**Exit Codes:**
+- `0` - All stages passed
+- `1` - One or more stages failed
+
+---
+
+### rice-factor ci validate-artifacts
+
+Run artifact validation stage only.
+
+```bash
+rice-factor ci validate-artifacts [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root directory | `.` |
+| `--json` | Output results as JSON | `false` |
+
+**Validates:**
+- No draft artifacts present
+- All artifacts pass schema validation
+- Locked artifacts not modified
+- Artifact hashes match content
+
+---
+
+### rice-factor ci validate-approvals
+
+Run approval verification stage only.
+
+```bash
+rice-factor ci validate-approvals [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root directory | `.` |
+| `--json` | Output results as JSON | `false` |
+
+**Validates:**
+- All required artifacts are approved
+- Approval metadata is complete
+- Approvals are not expired
+
+---
+
+### rice-factor ci validate-invariants
+
+Run invariant enforcement stage only.
+
+```bash
+rice-factor ci validate-invariants [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root directory | `.` |
+| `--json` | Output results as JSON | `false` |
+
+**Validates:**
+- Tests not modified after lock
+- No unplanned code changes
+- Architecture rules not violated
+
+---
+
+### rice-factor ci validate-audit
+
+Run audit verification stage only.
+
+```bash
+rice-factor ci validate-audit [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root directory | `.` |
+| `--json` | Output results as JSON | `false` |
+
+**Validates:**
+- Audit trail integrity
+- No missing entries
+- Hash chain is intact
+
+---
+
+### rice-factor ci init
+
+Initialize CI configuration for the project.
+
+```bash
+rice-factor ci init [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root directory | `.` |
+| `--force`, `-f` | Overwrite existing workflow file | `false` |
+| `--dry-run` | Show what would be created | `false` |
+
+Creates a GitHub Actions workflow file at `.github/workflows/rice-factor.yml`.
 
 ---
 
@@ -334,28 +441,96 @@ rice-factor ci validate [OPTIONS]
 
 ### rice-factor artifact age
 
-Show artifact ages.
+Show artifact ages and lifecycle status.
 
 ```bash
 rice-factor artifact age [OPTIONS]
 ```
 
 **Options:**
+
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--path`, `-p` | Project root | `.` |
-| `--type`, `-t` | Filter by type | All |
+| `--type`, `-t` | Filter by artifact type | All |
 | `--json` | Output as JSON | `false` |
+
+**Exit Codes:**
+- `0` - All artifacts healthy
+- `1` - Some artifacts require review (>= 3 months old)
+- `2` - Artifacts significantly overdue (>= 6 months old)
+
+---
+
+### rice-factor artifact review
+
+Mark an artifact as reviewed.
+
+```bash
+rice-factor artifact review ARTIFACT_ID [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description | Required |
+|----------|-------------|----------|
+| `ARTIFACT_ID` | Artifact ID to mark as reviewed | Yes |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
+| `--notes`, `-n` | Optional review notes | None |
+
+**Note:** Cannot review LOCKED artifacts.
 
 ---
 
 ### rice-factor artifact extend
 
-Extend artifact validity.
+Extend artifact validity period.
 
 ```bash
-rice-factor artifact extend ARTIFACT [OPTIONS]
+rice-factor artifact extend ARTIFACT_ID [OPTIONS]
 ```
+
+**Arguments:**
+
+| Argument | Description | Required |
+|----------|-------------|----------|
+| `ARTIFACT_ID` | Artifact ID to extend | Yes |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
+| `--reason`, `-r` | Reason for extension (required) | Required |
+| `--months`, `-m` | Extension period in months | Type default |
+
+**Note:** Cannot extend LOCKED artifacts.
+
+---
+
+### rice-factor artifact migrate
+
+Migrate artifacts to add lifecycle timestamp fields.
+
+```bash
+rice-factor artifact migrate [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
+| `--dry-run` | Preview changes without writing | `false` |
+| `--verbose`, `-v` | Enable verbose output | `false` |
+| `--json` | Output as JSON | `false` |
+
+**Note:** Migration is idempotent - safe to run multiple times.
 
 ---
 
@@ -370,12 +545,47 @@ rice-factor audit drift [OPTIONS]
 ```
 
 **Options:**
+
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--path`, `-p` | Project root | `.` |
-| `--code-dir`, `-d` | Code directory | `src` |
-| `--threshold`, `-t` | Severity threshold | `3` |
+| `--code-dir`, `-d` | Code directory to scan | `src` |
+| `--threshold`, `-t` | Drift threshold | `3` |
 | `--json` | Output as JSON | `false` |
+
+**Detects:**
+- Orphan code: Source files not covered by any implementation plan
+- Orphan plans: Plans targeting non-existent files
+- Refactor hotspots: Files frequently modified
+
+**Exit Codes:**
+- `0` - No drift detected
+- `1` - Drift detected but below threshold
+- `2` - Reconciliation required (threshold exceeded or critical signals)
+
+---
+
+### rice-factor audit coverage
+
+Check coverage drift for TestPlan artifacts.
+
+```bash
+rice-factor audit coverage [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
+| `--threshold`, `-t` | Coverage drift threshold percentage | `10.0` |
+| `--json` | Output as JSON | `false` |
+| `--no-run` | Skip running tests, use existing coverage report | `false` |
+
+**Exit Codes:**
+- `0` - All TestPlans within threshold
+- `1` - Some TestPlans exceed drift threshold
+- `2` - Critical drift detected (> 2x threshold)
 
 ---
 
@@ -423,25 +633,79 @@ rice-factor capabilities [OPTIONS]
 
 ## Override and Recovery
 
-### rice-factor override
+### rice-factor override create
 
-Override a blocked operation.
+Create a manual override for a blocked operation.
 
 ```bash
-rice-factor override TARGET [OPTIONS]
+rice-factor override create TARGET [OPTIONS]
 ```
 
 **Arguments:**
+
 | Argument | Description | Required |
 |----------|-------------|----------|
 | `TARGET` | What to override (phase, approval, validation) | Yes |
 
 **Options:**
+
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--reason`, `-r` | Reason for override | Required |
 | `--path`, `-p` | Project root | `.` |
 | `--yes`, `-y` | Skip confirmation | `false` |
+
+**Valid Targets:**
+- `phase` - Bypass phase gating
+- `approval` - Bypass approval requirements
+- `validation` - Bypass validation checks
+
+**Note:** Requires typing "OVERRIDE" to confirm. All overrides are recorded in the audit trail.
+
+**Example:**
+```bash
+rice-factor override create phase --reason "Testing in development"
+rice-factor override create approval --reason "Emergency hotfix"
+```
+
+---
+
+### rice-factor override list
+
+List pending overrides that need reconciliation.
+
+```bash
+rice-factor override list [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
+| `--all`, `-a` | Show all overrides including reconciled | `false` |
+
+---
+
+### rice-factor override reconcile
+
+Mark an override as reconciled.
+
+```bash
+rice-factor override reconcile OVERRIDE_ID [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description | Required |
+|----------|-------------|----------|
+| `OVERRIDE_ID` | Override ID to reconcile (can be partial) | Yes |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--path`, `-p` | Project root | `.` |
 
 ---
 
