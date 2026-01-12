@@ -41,7 +41,15 @@
       "Bash(where:*)",
       "Bash(uv pip:*)",
       "Bash(npx playwright test:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: update local settings\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git config:*)",
+      "Bash(if [ -n \"$GITHUB_TOKEN\" ])",
+      "Bash(then echo \"GITHUB_TOKEN is set\")",
+      "Bash(else echo \"GITHUB_TOKEN not set\")",
+      "Bash(fi)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ]
   }
 }
