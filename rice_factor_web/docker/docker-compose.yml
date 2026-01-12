@@ -1,0 +1,56 @@
+# Rice-Factor Web Interface - Docker Compose
+#
+# Development:  docker-compose up
+# Production:   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+#
+# Environment variables can be set in .env file or passed via environment.
+
+version: '3.8'
+
+services:
+  rice-factor-web:
+    build:
+      context: ../..
+      dockerfile: rice_factor_web/docker/Dockerfile
+    ports:
+      - "${RF_WEB_PORT:-8000}:8000"
+    environment:
+      # Core settings
+      - RF_WEB_DEBUG=${RF_WEB_DEBUG:-true}
+      - RF_WEB_SECRET_KEY=${RF_WEB_SECRET_KEY:-change-me-in-production}
+      - RF_WEB_PROJECT_ROOT=/project
+
+      # Optional OAuth (leave empty to disable)
+      - RF_WEB_GITHUB_CLIENT_ID=${RF_WEB_GITHUB_CLIENT_ID:-}
+      - RF_WEB_GITHUB_CLIENT_SECRET=${RF_WEB_GITHUB_CLIENT_SECRET:-}
+      - RF_WEB_GOOGLE_CLIENT_ID=${RF_WEB_GOOGLE_CLIENT_ID:-}
+      - RF_WEB_GOOGLE_CLIENT_SECRET=${RF_WEB_GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      # Mount the project directory for artifact access
+      - ${RF_PROJECT_PATH:-.}:/project:rw
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health').raise_for_status()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# For development with hot reload
+  rice-factor-web-dev:
+    profiles:
+      - dev
+    build:
+      context: ../..
+      dockerfile: rice_factor_web/docker/Dockerfile
+    ports:
+      - "${RF_WEB_PORT:-8000}:8000"
+    environment:
+      - RF_WEB_DEBUG=true
+      - RF_WEB_SECRET_KEY=dev-secret-key
+      - RF_WEB_PROJECT_ROOT=/project
+    volumes:
+      - ${RF_PROJECT_PATH:-.}:/project:rw
+      # Mount source code for hot reload
+      - ../../rice_factor_web:/app/rice_factor_web:ro
+    command: ["python", "-m", "uvicorn", "rice_factor_web.backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

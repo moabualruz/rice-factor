@@ -96,6 +96,7 @@ from rice_factor.entrypoints.cli.commands import (
     usage,
     validate,
     viz,
+    web,
 )
 
 app.add_typer(init.app, name="init")
@@ -128,6 +129,9 @@ app.add_typer(agents.app, name="agents")
 app.command(name="viz")(viz.viz)
 app.command(name="docs")(docs.docs)
 app.command(name="tui")(tui.tui)
+
+# Web interface commands (M22)
+app.add_typer(web.app, name="web")
 
 
 if __name__ == "__main__":

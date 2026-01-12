@@ -53,6 +53,14 @@ refactoring = [
 tui = [
     "textual>=0.40.0",
 ]
+web = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "authlib>=1.3.0",
+    "itsdangerous>=2.1.0",
+    "python-multipart>=0.0.7",
+    "httpx>=0.27.0",
+]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
@@ -73,7 +81,7 @@ Repository = "https://github.com/rice-factor/rice-factor"
 Issues = "https://github.com/rice-factor/rice-factor/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["rice_factor"]
+packages = ["rice_factor", "rice_factor_web"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -110,6 +118,16 @@ module = [
     "tree_sitter.*",
     "tree_sitter_language_pack",
     "tree_sitter_language_pack.*",
+    "fastapi",
+    "fastapi.*",
+    "uvicorn",
+    "uvicorn.*",
+    "authlib",
+    "authlib.*",
+    "itsdangerous",
+    "itsdangerous.*",
+    "starlette",
+    "starlette.*",
 ]
 ignore_missing_imports = true
 
@@ -151,7 +169,7 @@ ignore = [
 "rice_factor/entrypoints/tui/**/*.py" = ["TC002", "RUF012"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["rice_factor"]
+known-first-party = ["rice_factor", "rice_factor_web"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Rice-Factor Brand Colors */
+:root {
+  --rf-primary: #00a020;
+  --rf-secondary: #009e20;
+  --rf-accent: #00c030;
+  --rf-bg-dark: #0a1a0a;
+  --rf-bg-light: #102010;
+}
+
+/* Base styles */
+body {
+  font-family: 'Terminus', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-color: var(--rf-bg-dark);
+  color: #e5e7eb;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--rf-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rf-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rf-primary);
+}
+
+/* Status badges */
+.status-draft {
+  @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+}
+
+.status-approved {
+  @apply bg-green-500/20 text-green-400 border border-green-500/30;
+}
+
+.status-locked {
+  @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+}
+
+.status-pending {
+  @apply bg-orange-500/20 text-orange-400 border border-orange-500/30;
+}
+
+.status-rejected {
+  @apply bg-red-500/20 text-red-400 border border-red-500/30;
+}
+
+/* Card styles */
+.card {
+  @apply bg-rf-bg-light rounded-lg border border-rf-secondary/30 p-4;
+}
+
+.card-hover {
+  @apply hover:border-rf-primary/50 transition-colors duration-200;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-rf-primary hover:bg-rf-accent text-white font-medium py-2 px-4 rounded transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-rf-bg-light hover:bg-rf-bg-dark border border-rf-secondary text-gray-200 font-medium py-2 px-4 rounded transition-colors duration-200;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors duration-200;
+}
+
+/* Link styles */
+.link {
+  @apply text-rf-accent hover:text-rf-primary underline transition-colors duration-200;
+}
+
+/* Monaco editor container */
+.monaco-container {
+  @apply rounded-lg overflow-hidden border border-rf-secondary/30;
+}
