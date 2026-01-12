@@ -15,6 +15,10 @@ from textual.containers import Container
 from textual.widgets import Footer, Header, TabbedContent, TabPane
 
 from rice_factor.entrypoints.tui.screens.browser import ArtifactBrowserScreen
+from rice_factor.entrypoints.tui.screens.config_editor import ConfigEditorScreen
+from rice_factor.entrypoints.tui.screens.diff_viewer import DiffViewerScreen
+from rice_factor.entrypoints.tui.screens.graph import GraphScreen
+from rice_factor.entrypoints.tui.screens.history import HistoryScreen
 from rice_factor.entrypoints.tui.screens.workflow import WorkflowScreen
 from rice_factor.entrypoints.tui.widgets.status_bar import StatusBar
 
@@ -184,6 +188,10 @@ class RiceFactorTUI(App[None]):
         Binding("q", "quit", "Quit"),
         Binding("w", "switch_tab('workflow')", "Workflow"),
         Binding("a", "switch_tab('artifacts')", "Artifacts"),
+        Binding("d", "switch_tab('diffs')", "Diffs"),
+        Binding("c", "switch_tab('config')", "Config"),
+        Binding("h", "switch_tab('history')", "History"),
+        Binding("g", "switch_tab('graph')", "Graph"),
         Binding("r", "refresh", "Refresh"),
         Binding("enter", "execute_step", "Execute"),
         Binding("?", "help", "Help"),
@@ -261,6 +269,23 @@ class RiceFactorTUI(App[None]):
                     project_root=self._project_root,
                     artifact_service=self._artifact_service,
                 )
+            with TabPane("Diffs", id="diffs-tab"):
+                yield DiffViewerScreen(
+                    project_root=self._project_root,
+                    artifact_service=self._artifact_service,
+                )
+            with TabPane("Config", id="config-tab"):
+                yield ConfigEditorScreen(
+                    project_root=self._project_root,
+                )
+            with TabPane("History", id="history-tab"):
+                yield HistoryScreen(
+                    project_root=self._project_root,
+                )
+            with TabPane("Graph", id="graph-tab"):
+                yield GraphScreen(
+                    project_root=self._project_root,
+                )
 
         yield StatusBar()
         yield Footer()
@@ -285,10 +310,16 @@ class RiceFactorTUI(App[None]):
             tab_id: ID of the tab to switch to.
         """
         tabs = self.query_one(TabbedContent)
-        if tab_id == "workflow":
-            tabs.active = "workflow-tab"
-        elif tab_id == "artifacts":
-            tabs.active = "artifacts-tab"
+        tab_map = {
+            "workflow": "workflow-tab",
+            "artifacts": "artifacts-tab",
+            "diffs": "diffs-tab",
+            "config": "config-tab",
+            "history": "history-tab",
+            "graph": "graph-tab",
+        }
+        if tab_id in tab_map:
+            tabs.active = tab_map[tab_id]
 
     async def action_refresh(self) -> None:
         """Refresh the current view."""
@@ -296,12 +327,25 @@ class RiceFactorTUI(App[None]):
 
         # Refresh the active screen
         tabs = self.query_one(TabbedContent)
-        if tabs.active == "workflow-tab":
-            workflow = self.query_one(WorkflowScreen)
-            await workflow.refresh_view()
-        elif tabs.active == "artifacts-tab":
-            browser = self.query_one(ArtifactBrowserScreen)
-            await browser.refresh_view()
+        active_tab = tabs.active
+
+        refresh_map = {
+            "workflow-tab": (WorkflowScreen, "refresh_view"),
+            "artifacts-tab": (ArtifactBrowserScreen, "refresh_view"),
+            "diffs-tab": (DiffViewerScreen, "refresh_view"),
+            "config-tab": (ConfigEditorScreen, "refresh_view"),
+            "history-tab": (HistoryScreen, "refresh_view"),
+            "graph-tab": (GraphScreen, "refresh_view"),
+        }
+
+        if active_tab in refresh_map:
+            screen_class, method_name = refresh_map[active_tab]
+            try:
+                screen = self.query_one(screen_class)
+                method = getattr(screen, method_name)
+                await method()
+            except Exception:
+                pass
 
     def action_help(self) -> None:
         """Show help information."""
@@ -310,6 +354,10 @@ class RiceFactorTUI(App[None]):
             "  q - Quit\n"
             "  w - Workflow tab\n"
             "  a - Artifacts tab\n"
+            "  d - Diffs tab\n"
+            "  c - Config tab\n"
+            "  h - History tab\n"
+            "  g - Graph tab\n"
             "  r - Refresh\n"
             "  ? - This help",
             title="Help",
