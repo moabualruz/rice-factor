@@ -214,6 +214,73 @@ Rice-Factor follows **12-Factor App** methodology for configuration:
 
 ---
 
+## Branding Guidelines
+
+All user-facing interfaces MUST use Rice-Factor brand assets from `.branding/`.
+
+### Brand Colors
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| **Primary** | `#00a020` | Headers, active states, primary buttons, status bar |
+| **Secondary** | `#009e20` | Borders, inactive elements, footer |
+| **Accent** | `#00c030` | Highlights, success states, hover effects |
+| **Background Dark** | `#0a1a0a` | Main backgrounds (dark theme) |
+| **Background Light** | `#102010` | Secondary backgrounds, hover states |
+
+### Brand Assets (`.branding/`)
+
+| Asset | File | Usage |
+|-------|------|-------|
+| **Logo (full)** | `logo.svg`, `logo.png` | Extension icons, documentation |
+| **Logo (mini)** | `mini.logo.svg`, `mini.logo.png` | Small icons, favicons |
+| **Banner** | `banner.svg`, `banner.png` | README headers, marketing |
+| **Name** | `name.svg`, `name.png` | Text-only logo |
+
+### Recommended Font
+
+Use **Terminus (Nerd Font)** from `.branding/Terminus/` for terminal UIs:
+- `TerminessNerdFontMono-Regular.ttf` - Regular weight
+- `TerminessNerdFontMono-Bold.ttf` - Bold weight
+
+### Implementation Examples
+
+**TUI (Textual CSS)**:
+```css
+$rf-primary: #00a020;
+$rf-secondary: #009e20;
+$rf-accent: #00c030;
+$rf-bg-dark: #0a1a0a;
+$rf-bg-light: #102010;
+
+Header { background: $rf-secondary; color: white; }
+StatusBar { background: $rf-primary; color: white; }
+```
+
+**VS Code Extension**:
+- Use `logo.png` as extension icon in `package.json`
+- Use `logo.svg` for activity bar icon
+
+**Web UI** (future):
+```css
+:root {
+  --rf-primary: #00a020;
+  --rf-secondary: #009e20;
+  --rf-accent: #00c030;
+}
+```
+
+### When to Apply Branding
+
+- CLI output with Rich (use green theme)
+- TUI screens (Textual apps)
+- VS Code extension
+- Web interfaces
+- Documentation with visual elements
+- Any user-facing component
+
+---
+
 ## Development Workflow
 
 ### When Implementing Features

@@ -41,21 +41,23 @@ class WorkflowStep(Static):
         is_complete: Whether this step has been completed.
     """
 
+    # Rice-Factor brand colors
     DEFAULT_CSS = """
     WorkflowStep {
         height: auto;
         padding: 1;
         margin: 0 1;
-        border: solid $secondary;
+        border: solid #009e20;
+        background: #0a1a0a;
     }
 
     WorkflowStep.current {
-        border: double $primary;
-        background: $primary 20%;
+        border: double #00a020;
+        background: #102010;
     }
 
     WorkflowStep.complete {
-        border: solid $success;
+        border: solid #00c030;
     }
 
     WorkflowStep.unavailable {
@@ -64,10 +66,11 @@ class WorkflowStep(Static):
 
     WorkflowStep .step-name {
         text-style: bold;
+        color: #00a020;
     }
 
     WorkflowStep .step-description {
-        color: $text-muted;
+        color: #808080;
     }
     """
 
@@ -133,17 +136,20 @@ class WorkflowScreen(Static):
         phase_service: Service for phase detection.
     """
 
+    # Rice-Factor brand colors
     DEFAULT_CSS = """
     WorkflowScreen {
         width: 100%;
         height: 100%;
+        background: #0a1a0a;
     }
 
     #workflow-header {
         height: auto;
         padding: 1;
         text-align: center;
-        background: $primary;
+        background: #009e20;
+        color: white;
     }
 
     #workflow-steps {
@@ -157,7 +163,8 @@ class WorkflowScreen(Static):
         height: auto;
         padding: 1;
         margin: 1;
-        border: solid $accent;
+        border: solid #00a020;
+        color: #00c030;
     }
     """
 

@@ -1,5 +1,7 @@
 # Rice-Factor VS Code Extension
 
+![Rice-Factor Logo](resources/rice-factor-icon.png)
+
 VS Code extension for the Rice-Factor LLM-Assisted Development System.
 
 ## Features
@@ -62,6 +64,12 @@ Shows the current workflow phase:
 - ⭕ Pending
 - ➡️ Current
 - ✅ Complete
+
+## Branding
+
+The extension uses Rice-Factor brand assets from the main repository's `.branding/` folder:
+- **Icon**: `logo.svg` / `logo.png` - The Rice-Factor logo
+- **Colors**: Primary green `#00a020`, secondary `#009e20`
 
 ## Development
 

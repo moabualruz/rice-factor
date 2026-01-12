@@ -79,18 +79,21 @@ class ArtifactDetailPanel(Static):
     Displays the full details of a selected artifact.
     """
 
+    # Rice-Factor brand colors
     DEFAULT_CSS = """
     ArtifactDetailPanel {
         width: 100%;
         height: 100%;
-        border: solid $secondary;
+        border: solid #009e20;
         padding: 1;
         overflow-y: auto;
+        background: #0a1a0a;
     }
 
     ArtifactDetailPanel .detail-header {
         text-style: bold;
         margin-bottom: 1;
+        color: #00a020;
     }
 
     ArtifactDetailPanel .detail-field {
@@ -98,11 +101,12 @@ class ArtifactDetailPanel(Static):
     }
 
     ArtifactDetailPanel .field-label {
-        color: $text-muted;
+        color: #808080;
     }
 
     ArtifactDetailPanel .field-value {
         margin-left: 2;
+        color: #00c030;
     }
     """
 
@@ -177,17 +181,20 @@ class ArtifactBrowserScreen(Static):
         artifact_service: Service for artifact operations.
     """
 
+    # Rice-Factor brand colors
     DEFAULT_CSS = """
     ArtifactBrowserScreen {
         width: 100%;
         height: 100%;
+        background: #0a1a0a;
     }
 
     #browser-header {
         height: auto;
         padding: 1;
         text-align: center;
-        background: $primary;
+        background: #009e20;
+        color: white;
     }
 
     #browser-content {
@@ -198,7 +205,7 @@ class ArtifactBrowserScreen(Static):
     #artifact-list-panel {
         width: 40%;
         height: 100%;
-        border-right: solid $secondary;
+        border-right: solid #00a020;
     }
 
     #artifact-detail-panel {
@@ -208,18 +215,20 @@ class ArtifactBrowserScreen(Static):
 
     #artifact-list {
         height: 100%;
+        background: #0a1a0a;
     }
 
     .list-header {
         padding: 1;
-        background: $surface-darken-1;
+        background: #102010;
         text-style: bold;
+        color: #00a020;
     }
 
     .no-artifacts {
         padding: 2;
         text-align: center;
-        color: $text-muted;
+        color: #808080;
     }
     """
 

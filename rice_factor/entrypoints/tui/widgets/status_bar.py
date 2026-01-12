@@ -18,12 +18,13 @@ class StatusBar(Static):
     at the bottom of the TUI.
     """
 
+    # Rice-Factor brand colors
     DEFAULT_CSS = """
     StatusBar {
         width: 100%;
         height: 1;
-        background: $primary;
-        color: $text;
+        background: #00a020;
+        color: white;
     }
 
     StatusBar Horizontal {
@@ -42,7 +43,7 @@ class StatusBar(Static):
 
     StatusBar .separator {
         width: 1;
-        color: $text-muted;
+        color: #80c080;
     }
     """
 

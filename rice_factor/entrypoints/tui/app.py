@@ -37,9 +37,48 @@ class RiceFactorTUI(App[None]):
     TITLE = "Rice-Factor"
     SUB_TITLE = "LLM-Assisted Development System"
 
+    # Rice-Factor brand colors from .branding/
+    # Primary: #00a020 (bright green)
+    # Secondary: #009e20 (darker green)
+    # Recommended font: Terminus (Nerd Font) from .branding/Terminus/
+
     CSS = """
+    /* Rice-Factor Brand Theme */
+    $rf-primary: #00a020;
+    $rf-secondary: #009e20;
+    $rf-accent: #00c030;
+    $rf-bg-dark: #0a1a0a;
+    $rf-bg-light: #102010;
+
     Screen {
-        background: $surface;
+        background: $rf-bg-dark;
+    }
+
+    Header {
+        background: $rf-secondary;
+        color: white;
+    }
+
+    Footer {
+        background: $rf-secondary;
+    }
+
+    TabbedContent {
+        background: $rf-bg-dark;
+    }
+
+    TabPane {
+        background: $rf-bg-dark;
+    }
+
+    Tab {
+        background: $rf-bg-light;
+        color: $rf-primary;
+    }
+
+    Tab.-active {
+        background: $rf-primary;
+        color: white;
     }
 
     #main-container {
@@ -55,7 +94,7 @@ class RiceFactorTUI(App[None]):
     #sidebar {
         width: 30;
         height: 100%;
-        border-right: solid $primary;
+        border-right: solid $rf-primary;
     }
 
     #main-panel {
@@ -66,20 +105,21 @@ class RiceFactorTUI(App[None]):
     .phase-display {
         text-align: center;
         padding: 1;
-        background: $primary;
-        color: $text;
+        background: $rf-primary;
+        color: white;
     }
 
     .info-panel {
         padding: 1;
-        border: solid $secondary;
+        border: solid $rf-secondary;
         margin: 1;
     }
 
     StatusBar {
         dock: bottom;
         height: 1;
-        background: $primary;
+        background: $rf-primary;
+        color: white;
     }
 
     .artifact-item {
@@ -87,23 +127,56 @@ class RiceFactorTUI(App[None]):
     }
 
     .artifact-item:hover {
-        background: $accent;
+        background: $rf-accent;
+        color: black;
     }
 
     .artifact-item.selected {
-        background: $primary;
+        background: $rf-primary;
+        color: white;
     }
 
     .status-draft {
-        color: $warning;
+        color: #ffcc00;
     }
 
     .status-approved {
-        color: $success;
+        color: $rf-accent;
     }
 
     .status-locked {
-        color: $error;
+        color: #ff6666;
+    }
+
+    /* Workflow step styling */
+    WorkflowStep {
+        border: solid $rf-secondary;
+    }
+
+    WorkflowStep.current {
+        border: double $rf-primary;
+        background: $rf-bg-light;
+    }
+
+    WorkflowStep.complete {
+        border: solid $rf-accent;
+    }
+
+    /* List and tree styling */
+    ListView {
+        background: $rf-bg-dark;
+    }
+
+    ListItem {
+        background: $rf-bg-dark;
+    }
+
+    ListItem:hover {
+        background: $rf-bg-light;
+    }
+
+    Tree {
+        background: $rf-bg-dark;
     }
     """
 

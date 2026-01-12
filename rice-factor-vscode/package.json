@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "publisher": "rice-factor",
   "license": "MIT",
+  "icon": "resources/rice-factor-icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/rice-factor/rice-factor"
