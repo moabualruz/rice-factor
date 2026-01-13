@@ -49,7 +49,9 @@
       "Bash(else echo \"GITHUB_TOKEN not set\")",
       "Bash(fi)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(gh repo view:*)"
     ]
   }
 }
