@@ -1,22 +1,29 @@
-<p align="center">
+# Rice-Factor
+
+<div align="center">
   <img src="https://raw.githubusercontent.com/moabualruz/rice-factor/main/.branding/logo.svg" alt="Rice-Factor" width="300">
-</p>
+</div>
 
-<p align="center">
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-green.svg" alt="License: CC BY-NC-SA 4.0"></a>
-  <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status">
-  <img src="https://img.shields.io/badge/version-0.1.0-orange.svg" alt="Version">
-</p>
+<div align="center">
 
-<h3 align="center">LLM-Assisted Development System</h3>
-<p align="center"><em>Treating LLMs as compilers, artifacts as intermediate representations</em></p>
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-green.svg)](LICENSE.md)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)
+
+**LLM-Assisted Development System**
+
+*Treating LLMs as compilers, artifacts as intermediate representations*
+
+</div>
 
 ---
 
 ## What is Rice-Factor?
 
-Rice-Factor is a **language-agnostic, LLM-assisted software development system** that fundamentally changes how you use AI for coding. Instead of treating LLMs as chat assistants that write code directly, Rice-Factor treats them as **compilers** that generate structured plan artifacts.
+Rice-Factor is a **language-agnostic, LLM-assisted software development system** that fundamentally
+changes how you use AI for coding. Instead of treating LLMs as chat assistants that write code
+directly, Rice-Factor treats them as **compilers** that generate structured plan artifacts.
 
 ### Key Differentiators
 
@@ -60,24 +67,28 @@ $ rice-factor test                    # Verify tests pass
 ## Features
 
 ### Core Workflow
+
 - **Artifact-Driven Development** - All changes flow through validated JSON artifacts
 - **System-Level TDD** - Tests are locked before any implementation begins
 - **Human Approval Gates** - Irreversible operations require explicit approval
 - **Full Audit Trail** - Every action is logged and replayable
 
 ### LLM Integration
+
 - **Multiple Providers** - Claude, OpenAI, Ollama, vLLM, and more
 - **Deterministic Output** - Temperature and sampling tuned for reproducibility
 - **Cost Tracking** - Monitor token usage and costs per operation
 - **Rate Limiting** - Built-in protection against API abuse
 
 ### Developer Experience
+
 - **30 CLI Commands** - Comprehensive tooling for the full development lifecycle
 - **TUI Mode** - Interactive terminal interface for workflow navigation
 - **Web Dashboard** - Browser-based artifact review and approval
 - **VS Code Extension** - IDE integration for seamless development
 
 ### Enterprise Ready
+
 - **CI/CD Integration** - Pipeline validation and invariant enforcement
 - **Multi-Agent Coordination** - Solo, orchestrator, voting, and hybrid modes
 - **Remote Storage** - S3 and GCS backends for artifact persistence
@@ -210,7 +221,7 @@ See [Configuration Reference](docs/reference/configuration/settings.md) for all 
 
 Rice-Factor uses **hexagonal architecture** (ports & adapters) for maximum flexibility:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                      ENTRYPOINTS                            │
 │              CLI (Typer) │ TUI (Textual) │ Web (FastAPI)    │
@@ -252,7 +263,7 @@ Rice-Factor manages 9 artifact types through a strict lifecycle:
 
 ### Artifact Lifecycle
 
-```
+```text
 DRAFT → APPROVED → LOCKED (TestPlan only)
                  ↓
             EXECUTABLE
@@ -267,7 +278,7 @@ See [Artifact Reference](docs/reference/artifacts/overview.md) for schemas and d
 ### Completed Milestones (22/22)
 
 | Phase | Milestones | Status |
-|-------|------------|--------|
+| ----- | ---------- | ------ |
 | **MVP** | 01-07: Core architecture, artifacts, CLI, LLM, executors, validation | Complete |
 | **Post-MVP** | 08-13: CI/CD, drift detection, lifecycle, intake, refactoring, multi-agent | Complete |
 | **Advanced** | 14-22: Local LLM, production hardening, resilience, performance, DX, web | Complete |
@@ -315,7 +326,9 @@ pytest
 
 ## License
 
-This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)** license.
+This project is licensed under the
+**Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**
+license.
 
 - **Non-commercial use**: Free to use, share, and adapt
 - **Commercial use**: Requires a separate commercial license
